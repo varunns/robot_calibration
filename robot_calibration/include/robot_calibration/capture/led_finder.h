@@ -57,6 +57,11 @@ class LedFinder : public FeatureFinder
     bool getRefinedCentroid(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                             geometry_msgs::PointStamped& point);
 
+    // Obtaining a hough circle for the points
+    bool getHoughCirclesCentroid(
+      const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+      geometry_msgs::PointStamped& point);
+
     // Reset the tracker
     void reset(size_t size);
 

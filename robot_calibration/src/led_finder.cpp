@@ -20,6 +20,18 @@
 #include <math.h>
 #include <robot_calibration/capture/led_finder.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
+
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+#include <pcl/io/pcd_io.h>
+#include <pcl_conversions/pcl_conversions.h>
+
+
+
 
 namespace robot_calibration
 {
@@ -66,7 +78,7 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
   nh.param<int>("max_iterations", max_iterations_, 50);
 
   // Should we output debug image/cloud
-  nh.param<bool>("debug", output_debug_, false);
+  nh.param<bool>("debug", output_debug_, true);
 
   // Parameters for LEDs themselves
   std::string gripper_led_frame;
@@ -344,6 +356,47 @@ bool LedFinder::CloudDifferenceTracker::isFound(
   }
 
   return true;
+}
+
+/*added by varun*/
+bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
+  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+  geometry_msgs::PointStamped& point)
+{
+  sensor_msgs::PointCloud2 ros_cloud;
+  sensor_msgs::Image image;
+  pcl::toROSMsg(*cloud, ros_cloud);
+  pcl::toROSMsg(ros_cloud, image);
+  cv_bridge::CvImagePtr cv_ptr;
+  try
+  {
+    cv_ptr = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::BGR8);
+  }
+  catch(cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cv_bridge is acting funny: %s", e.what());
+    return false;
+  }
+
+  cv::imshow("led_image",cv_ptr->image);
+  cv::waitKey(1000);
+  // Get initial centroid
+  geometry_msgs::PointStamped p;
+  point.point.x = cloud->points[max_idx_].x;
+  point.point.y = cloud->points[max_idx_].y;
+  point.point.z = cloud->points[max_idx_].z;
+
+
+
+  /*// Do not accept NANs
+  if (isnan(point.point.x) ||
+      isnan(point.point.y) ||
+      isnan(point.point.z))
+  {
+    return false;
+  }*/
+
+
 }
 
 bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(

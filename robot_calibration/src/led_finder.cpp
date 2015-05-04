@@ -216,7 +216,8 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     geometry_msgs::PointStamped rgbd_pt;
     geometry_msgs::PointStamped world_pt;
 
-    // Get point
+    // Get the centroid hough points
+    trackers_[t].getHoughCirclesCentroid(cloud_ptr_, rgbd_pt);
     if (!trackers_[t].getRefinedCentroid(cloud_ptr_, rgbd_pt))
     {
       ROS_ERROR_STREAM("No centroid for feature " << t);
@@ -377,16 +378,32 @@ bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
     ROS_ERROR("cv_bridge is acting funny: %s", e.what());
     return false;
   }
+  
+  std::vector<cv::Vec3f> circles;
+  cv::Mat clone_image = cv_ptr->image.clone();
+  cv::Mat blur_image;
+  cv::GaussianBlur(cv_ptr->image, blur_image, cv::Size(9,9), 2, 2);
+  cv::HoughCircles(blur_image, circles, CV_HOUGH_GRADIENT, 1, blur_image.rows/8, 200, 100, 0, 0);
 
+  for(size_t i = 0; i < circles.size(); i++)
+  {
+    cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+    int radius = cvRound(circles[i][2]);
+    // circle center
+    cv::circle(clone_image, center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
+    // circle outline
+    cv::circle(clone_image, center, radius, cv::Scalar(0,0,255), 3, 8, 0 ); 
+  }
+
+  cv::imshow("original_image", clone_image);
   cv::imshow("led_image",cv_ptr->image);
   cv::waitKey(1000);
+
   // Get initial centroid
   geometry_msgs::PointStamped p;
   point.point.x = cloud->points[max_idx_].x;
   point.point.y = cloud->points[max_idx_].y;
   point.point.z = cloud->points[max_idx_].z;
-
-
 
   /*// Do not accept NANs
   if (isnan(point.point.x) ||
@@ -395,8 +412,6 @@ bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
   {
     return false;
   }*/
-
-
 }
 
 bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(

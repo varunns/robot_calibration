@@ -96,6 +96,11 @@ target_link_libraries(calibrate robot_calibration
                                 ${orocos_kdl_LIBRARIES})
 add_dependencies(calibrate robot_calibration)
 
+add_executable(test_led_finder src/test_led_finder.cpp)
+target_link_libraries(test_led_finder robot_calibration 
+                                      ${catkin_LIBRARIES})
+add_dependencies(calibrate robot_calibration)
+
 add_subdirectory(test)
 
 install(DIRECTORY include/ DESTINATION include)

@@ -30,7 +30,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-
+#include <sstream>
 
 
 namespace robot_calibration
@@ -399,11 +399,10 @@ bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
   cv::imshow("led_image",cv_ptr->image);
   cv::waitKey(1000);
 
-  // Get initial centroid
-  geometry_msgs::PointStamped p;
-  point.point.x = cloud->points[max_idx_].x;
-  point.point.y = cloud->points[max_idx_].y;
-  point.point.z = cloud->points[max_idx_].z;
+  ros::Time stamp = ros::Time::now();
+  std::stringstream ss(std::stringstream::in | std::stringstream::out);
+  ss<<"/tmp/image_"<<stamp<<".jpg";
+  imwrite(ss.str(), clone_image);  
 
   /*// Do not accept NANs
   if (isnan(point.point.x) ||

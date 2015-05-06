@@ -523,14 +523,15 @@ bool LedFinder::CloudDifferenceTracker::getDifferenceCloud(
 
   for (size_t i = 0; i < cloud->size(); i++)
   {
-    diff_[i] += ((double)(cloud->points[i].b) - (double)(prev->points[i].b)) * weight;
-    diff_cloud->points[i].x = (cloud->points[i].x - prev->points[i].x) * weight;
-    diff_cloud->points[i].y = (cloud->points[i].y - prev->points[i].y) * weight;
-    diff_cloud->points[i].z = (cloud->points[i].z - prev->points[i].z) * weight;
-    diff_cloud->points[i].r = (cloud->points[i].r - prev->points[i].r) * weight;
-    diff_cloud->points[i].g = (cloud->points[i].g - prev->points[i].g) * weight;
-    diff_cloud->points[i].b = (cloud->points[i].b - prev->points[i].b) * weight;
-    diff_cloud->header = cloud->header;
+    pcl::PointXYZRGB pt;
+    pt.x = (cloud->points[i].x - prev->points[i].x) * weight;
+    pt.y = (cloud->points[i].y - prev->points[i].y) * weight;
+    pt.z = (cloud->points[i].z - prev->points[i].z) * weight;
+    pt.r = (cloud->points[i].r - prev->points[i].r) * weight;
+    pt.g = (cloud->points[i].g - prev->points[i].g) * weight;
+    pt.b = (cloud->points[i].b - prev->points[i].b) * weight;
+    diff_cloud->push_back(pt);
+    //diff_cloud->header = cloud->header;
    /* if (diff_[i] > max_)
     {      
       max_ = diff_[i];

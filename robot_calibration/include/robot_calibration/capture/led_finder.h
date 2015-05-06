@@ -63,14 +63,14 @@ class LedFinder : public FeatureFinder
 
     // Obtaining a hough circle for the points
     bool getHoughCirclesCentroid(
-      const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+      const pcl::PointCloud<pcl::PointXYZRGB> cloud,
       geometry_msgs::PointStamped& point);
 
     // Looking at clouds to Obtain max_cloud and diff cloud
     bool getDifferenceCloud(
             const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
             const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
-            pcl::PointCloud<pcl::PointXYZRGB>::Ptr& diff_cloud,
+            pcl::PointCloud<pcl::PointXYZRGB>& diff_cloud,
             double weight);
 
     int count_;
@@ -119,7 +119,7 @@ private:
   int max_iterations_;  /// Maximum number of cycles before we abort finding the LED
 
   bool output_debug_;   /// Should we output debug image/cloud?
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr diff_cloud_;
+  pcl::PointCloud<pcl::PointXYZRGB> diff_cloud_;
 };
 
 }  // namespace robot_calibration

@@ -145,6 +145,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   // Get initial cloud
   if (!waitForCloud())
   {
+    ROS_INFO("waiting for initial cloud");
     return false;
   }
   *prev_cloud = *cloud_ptr_;
@@ -179,22 +180,25 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     bool done = true;
     for (size_t t = 0; t < trackers_.size(); ++t)
     {
+      ROS_INFO("I performing isfound");
       done &= trackers_[t].isFound(cloud_ptr_, threshold_);
     }
     // We want to break only if the LED is off, so that pixel is not washed out
     if (done && (weight == -1))
     {
+      ROS_INFO("in break");
       break;
     }
 
     //call to obtain difference cloud and the max cloud
-    diff_cloud_.reset(new pcl::PointCloud<pcl::PointXYZRGB>);
+    diff_cloud_ = *cloud_ptr_;
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_cloud_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
 
 
     if (++cycles > max_iterations_)
     {
+      ROS_INFO("max cycles done");
       return false;
     }
 
@@ -221,6 +225,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     geometry_msgs::PointStamped rgbd_pt;
     geometry_msgs::PointStamped world_pt;
     geometry_msgs::PointStamped hough_pt;
+    
 
     /* code added for hough transform*/
     if (!trackers_[t].getHoughCirclesCentroid(diff_cloud_, hough_pt))
@@ -344,6 +349,7 @@ bool LedFinder::CloudDifferenceTracker::process(
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
   double weight)
 {
+
   if (cloud->size() != diff_.size())
   {
     std::cerr << "Cloud size has changed." << std::endl;
@@ -357,7 +363,6 @@ bool LedFinder::CloudDifferenceTracker::process(
     {
       max_ = diff_[i];
       max_idx_ = i;
-
     }
   }
 
@@ -371,6 +376,7 @@ bool LedFinder::CloudDifferenceTracker::isFound(
   // Returns true only if the max exceeds threshold
   if (max_ < threshold)
   {
+    ROS_INFO("max_ less than Thresh");
     return false;
   }
 
@@ -379,6 +385,7 @@ bool LedFinder::CloudDifferenceTracker::isFound(
       isnan(cloud->points[max_idx_].x) ||
       isnan(cloud->points[max_idx_].x))
   {
+    ROS_INFO("ALl nans");
     return false;
   }
 
@@ -387,12 +394,14 @@ bool LedFinder::CloudDifferenceTracker::isFound(
 
 /*added by varun*/
 bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
-  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+  const pcl::PointCloud<pcl::PointXYZRGB> cloud,
   geometry_msgs::PointStamped& hough_pt)
 {
+  ROS_INFO("in HOUGH here");
   sensor_msgs::PointCloud2 ros_cloud;
   sensor_msgs::Image image;
-  pcl::toROSMsg(*cloud, ros_cloud);
+  ROS_INFO("after image");
+  pcl::toROSMsg(cloud, ros_cloud);
   pcl::toROSMsg(ros_cloud, image);
   cv_bridge::CvImagePtr cv_ptr;
   try
@@ -404,41 +413,47 @@ bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
     ROS_ERROR("cv_bridge is acting funny: %s", e.what());
     return false;
   }
-  
+  ROS_INFO("after conversion");
   std::vector<cv::Vec3f> circles;
 
   cv::Mat clone_image = cv_ptr->image.clone();
   cv::Mat blur_image, gray_image;
   cv::cvtColor( cv_ptr->image, gray_image, CV_BGR2GRAY );
-  cv::GaussianBlur(gray_image, blur_image, cv::Size(9,9), 2, 2);
-  cv::HoughCircles(blur_image, circles, CV_HOUGH_GRADIENT, 1, 1, 6, 8, 0, 0);
+  //cv::GaussianBlur(gray_image, blur_image, cv::Size(9,9), 2, 2);
+  
+  std::cout << gray_image.rows << "  " << gray_image.cols << std::endl;
+  cv::HoughCircles(gray_image, circles, CV_HOUGH_GRADIENT, 1, 1, 6, 8, 0, 0);
+ ROS_INFO("after hugh");
+  if(circles.size() < 1)
+  {
+   //clone_image.release();
+   //blur_image.release();
+   gray_image.release();
+   return false;
+  }
 
+ 
   for(size_t i = 0; i < circles.size(); i++)
   {
     cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
     int radius = cvRound(circles[i][2]);
-    // circle center
-    cv::circle(clone_image, center, 1, cv::Scalar(0,255,0), -1, 8, 0 );
+     //circle center
+     cv::circle(clone_image, center, 1, cv::Scalar(0,255,0), -1, 8, 0 );
     // circle outline
-    cv::circle(clone_image, center, radius, cv::Scalar(0,0,255), 1, 8, 0 ); 
+     cv::circle(clone_image, center, radius, cv::Scalar(0,0,255), 1, 8, 0 ); 
   }
 
-  if(circles.size() < 0)
-  {
-    return false;
-  }
   
-  pcl::PointXYZRGB pt = (*cloud)(cvRound(circles[0][0]),cvRound(circles[0][1]));
+  pcl::PointXYZRGB pt = (cloud)(cvRound(circles[0][0]),cvRound(circles[0][1]));
   hough_pt.point.x = pt.x; hough_pt.point.y = pt.y; hough_pt.point.z = pt.z;
  
-  cv::imshow("original_image", clone_image);
-  cv::imshow("led_image",cv_ptr->image);
-  cv::waitKey(1000);
-
   ros::Time n = ros::Time::now();
   std::stringstream ss(std::stringstream::in | std::stringstream::out);
   ss<<"/tmp/image_"<<n<<".jpg";
   imwrite(ss.str(), clone_image);  
+  blur_image.release();
+  clone_image.release();
+  gray_image.release();
   return true;
 
 }
@@ -447,6 +462,7 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
   const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
   geometry_msgs::PointStamped& point)
 {
+  ROS_INFO("In centroid");
   // Get initial centroid
   geometry_msgs::PointStamped p;
   point.point.x = cloud->points[max_idx_].x;
@@ -508,13 +524,12 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
   return true;
 }
 
-bool LedFinder::CloudDifferenceTracker::getDifferenceCloud(
+  bool LedFinder::CloudDifferenceTracker::getDifferenceCloud(
   const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
   const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr& diff_cloud,
+  pcl::PointCloud<pcl::PointXYZRGB>& diff_cloud,
   double weight)
 {
-
   if (cloud->size() != diff_.size())
   {
     std::cerr << "Cloud size has changed." << std::endl;
@@ -523,14 +538,14 @@ bool LedFinder::CloudDifferenceTracker::getDifferenceCloud(
 
   for (size_t i = 0; i < cloud->size(); i++)
   {
-    pcl::PointXYZRGB pt;
-    pt.x = (cloud->points[i].x - prev->points[i].x) * weight;
-    pt.y = (cloud->points[i].y - prev->points[i].y) * weight;
-    pt.z = (cloud->points[i].z - prev->points[i].z) * weight;
-    pt.r = (cloud->points[i].r - prev->points[i].r) * weight;
-    pt.g = (cloud->points[i].g - prev->points[i].g) * weight;
-    pt.b = (cloud->points[i].b - prev->points[i].b) * weight;
-    diff_cloud->push_back(pt);
+   pcl::PointXYZRGB pt;
+   diff_cloud.points[i].x = (cloud->points[i].x - prev->points[i].x) * weight;
+   diff_cloud.points[i].y = (cloud->points[i].y - prev->points[i].y) * weight;
+   diff_cloud.points[i].z = (cloud->points[i].z - prev->points[i].z) * weight;
+   diff_cloud.points[i].r = (cloud->points[i].r - prev->points[i].r) * weight;
+   diff_cloud.points[i].g = (cloud->points[i].g - prev->points[i].g) * weight;
+   diff_cloud.points[i].b = (cloud->points[i].b - prev->points[i].b) * weight;
+   
     //diff_cloud->header = cloud->header;
    /* if (diff_[i] > max_)
     {      
@@ -538,6 +553,8 @@ bool LedFinder::CloudDifferenceTracker::getDifferenceCloud(
       max_idx_ = i;
     }*/
   }
+  diff_cloud.header.frame_id = cloud->header.frame_id;
+
   return true;
 }
 

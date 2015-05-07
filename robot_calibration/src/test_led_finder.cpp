@@ -25,6 +25,8 @@
 #include <robot_calibration/capture/led_finder.h>
 #include <robot_calibration/capture/feature_finder.h>
 
+using namespace cv;
+
 class TestLedFinder
 {
 private:
@@ -41,7 +43,8 @@ private:
   int i_;
   pcl::PointCloud<pcl::PointXYZRGB> prev_cloud_;
   cv::Mat prev_image_;
-
+  int count_;
+  int h_count_;
 public:
   TestLedFinder(): tf_(), target_frame_("wrist_roll_link")
   {
@@ -52,6 +55,8 @@ public:
     i_ = 0;
     flag_cloud_ = true;
     flag_image_ = true;
+    count_ = 0;
+    h_count_ = 0;
   }
 
   void pcCallback(const sensor_msgs::PointCloud2ConstPtr& cloud)
@@ -75,39 +80,55 @@ public:
       ROS_ERROR("cv_bridge exception: %s", e.what());
       return;
     }
+    //cv
+   // std::vector<cv::Mat> channels(3);
+   // cv::split(cv_ptr->image, channels);
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ss<<"/tmp/color/image_"<<i_<<".jpg";
+    imwrite(ss.str(), cv_ptr->image);  
+    //imwrite(ss.str(), channels[0]);  
+    i_++;
 
+    differenceImage(cv_ptr->image);
+    //differenceImage(channels[0]);
     //detecting Hough Circle and centroid 
-    houghFunction(cv_ptr->image, cloud_in, cloud->header);
+//    houghFunction(cv_ptr->image, cloud_in, cloud->header);
 
   }
 
-  void houghFunction(cv::Mat image, 
-                     pcl::PointCloud<pcl::PointXYZRGB> cloud_in,
-                     std_msgs::Header header)
-  { 
-    std::stringstream ss(std::stringstream::in | std::stringstream::out);
-    ss<<"/tmp/image_"<<i_<<".jpg";
-    imwrite(ss.str(), image);  
-    i_++; 
+  void houghFunction(cv::Mat image, cv::Mat color)
+  {  
 
     cv::Mat blur_image, gray_image;
     std::vector<cv::Vec3f> circles;
     circles.clear();
-    cv::cvtColor( image, gray_image, CV_BGR2GRAY );
-    cv::GaussianBlur(gray_image, blur_image, cv::Size(9,9), 2, 2);
-    cv::HoughCircles(blur_image, circles, CV_HOUGH_GRADIENT, 1, 1, 6, 8, 0, 0);
+ //   cv::cvtColor( image, gray_image, CV_BGR2GRAY );
+   // cv::GaussianBlur(image, blur_image, cv::Size(9,9), 2, 2);
+    cv::HoughCircles(image, circles, CV_HOUGH_GRADIENT, 2, 1, 6, 8, 0, 0);
  // /   ROS_INFO("number of circles :  %d", circles.size());
+
+ /*   if(circles.size() < 1)
+    {
+      return;
+    }
+*/
     for(size_t i = 0; i < circles.size(); i++)
     {
       cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
       int radius = cvRound(circles[i][2]);
       // circle center
-      cv::circle(image, center, 1, cv::Scalar(0,255,0), -1, 8, 0 );
+      cv::circle(color, center, 1, cv::Scalar(0,255,0), -1, 8, 0 );
       // circle outline
-      cv::circle(image, center, radius, cv::Scalar(0,0,255), 1, 8, 0 ); 
+      cv::circle(color, center, radius, cv::Scalar(0,0,255), 1, 8, 0 ); 
     }
 
-    if(circles.size() > 0)
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ss<<"/tmp/hough/image_"<<h_count_<<".jpg";
+    imwrite(ss.str(), color);  
+    h_count_++;
+    //imwrite(ss.str(), channels[0]);  
+
+ /*   if(circles.size() > 0)
     {
       pcl::PointXYZRGB pt = cloud_in(cvRound(circles[0][0]),cvRound(circles[0][1]));
       geometry_msgs::PointStamped pt_ros;
@@ -116,7 +137,7 @@ public:
       geometry_msgs::PointStamped transform_pt;
       tf_.transformPoint(target_frame_, pt_ros, transform_pt);
       ROS_INFO("%f        :     %f      :      %f", transform_pt.point.x, transform_pt.point.y, transform_pt.point.z);
-    }
+    }*/
     
   }
 
@@ -143,7 +164,7 @@ public:
       diff_cloud.points[i].g = abs(cloud_in.points[i].g - prev_cloud_.points[i].g);
       diff_cloud.points[i].b = abs(cloud_in.points[i].b - prev_cloud_.points[i].b);
     }
-
+    prev_cloud_ = cloud_in;
     sensor_msgs::PointCloud2 ros_cloud;
     sensor_msgs::Image diff_image;
     pcl::toROSMsg(diff_cloud, ros_cloud);
@@ -159,16 +180,42 @@ public:
       ROS_ERROR("cv_bridge exception: %s", e.what());
       return false;
     }
-
+    //call in hough function
 
   }
 
   void differenceImage(const cv::Mat image_in)
   {
+    cv::Mat diff_image, image_in_norm, image_in_gray;
     if(flag_image_)
     {
+      cv::cvtColor(image_in, image_in_gray, CV_BGR2GRAY);
+      cv::normalize(image_in_gray, image_in_norm, 0 , 255, NORM_MINMAX,  -1);  
+      prev_image_ = image_in_norm;
       flag_image_ = false;
+      count_++;
+      return;
     }
+    cv::Mat thresh;
+    cv::cvtColor(image_in, image_in_gray, CV_BGR2GRAY);
+    cv::normalize(image_in_gray, image_in_norm, 0 , 255, NORM_MINMAX,  -1);
+    
+    cv::Mat diff_notnorm = image_in_norm - prev_image_;
+    //cv::Mat diff_image = image_in_norm - prev_image_;
+    cv::normalize(diff_notnorm, diff_image, 0 , 255, NORM_MINMAX,  -1);
+    threshold( diff_image, thresh, 190, 255,CV_THRESH_BINARY );
+
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ss<<"/tmp/diff/image_"<<(i_-1)<<count_<<".jpg";
+    imwrite(ss.str(), thresh);  
+    count_++;
+   // / houghFunction(diff_image, image_in);
+    /*imshow("difference", diff_image);
+    cv::waitKey(100);*/
+    //call hough function
+
+    prev_image_ = image_in_norm ;
+    
   }
 
   geometry_msgs::Point pcl2RosPt(const pcl::PointXYZRGB pt)

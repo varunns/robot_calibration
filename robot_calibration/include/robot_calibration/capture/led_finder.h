@@ -32,6 +32,10 @@
 #include <robot_calibration_msgs/GripperLedCommandAction.h>
 #include <actionlib/client/simple_action_client.h>
 
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
 namespace robot_calibration
 {
 
@@ -62,16 +66,19 @@ class LedFinder : public FeatureFinder
 
 
     // Obtaining a hough circle for the points
-    bool getHoughCirclesCentroid(
-      const pcl::PointCloud<pcl::PointXYZRGB> cloud,
-      geometry_msgs::PointStamped& point);
+    bool getHoughCirclesCentroid(const pcl::PointCloud<pcl::PointXYZRGB> cloud,
+			         geometry_msgs::PointStamped& point);
 
     // Looking at clouds to Obtain max_cloud and diff cloud
-    bool getDifferenceCloud(
-            const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-            const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
-            pcl::PointCloud<pcl::PointXYZRGB>& diff_cloud,
-            double weight);
+    bool getDifferenceCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+		            const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
+           		    cv::Mat& image,
+		            double weight);
+
+    // trying out looking for contours
+    bool getContourCircle(cv::Mat& cloud,
+			 geometry_msgs::PointStamped& point);
+          
 
     int count_;
     std::vector<double> diff_;
@@ -119,7 +126,7 @@ private:
   int max_iterations_;  /// Maximum number of cycles before we abort finding the LED
 
   bool output_debug_;   /// Should we output debug image/cloud?
-  pcl::PointCloud<pcl::PointXYZRGB> diff_cloud_;
+  cv::Mat diff_image_;
 };
 
 }  // namespace robot_calibration

@@ -438,7 +438,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
-    debuc_pic(cloud_image_ptr[i]->image, "/tmp/all/cloud_image_");
     ros_cloud.reset(new sensor_msgs::PointCloud2);
     ros_image.reset(new sensor_msgs::Image);
 
@@ -452,7 +451,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
       ROS_ERROR("prev_rosimage is sorry: %s ", e.what());
     }
-    debuc_pic(prev_image_ptr[i]->image, "/tmp/prev/prev_image_");
     ros_cloud.reset(new sensor_msgs::PointCloud2);
     ros_image.reset(new sensor_msgs::Image);
   }
@@ -478,9 +476,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
       cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
       debuc_pic(diff_image, "/tmp/diff/diff_image_");
-      cv::Scalar diff = cv::sum(diff_image);
-      ROS_INFO("Difference : %f : %f : %f : %f", diff[0], diff[1], diff[2], diff[3]);
-      CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff.val[0]));
+      cv::Scalar mean_diff = cv::mean(diff_image);
+      float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
+      ROS_INFO("Difference : %f ", diff);
+      CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff) );
       combination_queue.push(cloud_i_j_ptr);
     }
   }

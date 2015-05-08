@@ -438,7 +438,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
-    debuc_pic(cloud_image_ptr[i]->image, "/tmp/all/cloud_image_", i);
+    debuc_pic(cloud_image_ptr[i]->image, "/tmp/all/cloud_image_");
     ros_cloud.reset(new sensor_msgs::PointCloud2);
     ros_image.reset(new sensor_msgs::Image);
 
@@ -477,7 +477,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     for(size_t j = 0; j < size_loop; j++)
     {
       cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
-      debuc_pic(diff_image, "/tmp/diff/diff_image_", i);
+      debuc_pic(diff_image, "/tmp/diff/diff_image_");
       cv::Scalar diff = cv::sum(diff_image);
       ROS_INFO("Difference : %f : %f : %f : %f", diff[0], diff[1], diff[2], diff[3]);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff.val[0]));
@@ -499,8 +499,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   int cloud_index = min_diff_clouds->cloud_index;
   int prev_index = min_diff_clouds->prev_index;
-  debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_", cloud_index);
-  debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_", prev_index);
+  debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
+  debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");
   ROS_INFO("Min difference is : %f", min_diff_clouds->diff);
 
   for (size_t i = 0; i < cloud_mat_b[cloud_index].rows; i++)
@@ -519,11 +519,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
 }
  
- void LedFinder::CloudDifferenceTracker::debuc_pic(cv::Mat image, std::string string_in, int i)
+ void LedFinder::CloudDifferenceTracker::debuc_pic(cv::Mat image, std::string string_in)
  {
   ros::Time n = ros::Time::now();
   std::stringstream ss(std::stringstream::in | std::stringstream::out);
-  ss<<string_in<<i<<"_"<<n<<".jpg";
+  ss<<string_in<<"_"<<n<<".jpg";
   imwrite(ss.str(), image);
  }
 

@@ -38,8 +38,6 @@
 
 #include <queue>
   
-
-
 typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
 
 namespace robot_calibration
@@ -83,25 +81,33 @@ class LedFinder : public FeatureFinder
 			         geometry_msgs::PointStamped& point);*/
 
     // Looking at clouds to Obtain max_cloud and diff cloud
-    bool getDifferenceCloud(
-      const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-		  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
-      cv::Mat& image,
-		  double weight);
+    bool getDifferenceCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+		                        const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
+                            cv::Mat& image,
+		                        double weight);
 
     // trying out looking for contours
     bool getContourCircle(cv::Mat& cloud,
-			 geometry_msgs::PointStamped& point);
+			                    geometry_msgs::PointStamped& point);
 
+    /*for debuggin*/
+    void debuc_pic(cv::Mat image, 
+                   std::string string_in, 
+                   int i);
+
+    /*struct holding all the combinations of indexes of before and after clouds
+      along with the respective differences */
     struct Combination
     {
       int cloud_index;
       int prev_index;
       float diff;
+      
       Combination()
       {
 
       }
+
       Combination(int x, int y, float z)
       {
         cloud_index = x;
@@ -110,6 +116,7 @@ class LedFinder : public FeatureFinder
       }
     };
 
+    //struct for combination queue sorting rule, min at the top
     typedef boost::shared_ptr<Combination> CombinationPtr;
     struct CompareCombination
     {

@@ -190,6 +190,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     code_idx = (code_idx + 1) % 8;
     command.led_code = codes_[code_idx];
     ros::Time ref_time = ros::Time::now();
+    
     // time to keep leds on.... keep sending goal for 2s
     while(ros::Time::now().toSec() - ref_time.toSec() < led_duration_)
     {
@@ -226,6 +227,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     diff_image_.release();
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
+    trackers_[tracker].oprocess(clouds_ptr_, prev_clouds, weight);
 
 
     if (++cycles > max_iterations_)
@@ -402,11 +404,21 @@ bool LedFinder::CloudDifferenceTracker::process(
 }
 
 /*overloaded types by varun*/
+/*
+ *@Brief the function process n number of pointclouds that come before and after
+ *       finds the min difference combination of before and after assigns max
+ *@param vector of clouds before
+ *@param vector of clouds after
+ *@param weight assigned whether on or off
+ *
+ *@note: there is repetetion, the code can still be modified
+ */
 bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> cloud,
   std::vector<pcloud_> prev,
   double weight)
 {
+  //converting point clouds to blue channel images
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
   std::vector<cv_bridge::CvImagePtr> cloud_image_ptr(cloud.size() );
@@ -430,6 +442,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
+    debuc_pic(cloud_image_ptr[i]->image, "/tmp/all/cloud_image_", i);
     ros_cloud.reset(new sensor_msgs::PointCloud2);
     ros_image.reset(new sensor_msgs::Image);
 
@@ -443,6 +456,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
       ROS_ERROR("prev_rosimage is sorry: %s ", e.what());
     }
+    debuc_pic(prev_image_ptr[i]->image, "/tmp/all/prev_image_", i);
     ros_cloud.reset(new sensor_msgs::PointCloud2);
     ros_image.reset(new sensor_msgs::Image);
   }
@@ -458,6 +472,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     channels.resize(3);
   }
 
+ //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
 
   //testing the nearness
@@ -482,12 +497,16 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   {
     return false;
   }
+
   int cloud_index = min_diff_clouds->cloud_index;
   int prev_index = min_diff_clouds->prev_index;
+  debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_", cloud_index);
+  debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_", prev_index);
+  ROS_INFO("Min difference is : %f", min_diff_clouds->diff);
 
   for (size_t i = 0; i < cloud_mat_b[cloud_index].rows; i++)
   {
-    for(size_t j = 0; j < cloud_mat_b[cloud_index].cols; j++)
+    for(size_t j = 0; j < prev_mat_b[prev_index].cols; j++)
     {
       diff_[i+j] += ((double)(cloud_mat_b[cloud_index].at<float>(j,i)) - (double)(prev_mat_b[prev_index].at<float>(j,i))) * weight;
       if (diff_[i+j] > max_)
@@ -500,6 +519,14 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
 
 }
+ 
+ void LedFinder::CloudDifferenceTracker::debuc_pic(cv::Mat image, std::string string_in, int i)
+ {
+  ros::Time n = ros::Time::now();
+  std::stringstream ss(std::stringstream::in | std::stringstream::out);
+  ss<<string_in<<i<<"_"<<n<<".jpg";
+  imwrite(ss.str(), image);
+ }
 
 /*bool LedFinder::CloudDifferenceTracker::oisFound(
   const pcloud_ cloud,

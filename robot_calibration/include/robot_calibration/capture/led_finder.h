@@ -127,6 +127,7 @@ private:
 
   bool output_debug_;   /// Should we output debug image/cloud?
   cv::Mat diff_image_;
+  float led_duration_; //led duration.. to keep led on for so many secs
 };
 
 }  // namespace robot_calibration

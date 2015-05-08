@@ -98,6 +98,8 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
     z = static_cast<double>(led_poses[i]["z"]);
     trackers_.push_back(CloudDifferenceTracker(gripper_led_frame, x, y, z));
   }
+  //duration to keep the led on.... it now keeps sending goal continuosly for 2s
+  led_duration_ = 2;
 }
 
 void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
@@ -139,8 +141,12 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
   robot_calibration_msgs::GripperLedCommandGoal command;
   command.led_code = 0;
-  client_->sendGoal(command);
-  client_->waitForResult(ros::Duration(10.0));
+  ros::Time ref_time = ros::Time::now();
+  while(ros::Time::now().toSec() - ref_time.toSec() < led_duration_)
+  {
+    client_->sendGoal(command);
+    client_->waitForResult(ros::Duration(10.0));
+  }
 
   // Get initial cloud
   if (!waitForCloud())
@@ -164,7 +170,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     command.led_code = codes_[code_idx];
     ros::Time ref_time = ros::Time::now();
     // time to keep leds on.... keep sending goal for 2s
-    while(ros::Time::now().toSec() - ref_time.toSec() < 2)
+    while(ros::Time::now().toSec() - ref_time.toSec() < led_duration_)
     {
       client_->sendGoal(command);
       client_->waitForResult(ros::Duration(10.0));

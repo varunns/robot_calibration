@@ -452,13 +452,13 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
       ROS_ERROR("prev_rosimage is sorry: %s ", e.what());
     }
-    debuc_pic(prev_image_ptr[i]->image, "/tmp/all/prev_image_", i);
+  //  debuc_pic(prev_image_ptr[i]->image, "/tmp/all/prev_image_", i);
     ros_cloud.reset(new sensor_msgs::PointCloud2);
     ros_image.reset(new sensor_msgs::Image);
   }
 
   //getting the blue channel arrays out
-  for(size_t i = 0; i < size_loop; i++)
+/*  for(size_t i = 0; i < size_loop; i++)
   {
     cv::split(cloud_image_ptr[i]->image, channels);
     cloud_mat_b[i] = channels[0];
@@ -466,7 +466,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     cv::split(prev_image_ptr[i]->image, channels);
     prev_mat_b[i] = channels[0];  
     channels.resize(3);
-  }
+  }*/
 
  //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
@@ -476,7 +476,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   {
     for(size_t j = 0; j < size_loop; j++)
     {
-      cv::Mat diff_image = cloud_mat_b[i] - prev_mat_b[j];
+      cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
       debuc_pic(diff_image, "/tmp/diff/diff_image_", i);
       cv::Scalar diff = cv::sum(diff_image);
       ROS_INFO("Difference : %f : %f : %f : %f", diff[0], diff[1], diff[2], diff[3]);

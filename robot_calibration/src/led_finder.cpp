@@ -452,7 +452,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
       ROS_ERROR("prev_rosimage is sorry: %s ", e.what());
     }
-    debuc_pic(prev_image_ptr[i]->image, "/tmp/all/prev_image_");
+    debuc_pic(prev_image_ptr[i]->image, "/tmp/prev/prev_image_");
     ros_cloud.reset(new sensor_msgs::PointCloud2);
     ros_image.reset(new sensor_msgs::Image);
   }

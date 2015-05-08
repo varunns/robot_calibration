@@ -109,18 +109,20 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
 {
   ros::Time ref_time = ros::Time::now();
   if (waiting_)
-  {
-    
-      cloud_ptr_ = cloud;
-      clouds_ptr_.push_back(cloud);
-    if(ros::Time::now().toSec() - ref_time.toSec() < 3)
-    waiting_ = false;
+  { 
+    cloud_ptr_ = cloud;
+    clouds_ptr_.push_back(cloud);
+    if(clouds_ptr_.size() > 5)
+    {
+      waiting_ = false;
+    }
   }
 }
 
 // Returns true if we got a message, false if we timeout.
 bool LedFinder::waitForCloud()
 {
+  ros::Time ref_time = ros::Time::now();
   waiting_ = true;
   int count = 20;
   while (--count)
@@ -155,6 +157,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     client_->sendGoal(command);
     client_->waitForResult(ros::Duration(10.0));
   }
+  ros::Duration(0.5).sleep();
 
   // Get initial cloud
   if (!waitForCloud())

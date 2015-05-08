@@ -154,11 +154,8 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   robot_calibration_msgs::GripperLedCommandGoal command;
   command.led_code = 0;
   ros::Time ref_time = ros::Time::now();
-  while(ros::Time::now().toSec() - ref_time.toSec() < led_duration_)
-  {
-    client_->sendGoal(command);
-    client_->waitForResult(ros::Duration(10.0));
-  }
+  client_->sendGoal(command);
+  client_->waitForResult(ros::Duration(10.0));
   ros::Duration(0.5).sleep();
 
   // Get initial cloud
@@ -171,7 +168,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   /* previous clouds*/
   *prev_cloud = *cloud_ptr_;
 
-  prev_clouds.resize(cloud_ptr_->size() );
+  prev_clouds.resize(cloud_ptr_->size());
   prev_clouds = clouds_ptr_;
   //pcloud_ clouds_ptr_ = clouds_ptr_[0];
 
@@ -190,20 +187,17 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     code_idx = (code_idx + 1) % 8;
     command.led_code = codes_[code_idx];
     ros::Time ref_time = ros::Time::now();
-    
+
     // time to keep leds on.... keep sending goal for 2s
-    while(ros::Time::now().toSec() - ref_time.toSec() < led_duration_)
-    {
       client_->sendGoal(command);
       client_->waitForResult(ros::Duration(10.0));
-    }
 
     // Get a point cloud
     if (!waitForCloud())
     {
       return false;
     }
-
+    ROS_INFO("size of prev_clouds : %d , size of clouds : %d", prev_clouds.size(), clouds_ptr_.size() );
     // Commands are organized as On-Off for each led.
     int tracker = code_idx/2;
     // Even indexes are turning on, Odd are turning off
@@ -528,7 +522,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   imwrite(ss.str(), image);
  }
 
-/*bool LedFinder::CloudDifferenceTracker::oisFound(
+/*/*bool LedFinder::CloudDifferenceTracker::oisFound(
   const pcloud_ cloud,
   double threshold)
 {
@@ -547,7 +541,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   return true;
-}*/
+}*
 
 /*overloaded function added by varun*/
 bool LedFinder::CloudDifferenceTracker::isFound(

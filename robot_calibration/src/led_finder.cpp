@@ -426,6 +426,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //initial processing to convert to cv::Mat
   for(size_t i = 0; i < cloud.size(); i++)
   {
+    ROS_INFO("I AM HERE");
     pcl::toROSMsg(*(cloud[i]), *ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);
     try

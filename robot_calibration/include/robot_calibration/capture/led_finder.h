@@ -110,6 +110,7 @@ private:
 
   bool waiting_;
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_ptr_;
+  std::vector< pcl::PointCloud<pcl::PointXYZRGB>::Ptr >clouds_ptr_;
 
   std::vector<CloudDifferenceTracker> trackers_;
   std::vector<uint8_t> codes_;

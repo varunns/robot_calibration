@@ -80,6 +80,8 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
   // Should we output debug image/cloud
   nh.param<bool>("debug", output_debug_, true);
 
+  // durtation to keep led on.. for so many secs keep sending the goal
+
   // Parameters for LEDs themselves
   std::string gripper_led_frame;
   nh.param<std::string>("gripper_led_frame", gripper_led_frame, "wrist_roll_link");
@@ -100,6 +102,7 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
   }
   //duration to keep the led on.... it now keeps sending goal continuosly for 2s
   led_duration_ = 2;
+ 
 }
 
 void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
@@ -107,6 +110,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   if (waiting_)
   {
     cloud_ptr_ = cloud;
+    clouds_ptr_.push_back(cloud);
     waiting_ = false;
   }
 }
@@ -138,6 +142,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   std::vector<geometry_msgs::PointStamped> world_hough_pt;
 
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+  std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> prev_clouds;
 
   robot_calibration_msgs::GripperLedCommandGoal command;
   command.led_code = 0;
@@ -155,7 +160,9 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     return false;
   }
   *prev_cloud = *cloud_ptr_;
-
+  prev_clouds.resize(cloud_ptr_->size() );
+  prev_clouds = clouds_ptr_;
+  ROS_INFO("size of prev_clouds : %d , size of clouds : %d", prev_clouds.size(), clouds_ptr_.size() );
   // Initialize difference trackers
   for (size_t i = 0; i < trackers_.size(); ++i)
   {
@@ -196,7 +203,6 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     // We want to break only if the LED is off, so that pixel is not washed out
     if (done && (weight == -1))
     {
-      ROS_INFO("in break");
       break;
     }
 
@@ -208,7 +214,6 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     if (++cycles > max_iterations_)
     {
-      ROS_INFO("max cycles done");
       return false;
     }
 
@@ -386,7 +391,6 @@ bool LedFinder::CloudDifferenceTracker::isFound(
   // Returns true only if the max exceeds threshold
   if (max_ < threshold)
   {
-    ROS_INFO("max_ : %f", max_);
     return false;
   }
 
@@ -395,7 +399,6 @@ bool LedFinder::CloudDifferenceTracker::isFound(
       isnan(cloud->points[max_idx_].x) ||
       isnan(cloud->points[max_idx_].x))
   {
-    ROS_INFO("ALl nans");
     return false;
   }
 

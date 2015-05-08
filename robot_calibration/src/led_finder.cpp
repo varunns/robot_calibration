@@ -101,7 +101,7 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
     trackers_.push_back(CloudDifferenceTracker(gripper_led_frame, x, y, z));
   }
   //duration to keep the led on.... it now keeps sending goal continuosly for 2s
-  led_duration_ = 2;
+  led_duration_ = 5;
  
 }
 
@@ -111,7 +111,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   if (waiting_)
   {
     
-    while(ros::Time::now().toSec() - ref_time.toSec() < led_duration_)
+    while(ros::Time::now().toSec() - ref_time.toSec() < 3)
     {
       cloud_ptr_ = cloud;
       clouds_ptr_.push_back(cloud);

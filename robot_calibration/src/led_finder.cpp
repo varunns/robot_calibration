@@ -424,9 +424,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<cv::Mat> channels(3);
 
   //initial processing to convert to cv::Mat
-  for(size_t i = 0; i < cloud.size(); i++)
+  int size = std::min(cloud.size(), prev.size());
+  for(size_t i = 0; i < size; i++)
   {
-    ROS_INFO("I AM HERE");
     pcl::toROSMsg(*(cloud[i]), *ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);
     try
@@ -457,7 +457,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   //getting the blue channel arrays out
-  for(size_t i = 0; i < cloud.size(); i++)
+  for(size_t i = 0; i < size; i++)
   {
     cv::split(cloud_image_ptr[i]->image, channels);
     cloud_mat_b[i] = channels[0];
@@ -471,9 +471,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
 
   //testing the nearness
-  for(size_t i = 0; i < cloud.size(); i++)
+  for(size_t i = 0; i < size; i++)
   {
-    for(size_t j = 0; j < prev.size(); j++)
+    for(size_t j = 0; j < size; j++)
     {
       cv::Scalar diff = cv::sum(cloud_mat_b[i] - prev_mat_b[j]);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff.val[0]));

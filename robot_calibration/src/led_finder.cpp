@@ -525,6 +525,7 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
 	  cv::Mat& diff_image_,
  	  double weight)
   {
+   
     std::vector< pcl::PointCloud<pcl::PointXYZRGB> > pcl_cloud;
     pcl_cloud.push_back(*cloud);
     pcl_cloud.push_back(*prev);
@@ -550,14 +551,18 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
 	ROS_ERROR("failed to convert: %s", e.what()); 
      }
     }
-
-    diff_image_ = cv_ptr[0]->image - cv_ptr[1]->image;
-    cv::Mat gray;
-    cv::cvtColor(diff_image_, gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 150, 255, CV_THRESH_BINARY);
     std::stringstream ss(std::stringstream::in | std::stringstream::out);
     ros::Time n = ros::Time::now();
-    ss<<"/tmp/image_diff_"<<n<<".jpg";
+    ss<<"/tmp/color/image_"<<n<<".jpg";
+    imwrite(ss.str(),cv_ptr[0]->image); 
+
+    diff_image_ = cv_ptr[0]->image - cv_ptr[1]->image;
+
+    cv::Mat gray;
+    cv::cvtColor(diff_image_, gray, CV_BGR2GRAY);
+    cv::threshold(gray, gray, 40, 255, CV_THRESH_BINARY);
+    ss.str(" ");   
+    ss<<"/tmp/diff/image_"<<n<<".jpg";
     imwrite(ss.str(), gray);
     return true;
   }

@@ -109,7 +109,7 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
 
 void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
-  ros::Time ref_time = ros::Time::now();
+  
   if (waiting_)
   { 
     cloud_ptr_ = cloud;
@@ -168,7 +168,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   /* previous clouds*/
   *prev_cloud = *cloud_ptr_;
 
-  prev_clouds.resize(cloud_ptr_->size());
+  prev_clouds.resize(clouds_ptr_.size());
   prev_clouds = clouds_ptr_;
   //pcloud_ clouds_ptr_ = clouds_ptr_[0];
 
@@ -231,6 +231,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     /* previous clouds*/
     *prev_cloud = *cloud_ptr_;
     prev_clouds = clouds_ptr_;
+    clouds_ptr_.resize(0);
   }
 
   // Create PointCloud2 to publish
@@ -424,8 +425,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<cv::Mat> channels(3);
 
   //initial processing to convert to cv::Mat
-  int size = std::min(cloud.size(), prev.size());
-  for(size_t i = 0; i < size; i++)
+  int size_loop = std::min(cloud.size(), prev.size());
+  for(size_t i = 0; i < size_loop; i++)
   {
     pcl::toROSMsg(*(cloud[i]), *ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);
@@ -457,7 +458,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   //getting the blue channel arrays out
-  for(size_t i = 0; i < size; i++)
+  for(size_t i = 0; i < size_loop; i++)
   {
     cv::split(cloud_image_ptr[i]->image, channels);
     cloud_mat_b[i] = channels[0];
@@ -471,9 +472,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
 
   //testing the nearness
-  for(size_t i = 0; i < size; i++)
+  for(size_t i = 0; i < size_loop; i++)
   {
-    for(size_t j = 0; j < size; j++)
+    for(size_t j = 0; j < size_loop; j++)
     {
       cv::Scalar diff = cv::sum(cloud_mat_b[i] - prev_mat_b[j]);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff.val[0]));

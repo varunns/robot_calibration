@@ -163,7 +163,8 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     code_idx = (code_idx + 1) % 8;
     command.led_code = codes_[code_idx];
     ros::Time ref_time = ros::Time::now();
-    while(ros::Time::now().toSec() - ref_time.toSec() < 20.0)
+    // time to keep leds on.... keep sending goal for 2s
+    while(ros::Time::now().toSec() - ref_time.toSec() < 2)
     {
       client_->sendGoal(command);
       client_->waitForResult(ros::Duration(10.0));

@@ -36,6 +36,12 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#include <queue>
+  
+
+
+typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
+
 namespace robot_calibration
 {
 
@@ -57,6 +63,13 @@ class LedFinder : public FeatureFinder
     bool isFound(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                  double threshold);
 
+    /*overloaded functions added by varun*/
+    bool oprocess(
+      std::vector<pcloud_> cloud,
+      std::vector<pcloud_> prev,
+      double weight);
+
+
     // Gives a refined centroid using multiple points
     bool getRefinedCentroid(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                             geometry_msgs::PointStamped& point);
@@ -64,22 +77,48 @@ class LedFinder : public FeatureFinder
     // Reset the tracker
     void reset(size_t size);
 
-
+/*
     // Obtaining a hough circle for the points
     bool getHoughCirclesCentroid(const pcl::PointCloud<pcl::PointXYZRGB> cloud,
-			         geometry_msgs::PointStamped& point);
+			         geometry_msgs::PointStamped& point);*/
 
     // Looking at clouds to Obtain max_cloud and diff cloud
-    bool getDifferenceCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-		            const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
-           		    cv::Mat& image,
-		            double weight);
+    bool getDifferenceCloud(
+      const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+		  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
+      cv::Mat& image,
+		  double weight);
 
     // trying out looking for contours
     bool getContourCircle(cv::Mat& cloud,
 			 geometry_msgs::PointStamped& point);
-          
 
+    struct Combination
+    {
+      int cloud_index;
+      int prev_index;
+      float diff;
+      Combination()
+      {
+
+      }
+      Combination(int x, int y, float z)
+      {
+        cloud_index = x;
+        prev_index = y;
+        diff = z;
+      }
+    };
+
+    typedef boost::shared_ptr<Combination> CombinationPtr;
+    struct CompareCombination
+    {
+      bool operator()(CombinationPtr a, CombinationPtr b)
+      {
+        return(a->diff > b->diff);
+      }
+    };
+          
     int count_;
     std::vector<double> diff_;
     double max_;
@@ -87,7 +126,7 @@ class LedFinder : public FeatureFinder
     std::string frame_;  // frame of led coordinates
     geometry_msgs::Point point;  //coordinates of led this is tracking
   };
-
+  
   typedef actionlib::SimpleActionClient<robot_calibration_msgs::GripperLedCommandAction> LedClient;
 
 public:
@@ -130,6 +169,7 @@ private:
   cv::Mat diff_image_;
   float led_duration_; //led duration.. to keep led on for so many secs
 };
+
 
 }  // namespace robot_calibration
 

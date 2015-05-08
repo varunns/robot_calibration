@@ -30,9 +30,11 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl_conversions/pcl_conversions.h>
 
+#include <algorithm>
+#include <queue>
 #include <sstream>
 
-
+typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
 namespace robot_calibration
 {
 
@@ -165,10 +167,16 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     ROS_INFO("waiting for initial cloud");
     return false;
   }
+
+  /* previous clouds*/
   *prev_cloud = *cloud_ptr_;
+
   prev_clouds.resize(cloud_ptr_->size() );
   prev_clouds = clouds_ptr_;
+  //pcloud_ clouds_ptr_ = clouds_ptr_[0];
+
   ROS_INFO("size of prev_clouds : %d , size of clouds : %d", prev_clouds.size(), clouds_ptr_.size() );
+  
   // Initialize difference trackers
   for (size_t i = 0; i < trackers_.size(); ++i)
   {
@@ -200,18 +208,20 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     // Even indexes are turning on, Odd are turning off
     double weight = (code_idx%2 == 0) ? 1: -1;
 
+
     // Has each point converged?
     bool done = true;
     for (size_t t = 0; t < trackers_.size(); ++t)
     {
       done &= trackers_[t].isFound(cloud_ptr_, threshold_);
+      //done &= trackers_[t].oisFound(clouds_ptr_, threshold_);
     }
     // We want to break only if the LED is off, so that pixel is not washed out
     if (done && (weight == -1))
     {
       break;
     }
-
+  
     //call to obtain difference cloud and the max cloud
     diff_image_.release();
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
@@ -222,8 +232,9 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     {
       return false;
     }
-
+    /* previous clouds*/
     *prev_cloud = *cloud_ptr_;
+    prev_clouds = clouds_ptr_;
   }
 
   // Create PointCloud2 to publish
@@ -390,18 +401,118 @@ bool LedFinder::CloudDifferenceTracker::process(
   return true;
 }
 
-bool LedFinder::CloudDifferenceTracker::isFound(
-  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+/*overloaded types by varun*/
+bool LedFinder::CloudDifferenceTracker::oprocess(
+  std::vector<pcloud_> cloud,
+  std::vector<pcloud_> prev,
+  double weight)
+{
+  sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
+  sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
+  std::vector<cv_bridge::CvImagePtr> cloud_image_ptr(cloud.size() );
+  std::vector<cv_bridge::CvImagePtr> prev_image_ptr(cloud.size() );
+
+  std::vector<cv::Mat> cloud_mat_b(cloud.size() );
+  std::vector<cv::Mat> prev_mat_b(cloud.size() );
+
+  std::vector<cv::Mat> channels(3);
+
+  //initial processing to convert to cv::Mat
+  for(size_t i = 0; i < cloud.size(); i++)
+  {
+    pcl::toROSMsg(*(cloud[i]), *ros_cloud);
+    pcl::toROSMsg(*ros_cloud, *ros_image);
+    try
+    {
+      cloud_image_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+    }
+    catch(cv_bridge::Exception& e)
+    {
+      ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
+    }
+    ros_cloud.reset(new sensor_msgs::PointCloud2);
+    ros_image.reset(new sensor_msgs::Image);
+
+    pcl::toROSMsg(*(prev[i]), *ros_cloud);
+    pcl::toROSMsg(*ros_cloud, *ros_image);
+    try
+    {
+      prev_image_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+    }
+    catch(cv_bridge::Exception& e)
+    {
+      ROS_ERROR("prev_rosimage is sorry: %s ", e.what());
+    }
+    ros_cloud.reset(new sensor_msgs::PointCloud2);
+    ros_image.reset(new sensor_msgs::Image);
+  }
+
+  //getting the blue channel arrays out
+  for(size_t i = 0; i < cloud.size(); i++)
+  {
+    cv::split(cloud_image_ptr[i]->image, channels);
+    cloud_mat_b[i] = channels[0];
+    channels.resize(3);
+    cv::split(prev_image_ptr[i]->image, channels);
+    prev_mat_b[i] = channels[0];  
+    channels.resize(3);
+  }
+
+ std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
+
+  //testing the nearness
+  for(size_t i = 0; i < cloud.size(); i++)
+  {
+    for(size_t j = 0; j < prev.size(); j++)
+    {
+      cv::Scalar diff = cv::sum(cloud_mat_b[i] - prev_mat_b[j]);
+      CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff.val[0]));
+      combination_queue.push(cloud_i_j_ptr);
+    }
+  }
+
+  if(combination_queue.empty())
+  {
+    return false;
+  }
+
+  CombinationPtr min_diff_clouds = combination_queue.top();
+
+  if(cv::countNonZero(cloud_mat_b[min_diff_clouds->cloud_index]) < 5) //5 should can be tuned ... this is for led on
+  {
+    return false;
+  }
+  int cloud_index = min_diff_clouds->cloud_index;
+  int prev_index = min_diff_clouds->prev_index;
+
+  for (size_t i = 0; i < cloud_mat_b[cloud_index].rows; i++)
+  {
+    for(size_t j = 0; j < cloud_mat_b[cloud_index].cols; j++)
+    {
+      diff_[i+j] += ((double)(cloud_mat_b[cloud_index].at<float>(j,i)) - (double)(prev_mat_b[prev_index].at<float>(j,i))) * weight;
+      if (diff_[i+j] > max_)
+      {
+        max_ = diff_[i+j];
+        max_idx_ = i+j;
+      }
+    }
+  }
+
+
+}
+
+/*bool LedFinder::CloudDifferenceTracker::oisFound(
+  const pcloud_ cloud,
   double threshold)
 {
   // Returns true only if the max exceeds threshold
   if (max_ < threshold)
   {
     return false;
-  }
+  }*/
 
   // AND the current index is a valid point in the cloud.
-  if (isnan(cloud->points[max_idx_].x) ||
+/*  if (isnan(cloud->points[max_idx_].x) ||
       isnan(cloud->points[max_idx_].x) ||
       isnan(cloud->points[max_idx_].x))
   {
@@ -409,10 +520,21 @@ bool LedFinder::CloudDifferenceTracker::isFound(
   }
 
   return true;
+}*/
+
+/*overloaded function added by varun*/
+bool LedFinder::CloudDifferenceTracker::isFound(
+  const pcloud_ clouds,
+  double threshold)
+{
+/*  for(size_t i = 0; i < clouds.size(); i++)
+  {
+    if(max_ < threshold)
+  }*/
 }
 
 /*added by varun*/
-bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
+/*bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
   const pcl::PointCloud<pcl::PointXYZRGB> cloud,
   geometry_msgs::PointStamped& hough_pt)
 {
@@ -471,7 +593,7 @@ bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
 
   return true;
 
-}
+}*/
 
 bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
   const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
@@ -568,7 +690,7 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
      }
      catch(cv_bridge::Exception& e)
      {
-	ROS_ERROR("failed to convert: %s", e.what()); 
+	     ROS_ERROR("failed to convert: %s", e.what()); 
      }
     }
     std::stringstream ss(std::stringstream::in | std::stringstream::out);

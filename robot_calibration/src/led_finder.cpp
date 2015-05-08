@@ -476,7 +476,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   {
     for(size_t j = 0; j < size_loop; j++)
     {
-      cv::Scalar diff = cv::sum(cloud_mat_b[i] - prev_mat_b[j]);
+      cv::Mat diff_image = cloud_mat_b[i] - prev_mat_b[j];
+      cv::Scalar diff = cv::sum(diff_image);
       ROS_INFO("Difference : %f : %f : %f : %f", diff[0], diff[1], diff[2], diff[3]);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff.val[0]));
       combination_queue.push(cloud_i_j_ptr);

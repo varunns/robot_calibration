@@ -111,12 +111,9 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   if (waiting_)
   {
     
-    while(ros::Time::now().toSec() - ref_time.toSec() < 3)
-    {
       cloud_ptr_ = cloud;
       clouds_ptr_.push_back(cloud);
-      continue;
-    }
+    if(ros::Time::now().toSec() - ref_time.toSec() < 3)
     waiting_ = false;
   }
 }

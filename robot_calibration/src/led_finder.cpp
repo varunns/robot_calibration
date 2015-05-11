@@ -421,6 +421,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   std::vector<cv::Mat> cloud_mat_b(cloud.size() );
   std::vector<cv::Mat> prev_mat_b(cloud.size() );
+  std::vector<cv::Mat> diff_image(cloud.size() );
 
   std::vector<cv::Mat> channels(3);
 
@@ -475,11 +476,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     for(size_t j = 0; j < size_loop; j++)
     {
       cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
-      debuc_pic(diff_image, "/tmp/diff/diff_image_");
+    //  debuc_pic(diff_image, "/tmp/diff/diff_image_");
       cv::Scalar mean_diff = cv::mean(diff_image);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
       ROS_INFO("Difference : %f ", diff);
-      CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff) );
+      CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff, diff_image) );
       combination_queue.push(cloud_i_j_ptr);
     }
   }
@@ -546,7 +547,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   return true;
-}*
+}*/
 
 /*overloaded function added by varun*/
 bool LedFinder::CloudDifferenceTracker::isFound(
@@ -689,7 +690,7 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
 
   bool LedFinder::CloudDifferenceTracker::getDifferenceCloud(
 	  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-          const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
+    const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
 	  cv::Mat& diff_image_,
  	  double weight)
   {
@@ -735,9 +736,8 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
     return true;
   }
 
-  bool LedFinder::CloudDifferenceTracker::getContourCircle(
-          cv::Mat&  image,
-	  geometry_msgs::PointStamped& point)
+  bool LedFinder::CloudDifferenceTracker::getContourCircle(cv::Mat&  image,
+	                                                         geometry_msgs::PointStamped& point)
   {
 /*   cv::Mat gray_image, norm_image, canny_image;
 

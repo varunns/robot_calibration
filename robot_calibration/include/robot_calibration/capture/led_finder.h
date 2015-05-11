@@ -101,13 +101,14 @@ class LedFinder : public FeatureFinder
       int cloud_index;
       int prev_index;
       float diff;
+      cv::Mat diff_image;
       
       Combination()
       {
 
       }
 
-      Combination(int x, int y, float z)
+      Combination(int x, int y, float z, cv::Mat diff_image)
       {
         cloud_index = x;
         prev_index = y;

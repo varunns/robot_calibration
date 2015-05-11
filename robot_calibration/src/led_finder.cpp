@@ -465,7 +465,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     for(size_t j = 0; j < size_loop; j++)
     {
       cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
-    //  debuc_pic(diff_image, "/tmp/diff/diff_image_");
+      debuc_pic(diff_image, "/tmp/diff/diff_image_");
       cv::Scalar mean_diff = cv::mean(diff_image);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
       ROS_INFO("Difference : %f ", diff);

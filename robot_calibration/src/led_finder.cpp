@@ -487,22 +487,21 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   CombinationPtr min_diff_clouds = combination_queue.top();
-  ROS_INFO("count non zero : %d", min_diff_clouds->cloud_index);
-  /*if( cv::countNonZero(cloud_image_ptr[min_diff_clouds->cloud_index]) < 5 )  //5 should can be tuned ... this is for led on
+  if( cv::countNonZero(cloud_image_ptr[min_diff_clouds->cloud_index]->image) < 5 )  //5 should can be tuned ... this is for led on
   {
     return false;
-  }*/
-/*
+  }
+
   int cloud_index = min_diff_clouds->cloud_index;
   int prev_index = min_diff_clouds->prev_index;
   //cv::Mat min_diff_cloud = cloud_image_ptr[cloud_]
   ROS_INFO("cloud_index : %d , prev_index : %d", cloud_index, prev_index);
-  debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
+/*  debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
   debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");
  
   debuc_pic( (cloud_image_ptr[cloud_index]->image - prev_image_ptr[prev_index]->image), "/tmp/candidate/candidate_image_");
-  ROS_INFO("Min difference is : %f", min_diff_clouds->diff);*/
-
+  ROS_INFO("Min difference is : %f", min_diff_clouds->diff);
+*/
 /*  for (size_t i = 0; i < cloud_mat_b[cloud_index].rows; i++)
   {
     for(size_t j = 0; j < prev_mat_b[prev_index].cols; j++)

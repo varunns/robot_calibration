@@ -114,7 +114,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 5)
+    if(clouds_ptr_.size() >= 10)
     {
       waiting_ = false;
     }
@@ -456,17 +456,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     ros_image.reset(new sensor_msgs::Image);
   }
 
-  //getting the blue channel arrays out
-/*  for(size_t i = 0; i < size_loop; i++)
-  {
-    cv::split(cloud_image_ptr[i]->image, channels);
-    cloud_mat_b[i] = channels[0];
-    channels.resize(3);
-    cv::split(prev_image_ptr[i]->image, channels);
-    prev_mat_b[i] = channels[0];  
-    channels.resize(3);
-  }*/
-
  //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
 
@@ -499,8 +488,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   int cloud_index = min_diff_clouds->cloud_index;
   int prev_index = min_diff_clouds->prev_index;
-  /*debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
-  debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");*/
+  debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
+  debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");
   debuc_pic(cloud_image_ptr[cloud_index]->image - prev_image_ptr[prev_index]->image, "/tmp/candidate/candidate_image_");
   ROS_INFO("Min difference is : %f", min_diff_clouds->diff);
 

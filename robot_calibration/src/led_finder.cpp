@@ -480,7 +480,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   CombinationPtr min_diff_clouds = combination_queue.top();
-
+  ROS_INFO("I am here after the top has been chosen");
   if(cv::countNonZero(cloud_mat_b[min_diff_clouds->cloud_index]) < 5) //5 should can be tuned ... this is for led on
   {
     return false;

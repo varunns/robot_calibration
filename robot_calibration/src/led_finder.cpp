@@ -468,10 +468,18 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       debuc_pic(diff_image, "/tmp/diff/diff_image_");
       cv::Scalar mean_diff = cv::mean(diff_image);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
-      ROS_INFO("Difference : %f ", diff);
+      //ROS_INFO("Difference : %f ", diff);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff, diff_image) );
       combination_queue.push(cloud_i_j_ptr);
     }
+  }
+  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> clone_queue = combination_queue;  
+  ROS_INFO("checkin the combination queue");
+  for(size_t i = 0; i < combination_queue.size(); i++)
+  {
+    CombinationPtr debug_clouds = clone_queue.top();
+    ROS_INFO("element %d : %f ", i, debug_clouds->diff);
+    clone_queue.pop();
   }
 
   if(combination_queue.empty())
@@ -480,12 +488,12 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   CombinationPtr min_diff_clouds = combination_queue.top();
-  ROS_INFO("I am here after the top has been chosen");
-  if(cv::countNonZero(cloud_mat_b[min_diff_clouds->cloud_index]) < 5) //5 should can be tuned ... this is for led on
+  ROS_INFO("I am here after the top has been chosen : %f", min_diff_clouds->cloud_index);
+/*  if(cv::countNonZero(cloud_image_ptr[min_diff_clouds->cloud_index]) < 5)  //5 should can be tuned ... this is for led on
   {
     return false;
-  }
-
+  }*/
+/*
   int cloud_index = min_diff_clouds->cloud_index;
   int prev_index = min_diff_clouds->prev_index;
   //cv::Mat min_diff_cloud = cloud_image_ptr[cloud_]
@@ -494,7 +502,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");
  
   debuc_pic( (cloud_image_ptr[cloud_index]->image - prev_image_ptr[prev_index]->image), "/tmp/candidate/candidate_image_");
-  ROS_INFO("Min difference is : %f", min_diff_clouds->diff);
+  ROS_INFO("Min difference is : %f", min_diff_clouds->diff);*/
 
 /*  for (size_t i = 0; i < cloud_mat_b[cloud_index].rows; i++)
   {

@@ -412,11 +412,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> prev,
   double weight)
 {
-  if(!debug_flag_)
-  {
-    return false;
-  }
-
   /*converting point clouds to images*/
 
   //ros image and ros pointcloud used for intermediate conversion
@@ -528,7 +523,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       }
     }
   }
-*/debug_flag_ = false;
+*/
   ROS_INFO("*****************************************************************************************************");
 }
 

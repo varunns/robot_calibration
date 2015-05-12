@@ -473,13 +473,12 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     {
 
       cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
-
-      debuc_pic(cloud_image_ptr[i]->image, "/tmp/debug/curr/cloud_gray_", i, j);
-      debuc_pic(prev_image_ptr[j]->image, "/tmp/debug/prev/prev_gray_",i , j);
-      debuc_pic(diff_image, "/tmp/debug/diff/diff_image_",i, j);
       cv::Scalar mean_diff = cv::mean(diff_image);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
       ROS_INFO("difference of candidate is :  %f", diff);
+      debuc_pic(cloud_image_ptr[i]->image, "/tmp/debug/curr/cloud_gray_", i, j, diff);
+      debuc_pic(prev_image_ptr[j]->image, "/tmp/debug/prev/prev_gray_",i , j, diff);
+      debuc_pic(diff_image, "/tmp/debug/diff/diff_image_",i, j, diff);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff, diff_image) );
       combination_queue.push(cloud_i_j_ptr);
     }
@@ -527,11 +526,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   ROS_INFO("*****************************************************************************************************");
 }
 
- void LedFinder::CloudDifferenceTracker::debuc_pic(cv::Mat image, std::string string_in, int k, int l)
+ void LedFinder::CloudDifferenceTracker::debuc_pic(cv::Mat image, std::string string_in, int k, int l, float diff)
  {
   ros::Time n = ros::Time::now();
   std::stringstream ss(std::stringstream::in | std::stringstream::out);
-  ss<<string_in<<n<<"_"<<k<<l<<".jpg";
+  ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
   imwrite(ss.str(), image);
  }
 

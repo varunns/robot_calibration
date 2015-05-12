@@ -94,7 +94,8 @@ class LedFinder : public FeatureFinder
     void debuc_pic(cv::Mat image, 
                    std::string string_in,
                    int k,
-                   int l);
+                   int l,
+                   float diff);
 
     /*struct holding all the combinations of indexes of before and after clouds
       along with the respective differences */

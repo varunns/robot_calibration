@@ -48,8 +48,9 @@ public:
       prev_image_ = cv_ptr->image;
       flag_ = false;
     }
-    cv::Mat gray, no_illuminance, yuv_image, no_y;
-    cv::cvtColor(cv_ptr->image, gray, CV_BGR2GRAY);
+    cv::Mat curr_gray, prev_gray, no_illuminance, yuv_image, no_y;
+    cv::cvtColor(prev_image_, prev_gray, CV_BGR2GRAY);
+    cv::cvtColor(cv_ptr->image, curr_gray, CV_BGR2GRAY);
     //std::vector<cv::Mat> channels(3);
     //cv::cvtColor(cv_ptr->image, yuv_image, CV_BGR2YUV);
     //cv::split(yuv_image, channels);
@@ -63,17 +64,42 @@ public:
     //cv::merge(channels, no_y);
     //cv::cvtColor(no_y, no_y, CV_YUV2BGR);
     //cv::normalize(, no_y, 0, 1, 32);
-    debug_pic(gray, "/tmp/test/image_", 0, 0, 0);
+    cv::Mat diff_image = curr_gray - prev_gray;
+    diffHist(diff_image);
+    debug_pic(diff_image, "/tmp/test/image_", 0, 0, 0);
 
   }
 
+  void diffHist(cv::Mat image)
+  {
+    int histSize = 16;
+    float range[] = {0, 256};
+    const float* histRange = { range };
+    cv::Mat diff_hist;
+    bool uniform = true; bool accumulate = false;
+    cv::calcHist(&image, 1, 0, cv::Mat(), diff_hist, 1, &histSize, &histRange, uniform, accumulate);
+
+    int hist_w = 512; int hist_h = 400;
+    int bin_w = cvRound( (double) hist_w/histSize );
+    cv::Mat histImage( hist_h, hist_w, CV_8UC3, cv::Scalar(0, 0, 0) );
+    cv::normalize(diff_hist, diff_hist, 0, histImage.rows, 32, -1, cv::Mat() );
+    for( int i = 1; i < histSize; i++ )
+    {
+      line( histImage, cv::Point( bin_w*(i-1), hist_h - cvRound(diff_hist.at<float>(i-1)) ) ,
+                       cv::Point( bin_w*(i), hist_h - cvRound(diff_hist.at<float>(i)) ),
+                       cv::Scalar( 255, 0, 0), 2, 8, 0  );
+    }
+
+    debug_pic(histImage,"/tmp/test/hist_image_", 0, 0, 0);
+  }
+
   void debug_pic(cv::Mat image, std::string string_in, int k, int l, float diff)
- {
-  ros::Time n = ros::Time::now();
-  std::stringstream ss(std::stringstream::in | std::stringstream::out);
-  ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
-  imwrite(ss.str(), image);
- }
+  {
+    ros::Time n = ros::Time::now();
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
+    imwrite(ss.str(), image);
+  }
 
 };
 

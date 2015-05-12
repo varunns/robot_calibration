@@ -48,21 +48,22 @@ public:
       prev_image_ = cv_ptr->image;
       flag_ = false;
     }
-    cv::Mat no_illuminance, yuv_image, no_y;
-    std::vector<cv::Mat> channels(3);
-    cv::cvtColor(cv_ptr->image, yuv_image, CV_BGR2YUV);
-    cv::split(yuv_image, channels);
-    cv::equalizeHist(channels[0], channels[0]);
-    std::vector<cv::Mat> new_channels(3);
+    cv::Mat gray, no_illuminance, yuv_image, no_y;
+    cv::cvtColor(cv_ptr->image, gray, CV_BGR2GRAY);
+    //std::vector<cv::Mat> channels(3);
+    //cv::cvtColor(cv_ptr->image, yuv_image, CV_BGR2YUV);
+    //cv::split(yuv_image, channels);
+    //cv::equalizeHist(channels[0], channels[0]);
+    //std::vector<cv::Mat> new_channels(3);
    /* cv::Mat tmp(channels[0].rows, channels[0].cols, CV_8UC1);
     tmp.setTo(cv::Scalar(0));
     new_channels[0] = tmp;
     new_channels[1] = channels[1];
     new_channels[2] = channels[2];*/
-    cv::merge(channels, no_y);
-    cv::cvtColor(no_y, no_y, CV_YUV2BGR);
-    cv::normalize(no_y, no_y, 0, 1, 32);
-    debug_pic(no_y, "/tmp/test/image_", 0, 0, 0);
+    //cv::merge(channels, no_y);
+    //cv::cvtColor(no_y, no_y, CV_YUV2BGR);
+    //cv::normalize(, no_y, 0, 1, 32);
+    debug_pic(gray, "/tmp/test/image_", 0, 0, 0);
 
   }
 

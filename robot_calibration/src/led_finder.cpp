@@ -473,7 +473,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     for(size_t j = 0; j < size_loop; j++)
     {
 
-      cv::Mat diff_image = (cloud_gray[i] - prev_gray[i]);
+      cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[i]->image);
 
       debuc_pic(cloud_gray[i], "/tmp/gray/cloud_gray_");
       debuc_pic(prev_gray[i], "/tmp/gray/prev_gray_");

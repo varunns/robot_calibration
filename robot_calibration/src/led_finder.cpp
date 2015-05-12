@@ -475,7 +475,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     for(size_t j = 0; j < size_loop; j++)
     {
       cv::split(cloud_image_ptr[i]->image, cloud_channels);
-      cv::split(prev_image_ptr[i]->image, prev_channels);
+      cv::split(prev_image_ptr[j]->image, prev_channels);
 
       /*cv::cvtColor(cloud_image_ptr[i]->image, cloud_gry, CV_BGR2GRAY);
       cv::cvtColor(prev_image_ptr[j]->image, prev_gry, CV_BGR2GRAY);*/

@@ -194,7 +194,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     {
       return false;
     }
-    ROS_INFO("size of prev_clouds : %d , size of clouds : %d", prev_clouds.size(), clouds_ptr_.size() );
+
     // Commands are organized as On-Off for each led.
     int tracker = code_idx/2;
     // Even indexes are turning on, Odd are turning off
@@ -732,12 +732,12 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
 
     diff_image_ = cv_ptr[0]->image - cv_ptr[1]->image;
 
-    cv::Mat gray;
+ /*   cv::Mat gray;
     cv::cvtColor(diff_image_, gray, CV_BGR2GRAY);
     cv::threshold(gray, gray, 40, 255, CV_THRESH_BINARY);
     ss.str(" ");   
     ss<<"/tmp/diff/image_"<<n<<".jpg";
-    imwrite(ss.str(), gray);
+    imwrite(ss.str(), gray);*/
     return true;
   }
 

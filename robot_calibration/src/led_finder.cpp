@@ -531,7 +531,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
  {
   ros::Time n = ros::Time::now();
   std::stringstream ss(std::stringstream::in | std::stringstream::out);
-  ss<<string_in<<"_"<<k<<".jpg";
+  ss<<string_in<<"_"<<k<<"_"<<n<<".jpg";
   imwrite(ss.str(), image);
  }
 

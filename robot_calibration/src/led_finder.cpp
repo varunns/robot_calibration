@@ -413,17 +413,22 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> prev,
   double weight)
 {
-  //converting point clouds to blue channel images
+  //converting point clouds to images
+
+  //ros image and ros pointcloud used for intermediate conversion
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
+
+  //cv_bridge image pointers
   std::vector<cv_bridge::CvImagePtr> cloud_image_ptr(cloud.size() );
   std::vector<cv_bridge::CvImagePtr> prev_image_ptr(cloud.size() );
 
-  std::vector<cv::Mat> cloud_mat_b(cloud.size() );
-  std::vector<cv::Mat> prev_mat_b(cloud.size() );
-  std::vector<cv::Mat> diff_image(cloud.size() );
+  //opencv images for processing,   cloud_gray for grayscale images and vice versa
+  std::vector<cv::Mat> cloud_gray(cloud.size() );
+  std::vector<cv::Mat> prev_gray(cloud.size() );
 
-  std::vector<cv::Mat> channels(3);
+  //Difference grayscale images
+  std::vector<cv::Mat> diff_image(cloud.size() );
 
   //initial processing to convert to cv::Mat
   int size_loop = std::min(cloud.size(), prev.size());
@@ -434,11 +439,13 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     try
     {
       cloud_image_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+      cv::cvtColor(cloud_image_ptr[i]->image, cloud_gray[i], CV_BGR2GRAY);
     }
     catch(cv_bridge::Exception& e)
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
+
     ros_cloud.reset(new sensor_msgs::PointCloud2);
     ros_image.reset(new sensor_msgs::Image);
 
@@ -447,6 +454,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     try
     {
       prev_image_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+      cv::cvtColor(prev_image_ptr[i]->image, prev_gray[i], CV_BGR2GRAY);
     }
     catch(cv_bridge::Exception& e)
     {
@@ -458,15 +466,18 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
  //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
- cv::Mat cloud_gray, prev_gray;
-  //testing the nearness
+
+  //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   for(size_t i = 0; i < size_loop; i++)
   {
     for(size_t j = 0; j < size_loop; j++)
     {
-      cv::threshold(cloud_image_ptr[i]->image, cloud_gray, 200, 255, CV_THRESH_BINARY);
-      cv::threshold(prev_image_ptr[i]->image, prev_gray, 200, 255, CV_THRESH_BINARY);
-      cv::Mat diff_image = (cloud_gray - prev_gray);
+
+      cv::threshold(cloud_gray[i], cloud_gray[i], 200, 255, CV_THRESH_BINARY);
+      cv::threshold(prev_gray[i], prev_gray[i], 200, 255, CV_THRESH_BINARY);
+      cv::Mat diff_image = (cloud_gray[i] - prev_gray[i]);
+      debuc_pic(cloud_gray[i], "/tmp/gray/cloud_gray_");
+      debuc_pic(prev_gray[i], "/tmp/gray/prev_gray_");
       debuc_pic(diff_image, "/tmp/diff/diff_image_");
       cv::Scalar mean_diff = cv::mean(diff_image);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);

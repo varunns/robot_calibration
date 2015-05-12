@@ -104,6 +104,9 @@ add_dependencies(calibrate robot_calibration)
 add_executable(test_image src/test_image_closeness.cpp)
 target_link_libraries(test_image ${catkin_LIBRARIES} )
 
+add_executable(testimg src/test_images.cpp)
+target_link_libraries(testimg ${catkin_LIBRARIES} )
+
 add_executable(test_calibrate src/test_calibrate.cpp)
 target_link_libraries(test_calibrate robot_calibration 
                                       ${catkin_LIBRARIES})

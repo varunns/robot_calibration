@@ -114,7 +114,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() >= 1)
+    if(clouds_ptr_.size() >= 2)
     {
       waiting_ = false;
     }
@@ -153,7 +153,6 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
   robot_calibration_msgs::GripperLedCommandGoal command;
   command.led_code = 0;
-  ros::Time ref_time = ros::Time::now();
   client_->sendGoal(command);
   client_->waitForResult(ros::Duration(10.0));
   ros::Duration(0.5).sleep();
@@ -171,8 +170,6 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   prev_clouds.resize(clouds_ptr_.size());
   prev_clouds = clouds_ptr_;
   //pcloud_ clouds_ptr_ = clouds_ptr_[0];
-
-  ROS_INFO("size of prev_clouds : %d , size of clouds : %d", prev_clouds.size(), clouds_ptr_.size() );
   
   // Initialize difference trackers
   for (size_t i = 0; i < trackers_.size(); ++i)
@@ -480,6 +477,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       debuc_pic(diff_image, "/tmp/diff/diff_image_");
       cv::Scalar mean_diff = cv::mean(diff_image);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
+      ROS_INFO("difference of candidate is :  %f", diff);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff, diff_image) );
       combination_queue.push(cloud_i_j_ptr);
     }
@@ -500,10 +498,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   CombinationPtr min_diff_clouds = combination_queue.top();
 
-  //int cloud_index = min_diff_clouds->cloud_index;
-  //int prev_index = min_diff_clouds->prev_index;
+  int cindex = min_diff_clouds->cloud_index;
+  int pindex = min_diff_clouds->prev_index;
   //cv::Mat min_diff_cloud = cloud_image_ptr[cloud_]
- // ROS_INFO("cloud_index : %d , prev_index : %d", cloud_index, prev_index);
+  ROS_INFO("cloud_index : %d , prev_index : %d, min diff: %f", cindex, pindex, min_diff_clouds->diff);
   /*debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
   debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");*/
  

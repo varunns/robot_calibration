@@ -116,7 +116,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() >= 5)
+    if(clouds_ptr_.size() >= 10)
     {
       waiting_ = false;
     }
@@ -468,73 +468,55 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat thresh, cloud_gry, prev_gry, diff_gray, diff_i;
   std::vector<cv::Mat> cloud_channels(3);
   std::vector<cv::Mat> prev_channels(3);
-
+  cv::Mat cloud_sum_image, prev_sum_image;
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   for(size_t i = 0; i < size_loop; i++)
   {
-    for(size_t j = 0; j < size_loop; j++)
-    {
-      cv::split(cloud_image_ptr[i]->image, cloud_channels);
-      cv::split(prev_image_ptr[j]->image, prev_channels);
-
-      /*cv::cvtColor(cloud_image_ptr[i]->image, cloud_gry, CV_BGR2GRAY);
-      cv::cvtColor(prev_image_ptr[j]->image, prev_gry, CV_BGR2GRAY);*/
-    /*  cv::threshold(cloud_gry, cloud_gry, 150, 255, CV_THRESH_BINARY);
-      cv::threshold(prev_gry, prev_gry, 150, 255, CV_THRESH_BINARY);*/
-      diff_i = cloud_channels[0] - prev_channels[0];
-      cv::Scalar mean_diff = cv::mean(diff_i);
-      float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
-      ROS_INFO("difference of candidate is :  %f", diff);
-      debug_img(cloud_channels[0], "/tmp/debug/curr/cloud_gray_", i, j, diff);
-      debug_img(prev_channels[0], "/tmp/debug/prev/prev_gray_",i , j, diff);
-      debug_img(diff_i, "/tmp/debug/diff/diff_image_",i, j, diff);
-      CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff, diff_gray) );
-      combination_queue.push(cloud_i_j_ptr);
-    }
-  }
-  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> clone_queue = combination_queue;  
-  
-  /*for(size_t i = 0; i < combination_queue.size(); i++)
-  {
-    CombinationPtr debug_clouds = clone_queue.top();
-    ROS_INFO("element %d : %f ", i, debug_clouds->diff);
-    clone_queue.pop();
-  }*/
-
-  if(combination_queue.empty())
-  {
-    return false;
+    cloud_sum_image += 1/cloud_image_ptr.size()*cloud_image_ptr[i]->image;
+    prev_sum_image += 1/prev_image_ptr.size()*prev_image_ptr[i]->image;
   }
 
-  CombinationPtr min_diff_clouds = combination_queue.top();
+  cv::Mat diff_sum_image;
+  cv::absdiff(cloud_sum_image, prev_sum_image, diff_sum_image);
 
-  int cindex = min_diff_clouds->cloud_index;
-  int pindex = min_diff_clouds->prev_index;
-  //cv::Mat min_diff_cloud = cloud_image_ptr[cloud_]
-  ROS_INFO("cloud_index : %d , prev_index : %d, min diff: %f", cindex, pindex, min_diff_clouds->diff);
-  //debuc_pic(min_diff_clouds->diff_image, "/tmp/candidate/diff_image_");
-  /*debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
-  debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");*/
- 
-  //debuc_pic( (cloud_image_ptr[cloud_index]->image - prev_image_ptr[prev_index]->image), "/tmp/candidate/candidate_image_");
-  //ROS_INFO("Min difference is : %f", min_diff_clouds->diff);
+  //loicate the min and max pixels
+  double *minVal, *maxVal;
+  cv::Point *minLoc, *maxLoc;
+  cv::minMaxLoc(diff_sum_image, minVal, maxVal, minLoc, maxLoc);
+  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,255), 1, 8);
+  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);
+ /* calculating the weighted sum*/
 
-/*  for (size_t i = 0; i < cloud_mat_b[cloud_index].rows; i++)
+  //declaring variables
+  cloud_sum_image.setTo(cv::Scalar(0,0,0));
+  cv::Mat weighted_mat;
+  //weightedSum(cv_image_ptr, weighted_mat);
+}
+
+/*void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& weighted_mat)
+{
+  float weighted_sum, weight_diff;
+  cv::Mat diff_image;
+  for(size_t i = 0; i < images.size() - 1; i++)
   {
-    for(size_t j = 0; j < prev_mat_b[prev_index].cols; j++)
+    for(size_t j = 0; j < images[i]->image.rows; j++)
     {
-      diff_[i+j] += ((double)(cloud_mat_b[cloud_index].at<float>(j,i)) - (double)(prev_mat_b[prev_index].at<float>(j,i))) * weight;
-      if (diff_[i+j] > max_)
+      for(size_t k = 0; k < images[i]->images.cols; k++)
       {
-        max_ = diff_[i+j];
-        max_idx_ = i+j;
+        weighted_mat.at<
       }
     }
   }
-*/
-  ROS_INFO("*****************************************************************************************************");
-}
+}*/
 
+/*void LedFinder::CloudDifferenceTracker::maxDiff(cv::Mat diff_i)
+{
+  double *max_i, *min_i;
+  cv::Point *pt_min, *pt_max;
+  cv::minMax(diff_i, min_i, max_i, pt_min, pt_max);
+  // /cv::circle
+}
+*/
  void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
  {
   ros::Time n = ros::Time::now();

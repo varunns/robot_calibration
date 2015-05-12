@@ -486,9 +486,19 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //loicate the min and max pixels
   double *minVal, *maxVal;
   cv::Point *minLoc, *maxLoc;
-  cv::minMaxLoc(diff_sum_image, minVal, maxVal, minLoc, maxLoc);
+
+  //split channels
+  std::vector<cv::Mat> channels(3);
+  cv::split(diff_sum_image, channels);
+  cv::minMaxLoc(channels[0], minVal, maxVal, minLoc, maxLoc);
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,255), 1, 8);
+  cv::minMaxLoc(channels[1], minVal, maxVal, minLoc, maxLoc);
+  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,255,0), 1, 8);
+  cv::minMaxLoc(channels[2], minVal, maxVal, minLoc, maxLoc);
+  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(255,0,0), 1, 8);
+
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);
+
  /* calculating the weighted sum*/
 
   //declaring variables

@@ -75,6 +75,7 @@ public:
     //cv::normalize(, no_y, 0, 1, 32);
     cv::Mat diff_image = curr_gray - prev_gray;
    // diffHist(diff_image);
+
     debug_pic(diff_image, "/tmp/test/image_", 0, 0, 0);
 
   }
@@ -98,7 +99,7 @@ public:
                        cv::Point( bin_w*(i), hist_h - cvRound(diff_hist.at<float>(i)) ),
                        cv::Scalar( 255, 0, 0), 2, 8, 0  );
     }
-
+    //double diff = cv::compareHist
     debug_pic(histImage,"/tmp/test/hist_image_", 0, 0, 0);
   }
 

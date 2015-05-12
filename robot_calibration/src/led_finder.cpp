@@ -106,6 +106,9 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
   led_duration_ = 5;
 }
 
+bool LedFinder::debug_flag_ = true;
+
+
 void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
   
@@ -138,7 +141,7 @@ bool LedFinder::waitForCloud()
   ROS_ERROR("Failed to get cloud");
   return !waiting_;
 }
-
+ 
 bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 {
   uint8_t code_idx = -1;
@@ -349,7 +352,6 @@ LedFinder::CloudDifferenceTracker::CloudDifferenceTracker(
   point.x = x;
   point.y = y;
   point.z = z;
-  set_debug_flag(true);
 }
 
 void LedFinder::CloudDifferenceTracker::reset(size_t size)
@@ -410,9 +412,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> prev,
   double weight)
 {
-  if (get_debug_flag() == false)
+  if(!debug_flag_)
   {
-    return true;
+    return false;
   }
 
   /*converting point clouds to images*/
@@ -477,9 +479,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
       cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
 
-      debuc_pic(cloud_image_ptr[i]->image, "/tmp/gray/cloud_gray_");
-      debuc_pic(prev_image_ptr[i]->image, "/tmp/gray/prev_gray_");
-      debuc_pic(diff_image, "/tmp/diff/diff_image_");
+      debuc_pic(cloud_image_ptr[i]->image, "/tmp/debug/curr/cloud_gray_", i);
+      debuc_pic(prev_image_ptr[j]->image, "/tmp/debug/prev/prev_gray_",j);
+      debuc_pic(diff_image, "/tmp/debug/diff/diff_image_",i);
       cv::Scalar mean_diff = cv::mean(diff_image);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
       ROS_INFO("difference of candidate is :  %f", diff);
@@ -526,26 +528,15 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       }
     }
   }
-*/
-  set_debug_flag(false);
+*/debug_flag_ = false;
   ROS_INFO("*****************************************************************************************************");
 }
 
- bool LedFinder::CloudDifferenceTracker::get_debug_flag()
- {
-  return debug_flag_;
- }
-
- void LedFinder::CloudDifferenceTracker::set_debug_flag(bool flag)
- {
-  debug_flag_ = flag;
- }
- 
- void LedFinder::CloudDifferenceTracker::debuc_pic(cv::Mat image, std::string string_in)
+ void LedFinder::CloudDifferenceTracker::debuc_pic(cv::Mat image, std::string string_in, int k)
  {
   ros::Time n = ros::Time::now();
   std::stringstream ss(std::stringstream::in | std::stringstream::out);
-  ss<<string_in<<"_"<<n<<".jpg";
+  ss<<string_in<<"_"<<k<<".jpg";
   imwrite(ss.str(), image);
  }
 

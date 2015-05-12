@@ -92,10 +92,9 @@ class LedFinder : public FeatureFinder
 
     /*for debuggin*/
     void debuc_pic(cv::Mat image, 
-                   std::string string_in);
+                   std::string string_in,
+                   int k);
 
-    void set_debug_flag(bool flag);
-    bool get_debug_flag();
     /*struct holding all the combinations of indexes of before and after clouds
       along with the respective differences */
     struct Combination
@@ -128,7 +127,6 @@ class LedFinder : public FeatureFinder
       }
     };
     
-    bool debug_flag_;
     int count_;
     std::vector<double> diff_;
     double max_;
@@ -141,13 +139,23 @@ class LedFinder : public FeatureFinder
 
 public:
   LedFinder(ros::NodeHandle & n);
-
+   static bool debug_flag_;
   /**
    * \brief Attempts to find the led in incoming data.
    * \param msg CalibrationData instance to fill in with led point information.
    * \returns True if point has been filled in.
    */
   bool find(robot_calibration_msgs::CalibrationData * msg);
+  
+  static bool getDebug()
+  {
+    return debug_flag_;
+  }
+
+  static void setDebug(bool flag)
+  {
+    debug_flag_ = flag;
+  }
 
 private:
   void cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
@@ -179,7 +187,6 @@ private:
   cv::Mat diff_image_;
   float led_duration_; //led duration.. to keep led on for so many secs
 };
-
 
 }  // namespace robot_calibration
 

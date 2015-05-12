@@ -466,16 +466,15 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
  //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
-
+ cv::Mat thresh;
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   for(size_t i = 0; i < size_loop; i++)
   {
     for(size_t j = 0; j < size_loop; j++)
     {
 
-      cv::threshold(cloud_gray[i], cloud_gray[i], 200, 255, CV_THRESH_BINARY);
-      cv::threshold(prev_gray[i], prev_gray[i], 200, 255, CV_THRESH_BINARY);
       cv::Mat diff_image = (cloud_gray[i] - prev_gray[i]);
+
       debuc_pic(cloud_gray[i], "/tmp/gray/cloud_gray_");
       debuc_pic(prev_gray[i], "/tmp/gray/prev_gray_");
       debuc_pic(diff_image, "/tmp/diff/diff_image_");

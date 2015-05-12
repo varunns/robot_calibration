@@ -466,24 +466,28 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
   std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
   cv::Mat thresh, cloud_gry, prev_gry, diff_gray, diff_i;
+  std::vector<cv::Mat> cloud_channels(3);
+  std::vector<cv::Mat> prev_channels(3);
 
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   for(size_t i = 0; i < size_loop; i++)
   {
     for(size_t j = 0; j < size_loop; j++)
     {
-      cv::cvtColor(cloud_image_ptr[i]->image, cloud_gry, CV_BGR2GRAY);
-      cv::cvtColor(prev_image_ptr[j]->image, prev_gry, CV_BGR2GRAY);
+      cv::split(cloud_image_ptr[i]->image, cloud_channels);
+      cv::split(prev_image_ptr[i]->image, prev_channels);
+
+      /*cv::cvtColor(cloud_image_ptr[i]->image, cloud_gry, CV_BGR2GRAY);
+      cv::cvtColor(prev_image_ptr[j]->image, prev_gry, CV_BGR2GRAY);*/
     /*  cv::threshold(cloud_gry, cloud_gry, 150, 255, CV_THRESH_BINARY);
       cv::threshold(prev_gry, prev_gry, 150, 255, CV_THRESH_BINARY);*/
-      diff_i = cloud_image_ptr[i]->image - prev_image_ptr[j]->image;
-      cv::cvtColor(diff_i, diff_gray, CV_BGR2GRAY);
-      cv::Scalar mean_diff = cv::mean(diff_gray);
+      diff_i = cloud_channels[0] - prev_channels[0];
+      cv::Scalar mean_diff = cv::mean(diff_i);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
       ROS_INFO("difference of candidate is :  %f", diff);
-      debug_img(cloud_gry, "/tmp/debug/curr/cloud_gray_", i, j, diff);
-      debug_img(prev_gry, "/tmp/debug/prev/prev_gray_",i , j, diff);
-      debug_img(diff_gray, "/tmp/debug/diff/diff_image_",i, j, diff);
+      debug_img(cloud_channels[0], "/tmp/debug/curr/cloud_gray_", i, j, diff);
+      debug_img(prev_channels[0], "/tmp/debug/prev/prev_gray_",i , j, diff);
+      debug_img(diff_i, "/tmp/debug/diff/diff_image_",i, j, diff);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff, diff_gray) );
       combination_queue.push(cloud_i_j_ptr);
     }

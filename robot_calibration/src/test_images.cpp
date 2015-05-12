@@ -22,16 +22,25 @@ private:
   ros::Subscriber sub_;
   cv::Mat prev_image_;
   bool flag_;
+  int i;
 
 public:
   TestImages()
   {
     sub_ = nh_.subscribe("/head_camera/rgb/image_rect_color", 1, &TestImages::imageCB, this);
     flag_ = true;
+    i = 0;
   }
 
   void imageCB(const sensor_msgs::ImageConstPtr& image)
   { 
+    i++;
+
+    if(i < 10)
+    {
+      return;
+    }
+
     cv_bridge::CvImagePtr cv_ptr;
     try
     {
@@ -65,7 +74,7 @@ public:
     //cv::cvtColor(no_y, no_y, CV_YUV2BGR);
     //cv::normalize(, no_y, 0, 1, 32);
     cv::Mat diff_image = curr_gray - prev_gray;
-    diffHist(diff_image);
+   // diffHist(diff_image);
     debug_pic(diff_image, "/tmp/test/image_", 0, 0, 0);
 
   }

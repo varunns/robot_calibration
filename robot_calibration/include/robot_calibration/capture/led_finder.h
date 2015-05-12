@@ -94,6 +94,8 @@ class LedFinder : public FeatureFinder
     void debuc_pic(cv::Mat image, 
                    std::string string_in);
 
+    void set_debug_flag(bool flag);
+    bool get_debug_flag();
     /*struct holding all the combinations of indexes of before and after clouds
       along with the respective differences */
     struct Combination
@@ -125,7 +127,8 @@ class LedFinder : public FeatureFinder
         return(a->diff > b->diff);
       }
     };
-          
+    
+    bool debug_flag_;
     int count_;
     std::vector<double> diff_;
     double max_;

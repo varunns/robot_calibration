@@ -104,7 +104,6 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
   }
   //duration to keep the led on.... it now keeps sending goal continuosly for 2s
   led_duration_ = 5;
- 
 }
 
 void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
@@ -350,6 +349,7 @@ LedFinder::CloudDifferenceTracker::CloudDifferenceTracker(
   point.x = x;
   point.y = y;
   point.z = z;
+  set_debug_flag(true);
 }
 
 void LedFinder::CloudDifferenceTracker::reset(size_t size)
@@ -410,7 +410,12 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> prev,
   double weight)
 {
-  //converting point clouds to images
+  if (get_debug_flag() == false)
+  {
+    return true;
+  }
+
+  /*converting point clouds to images*/
 
   //ros image and ros pointcloud used for intermediate conversion
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
@@ -461,9 +466,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     ros_image.reset(new sensor_msgs::Image);
   }
 
- //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
- std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
- cv::Mat thresh;
+  //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
+  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
+  cv::Mat thresh;
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   for(size_t i = 0; i < size_loop; i++)
   {
@@ -502,7 +507,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   int pindex = min_diff_clouds->prev_index;
   //cv::Mat min_diff_cloud = cloud_image_ptr[cloud_]
   ROS_INFO("cloud_index : %d , prev_index : %d, min diff: %f", cindex, pindex, min_diff_clouds->diff);
-  debuc_pic(min_diff_clouds->diff_image, "/tmp/candidate/diff_image_");
+  //debuc_pic(min_diff_clouds->diff_image, "/tmp/candidate/diff_image_");
   /*debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
   debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");*/
  
@@ -522,8 +527,19 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     }
   }
 */
-
+  set_debug_flag(false);
+  ROS_INFO("*****************************************************************************************************");
 }
+
+ bool LedFinder::CloudDifferenceTracker::get_debug_flag()
+ {
+  return debug_flag_;
+ }
+
+ void LedFinder::CloudDifferenceTracker::set_debug_flag(bool flag)
+ {
+  debug_flag_ = flag;
+ }
  
  void LedFinder::CloudDifferenceTracker::debuc_pic(cv::Mat image, std::string string_in)
  {

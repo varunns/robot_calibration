@@ -51,18 +51,22 @@ public:
     {
       ROS_ERROR("sorry state : %s", e.what());
     }
-
+    cv::Mat yuv_image;
     if(flag_)
     {
-      prev_image_ = cv_ptr->image;
+      std::vector<cv::Mat> channels(3);
+      cv::cvtColor(cv_ptr->image, yuv_image, CV_BGR2YUV);
+      cv::split(yuv_image, channels);
+      prev_image_ = channels[0];
       flag_ = false;
     }
-    cv::Mat curr_gray, prev_gray, no_illuminance, yuv_image, no_y, canny;
-    cv::cvtColor(prev_image_, prev_gray, CV_BGR2GRAY);
-    cv::cvtColor(cv_ptr->image, curr_gray, CV_BGR2GRAY);
+    cv::Mat curr_gray, prev_gray, no_illuminance,no_y, canny;
+    //cv::cvtColor(prev_image_, prev_gray, CV_BGR2GRAY);
+   // cv::cvtColor(cv_ptr->image, curr_gray, CV_BGR2GRAY);
     std::vector<cv::Mat> channels(3);
     cv::cvtColor(cv_ptr->image, yuv_image, CV_BGR2YUV);
     cv::split(yuv_image, channels);
+    cv::Mat diff = channels[0] - prev_image_;
     //cv::equalizeHist(channels[0], channels[0]);
     //std::vector<cv::Mat> new_channels(3);
    /* cv::Mat tmp(channels[0].rows, channels[0].cols, CV_8UC1);
@@ -75,7 +79,7 @@ public:
     //cv::normalize(, no_y, 0, 1, 32);
    // diffHist(diff_image);
     
-    debug_pic(channels[0], "/tmp/test/image_", 0, 0, 0);
+    debug_pic(diff, "/tmp/test/image_", 0, 0, 0);
 
   }
 

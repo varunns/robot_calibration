@@ -57,7 +57,7 @@ public:
       prev_image_ = cv_ptr->image;
       flag_ = false;
     }
-    cv::Mat curr_gray, prev_gray, no_illuminance, yuv_image, no_y;
+    cv::Mat curr_gray, prev_gray, no_illuminance, yuv_image, no_y, canny;
     cv::cvtColor(prev_image_, prev_gray, CV_BGR2GRAY);
     cv::cvtColor(cv_ptr->image, curr_gray, CV_BGR2GRAY);
     //std::vector<cv::Mat> channels(3);
@@ -73,10 +73,9 @@ public:
     //cv::merge(channels, no_y);
     //cv::cvtColor(no_y, no_y, CV_YUV2BGR);
     //cv::normalize(, no_y, 0, 1, 32);
-    cv::Mat diff_image = curr_gray - prev_gray;
    // diffHist(diff_image);
-
-    debug_pic(diff_image, "/tmp/test/image_", 0, 0, 0);
+    
+    debug_pic(curr_gray, "/tmp/test/image_", 0, 0, 0);
 
   }
 

@@ -61,6 +61,7 @@ public:
     new_channels[2] = channels[2];*/
     cv::merge(channels, no_y);
     cv::cvtColor(no_y, no_y, CV_YUV2BGR);
+    cv::normalize(no_y, no_y, 0, 1, 32);
     debug_pic(no_y, "/tmp/test/image_", 0, 0, 0);
 
   }

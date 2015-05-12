@@ -116,7 +116,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() >= 100)
+    if(clouds_ptr_.size() >= 40)
     {
       waiting_ = false;
     }
@@ -465,7 +465,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
   std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
-  cv::Mat thresh;
+  cv::Mat thresh, diff_gray;
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   for(size_t i = 0; i < size_loop; i++)
   {
@@ -474,11 +474,13 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
       cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
       cv::Scalar mean_diff = cv::mean(diff_image);
+      cv::cvtColor(mean_diff, diff_gray, CV_BGR2GRAY);
+      cv::threshold(diff_gray, thresh, 150, 255, CV_THRESH_BINARY);
       float diff = pow(mean_diff[0],2)+pow(mean_diff[1],2)+pow(mean_diff[2],2)+pow(mean_diff[3],2);
       ROS_INFO("difference of candidate is :  %f", diff);
       debuc_pic(cloud_image_ptr[i]->image, "/tmp/debug/curr/cloud_gray_", i, j, diff);
       debuc_pic(prev_image_ptr[j]->image, "/tmp/debug/prev/prev_gray_",i , j, diff);
-      debuc_pic(diff_image, "/tmp/debug/diff/diff_image_",i, j, diff);
+      debuc_pic(thresh, "/tmp/debug/diff/diff_image_",i, j, diff);
       CombinationPtr cloud_i_j_ptr(new Combination(i, j, diff, diff_image) );
       combination_queue.push(cloud_i_j_ptr);
     }

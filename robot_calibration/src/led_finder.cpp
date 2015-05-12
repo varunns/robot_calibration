@@ -470,7 +470,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     for(size_t j = 0; j < size_loop; j++)
     {
 
-      cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[i]->image);
+      cv::Mat diff_image = (cloud_image_ptr[i]->image - prev_image_ptr[j]->image);
 
       debuc_pic(cloud_gray[i], "/tmp/gray/cloud_gray_");
       debuc_pic(prev_gray[i], "/tmp/gray/prev_gray_");
@@ -502,6 +502,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   int pindex = min_diff_clouds->prev_index;
   //cv::Mat min_diff_cloud = cloud_image_ptr[cloud_]
   ROS_INFO("cloud_index : %d , prev_index : %d, min diff: %f", cindex, pindex, min_diff_clouds->diff);
+  debuc_pic(min_diff_clouds->diff_image, "/tmp/candidate/diff_image_");
   /*debuc_pic(cloud_image_ptr[cloud_index]->image, "/tmp/candidate/cloud_image_");
   debuc_pic(prev_image_ptr[prev_index]->image, "/tmp/candidate/prev_image_");*/
  

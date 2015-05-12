@@ -79,7 +79,7 @@ public:
     //cv::normalize(, no_y, 0, 1, 32);
    // diffHist(diff_image);
     
-    debug_pic(channels[0], "/tmp/test/image_", 0, 0, 0);
+    debug_pic(diff, "/tmp/test/image_", 0, 0, 0);
 
   }
 

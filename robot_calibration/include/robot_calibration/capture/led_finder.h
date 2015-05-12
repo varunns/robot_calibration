@@ -91,7 +91,7 @@ class LedFinder : public FeatureFinder
 			                    geometry_msgs::PointStamped& point);
 
     /*for debuggin*/
-    void debuc_pic(cv::Mat image, 
+    void debug_img(cv::Mat image, 
                    std::string string_in,
                    int k,
                    int l,

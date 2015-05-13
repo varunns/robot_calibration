@@ -38,7 +38,7 @@ typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
 namespace robot_calibration
 {
 
-double distancePoints(
+  double distancePoints(
   const geometry_msgs::Point p1,
   const geometry_msgs::Point p2)
 {
@@ -107,7 +107,6 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
 }
 
 bool LedFinder::debug_flag_ = true;
-
 
 void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
@@ -333,7 +332,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     return false;
   }
 
-	  // Add debug cloud to message
+    // Add debug cloud to message
   if (output_debug_)
   {
     pcl::toROSMsg(*cloud_ptr_, msg->observations[0].cloud);
@@ -471,12 +470,12 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat cloud_sum_image(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   cv::Mat prev_sum_image(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
-  float scale = (float)(1/size_loop);
+  float scale = 0.2;
   ROS_INFO("size_info : %d", size_loop);
   for(size_t i = 0; i < size_loop; i++)
   {
-    cloud_sum_image = cloud_sum_image + scale*cloud_image_ptr[i]->image;
-    prev_sum_image = prev_sum_image + scale*prev_image_ptr[i]->image;//
+    cloud_sum_image = cloud_sum_image + 0.2*cloud_image_ptr[i]->image;
+    prev_sum_image = prev_sum_image + 0.2*prev_image_ptr[i]->image;
   }
   debug_img(cloud_sum_image,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_sum_image,"/tmp/mean/prev_", 0, 0, 0);  
@@ -484,8 +483,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::absdiff(cloud_sum_image, prev_sum_image, diff_sum_image);
 
   //loicate the min and max pixels
-  double *minVal = new double();double *maxVal = new double;
-  cv::Point *minLoc = new cv::Point(); cv::Point *maxLoc = new cv::Point();
+  double *minVal = new double();
+  double *maxVal = new double();
+  cv::Point *minLoc = new cv::Point(); 
+  cv::Point *maxLoc = new cv::Point();
 
   debug_img(diff_sum_image,"/tmp/mean/diff_", 0, 0, 0);
 
@@ -508,6 +509,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat weighted_mat;
   //weightedSum(cv_image_ptr, weighted_mat);
 }
+
+
 
 /*void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& weighted_mat)
 {
@@ -702,10 +705,10 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
 }
 
   bool LedFinder::CloudDifferenceTracker::getDifferenceCloud(
-	  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+    const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
     const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
-	  cv::Mat& diff_image_,
- 	  double weight)
+    cv::Mat& diff_image_,
+    double weight)
   {
    
     std::vector< pcl::PointCloud<pcl::PointXYZRGB> > pcl_cloud;
@@ -730,7 +733,7 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
      }
      catch(cv_bridge::Exception& e)
      {
-	     ROS_ERROR("failed to convert: %s", e.what()); 
+       ROS_ERROR("failed to convert: %s", e.what()); 
      }
     }
     std::stringstream ss(std::stringstream::in | std::stringstream::out);
@@ -750,7 +753,7 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
   }
 
   bool LedFinder::CloudDifferenceTracker::getContourCircle(cv::Mat&  image,
-	                                                         geometry_msgs::PointStamped& point)
+                                                           geometry_msgs::PointStamped& point)
   {
 /*   cv::Mat gray_image, norm_image, canny_image;
 
@@ -773,6 +776,6 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
     cv::Scalar color =  cv::Scalar(0,0,255);
     cv::drawContours(image, contours, i, color, 2, 8, hierarchy, 0 , cv::Point());
    }  */
-}
+  }
 
 }  // namespace robot_calibration

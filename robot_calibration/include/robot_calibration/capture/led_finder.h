@@ -87,7 +87,7 @@ class LedFinder : public FeatureFinder
 		                        double weight);
 
     // Calculate the weighted sum of the images
-    void weightedSum(std::vector<cv_bridge::CvImagePtr> images, 
+    void weightedSum(std::vector<cv_bridge::CvImagePtr>& images, 
                      cv::Mat& result);
 
     // trying out looking for contours

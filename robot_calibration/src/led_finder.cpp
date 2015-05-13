@@ -520,7 +520,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
  * @param array of image pointers
  * @param weighed image
  */
-void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& result)
+void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr>& images, cv::Mat& result)
 {
   std::vector<cv::Mat> weights(images.size());
   cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));

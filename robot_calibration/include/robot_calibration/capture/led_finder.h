@@ -86,6 +86,10 @@ class LedFinder : public FeatureFinder
                             cv::Mat& image,
 		                        double weight);
 
+    // Calculate the weighted sum of the images
+    void weightedSum(std::vector<cv_bridge::CvImagePtr> images, 
+                     cv::Mat& result);
+
     // trying out looking for contours
     bool getContourCircle(cv::Mat& cloud,
 			                    geometry_msgs::PointStamped& point);

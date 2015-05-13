@@ -484,8 +484,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::absdiff(cloud_sum_image, prev_sum_image, diff_sum_image);
 
   //loicate the min and max pixels
-  double *minVal, *maxVal;
-  cv::Point *minLoc, *maxLoc;
+  double *minVal = new double();double *maxVal = new double;
+  cv::Point *minLoc = new cv::Point(); cv::Point *maxLoc = new cv::Point();
 
   //split channels
   std::vector<cv::Mat> channels(3);

@@ -532,9 +532,9 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   //if everything is don eint he same loop the image saturates
   //TODO is to just use the cv::Array instead of cv::Mat and 
   //non-opencv options for multiplication and division
-  for(int i = 1; i < images.size(); i++)
+  for(int i = 0; i < images.size() - 1; i++)
   {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-    cv::absdiff(images[i]->image, images[i-1]->image, weight);
+    cv::absdiff(images[i]->image, images[i+1]->image, weight);
    /* weights.push_back(weight);
     norm_weight = norm_weight + weight;*/
   }

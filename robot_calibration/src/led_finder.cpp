@@ -473,14 +473,13 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
   weightedSum(prev_image_ptr, prev_pix_weighed);
-
+/*
 
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix_max;
   cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix_max);
 
-  //loicate the min and max pixels
   double *minVal = new double();
   double *maxVal = new double();
   cv::Point *minLoc = new cv::Point(); 
@@ -505,7 +504,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
 
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);
-
+*/
  /* calculating the weighted sum*/
 
   //declaring variables
@@ -535,17 +534,17 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   //non-opencv options for multiplication and division
   for(int i = 1; i < images.size(); i++)
   {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-    cv::absdiff(images[(int)i]->image, images[(int)i-1]->image, weight);
+    cv::absdiff(images[i]->image, images[i-1]->image, weight);
     weights.push_back(weight);
     norm_weight = norm_weight + weight;
   }
 
-  for(int i = 1; i < images.size(); i++)
+  /*for(int i = 1; i < images.size(); i++)
   {
     cv::divide(weights[i-1], norm_weight, tmp_weight, 1);
     cv::multiply(tmp_weight, images[i]->image, weighted_image);
     result = result + weighted_image;
-  }
+  }*/
 }
 
 /*void LedFinder::CloudDifferenceTracker::maxDiff(cv::Mat diff_i)

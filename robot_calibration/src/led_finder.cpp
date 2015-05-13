@@ -481,13 +481,14 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   for(int i = 1; i < images.size(); i++)
   {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
     cv::absdiff(images[i-1]->image, images[i]->image, weight);
-    weights.push_back(weight);
+    weights[i] = weight;
     norm_weight = norm_weight + weight;
   }
 
   for(int i = 1; i < images.size(); i++)
   {
-    cv::divide(weights[i-1], norm_weight, tmp_weight, 1);
+    ROS_INFO("i : %d", i);
+    cv::divide(weights[i], norm_weight, tmp_weight, 1);
     cv::multiply(tmp_weight, images[i]->image, weighted_image);
     result = result + weighted_image;
   }

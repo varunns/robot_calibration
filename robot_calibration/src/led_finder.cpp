@@ -467,37 +467,38 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat thresh, cloud_gry, prev_gry, diff_gray, diff_i;
   std::vector<cv::Mat> cloud_channels(3);
   std::vector<cv::Mat> prev_channels(3);
-  cv::Mat cloud_sum_image(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::Mat prev_sum_image(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat cloud_pix_max(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat prev_pix_max(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   float scale = 0.2;
   ROS_INFO("size_info : %d", size_loop);
 
   //Consider the same indexed pixel in all the clouds, assign the highest intensity to all
+  // computer per element max using cv::max recursively
   for(size_t i = 0; i < size_loop; i++)
   {
-    cloud_sum_image = cloud_sum_image + 0.05*cloud_image_ptr[i]->image;
-    prev_sum_image = prev_sum_image + 0.05*prev_image_ptr[i]->image;
+    cloud_pix_max = cv::max(cloud_pix_max, cloud_image_ptr[i]->image);
+    prev_pix_max = cv::max(prev_pix_max, prev_image_ptr[i]->image);
   }
-  debug_img(cloud_sum_image,"/tmp/mean/cloud_", 0, 0, 0);  
-  debug_img(prev_sum_image,"/tmp/mean/prev_", 0, 0, 0);  
-  cv::Mat diff_sum_image;
-  cv::absdiff(cloud_sum_image, prev_sum_image, diff_sum_image);
+  debug_img(cloud_pix_max,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(prev_pix_max,"/tmp/mean/prev_", 0, 0, 0);  
+  cv::Mat diff_pix_max;
+  cv::absdiff(cloud_pix_max, prev_pix_max, diff_pix_max);
 
   //loicate the min and max pixels
   double *minVal = new double();
   double *maxVal = new double();
   cv::Point *minLoc = new cv::Point(); 
   cv::Point *maxLoc = new cv::Point();
-  debug_img(diff_sum_image,"/tmp/mean/diff_", 0, 0, 0);
-  cv::cvtColor(diff_sum_image, thresh, CV_BGR2GRAY);
+  debug_img(diff_pix_max,"/tmp/mean/diff_", 0, 0, 0);
+  cv::cvtColor(diff_pix_max, thresh, CV_BGR2GRAY);
   cv::threshold(thresh, thresh, 150, 255, CV_THRESH_BINARY);
   debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   cv::minMaxLoc(thresh, minVal, maxVal, minLoc, maxLoc);
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,0), 1, 8);
   //split channels
   std::vector<cv::Mat> channels(3);
-  cv::split(diff_sum_image, channels);
+  cv::split(diff_pix_max, channels);
   cv::minMaxLoc(channels[0], minVal, maxVal, minLoc, maxLoc);
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,255), 1, 8);
   cv::minMaxLoc(channels[1], minVal, maxVal, minLoc, maxLoc);
@@ -510,8 +511,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
  /* calculating the weighted sum*/
 
   //declaring variables
-  cloud_sum_image.setTo(cv::Scalar(0,0,0));
-  cv::Mat weighted_mat;
+  //cloud_sum_image.setTo(cv::Scalar(0,0,0));
+  //cv::Mat weighted_mat;
   //weightedSum(cv_image_ptr, weighted_mat);
 }
 

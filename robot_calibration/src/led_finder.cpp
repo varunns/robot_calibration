@@ -477,19 +477,19 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   ROS_INFO("size_info : %d", size_loop);
   for(size_t i = 0; i < size_loop; i++)
   {
-    cloud_sum_image = cloud_sum_image + 0.1*cloud_image_ptr[i]->image;
-    //prev_sum_image = prev_sum_image + 1/size_loop*prev_image_ptr[i]->image;//
+    cloud_sum_image = cloud_sum_image + (1/size_loop)*cloud_image_ptr[i]->image;
+    prev_sum_image = prev_sum_image + (1/size_loop)*prev_image_ptr[i]->image;//
   }
   debug_img(cloud_sum_image,"/tmp/mean/cloud_", 0, 0, 0);  
-  //debug_img(prev_sum_image,"/tmp/mean/prev_", 0, 0, 0);  
-  //cv::Mat diff_sum_image;
-  //cv::absdiff(cloud_sum_image, prev_sum_image, diff_sum_image);
+  debug_img(prev_sum_image,"/tmp/mean/prev_", 0, 0, 0);  
+  cv::Mat diff_sum_image;
+  cv::absdiff(cloud_sum_image, prev_sum_image, diff_sum_image);
 
   //loicate the min and max pixels
   double *minVal = new double();double *maxVal = new double;
   cv::Point *minLoc = new cv::Point(); cv::Point *maxLoc = new cv::Point();
 
-  //debug_img(diff_sum_image,"/tmp/mean/diff_", 0, 0, 0);
+  debug_img(diff_sum_image,"/tmp/mean/diff_", 0, 0, 0);
 
   //split channels
   /*std::vector<cv::Mat> channels(3);

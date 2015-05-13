@@ -479,7 +479,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     cloud_sum_image += 1/size_loop*cloud_image_ptr[i]->image;
     prev_sum_image += 1/size_loop*prev_image_ptr[i]->image;
   }
-
+  debug_img(cloud_sum_image,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(prev_sum_image,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_sum_image;
   cv::absdiff(cloud_sum_image, prev_sum_image, diff_sum_image);
 

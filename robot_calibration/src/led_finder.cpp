@@ -472,6 +472,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   float scale = 0.2;
   ROS_INFO("size_info : %d", size_loop);
+
+  //Consider the same indexed pixel in all the clouds, assign the highest intensity to all
   for(size_t i = 0; i < size_loop; i++)
   {
     cloud_sum_image = cloud_sum_image + 0.05*cloud_image_ptr[i]->image;

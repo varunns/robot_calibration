@@ -474,8 +474,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   ROS_INFO("size_info : %d", size_loop);
   for(size_t i = 0; i < size_loop; i++)
   {
-    cloud_sum_image = cloud_sum_image + 0.2*cloud_image_ptr[i]->image;
-    prev_sum_image = prev_sum_image + 0.2*prev_image_ptr[i]->image;
+    cloud_sum_image = cloud_sum_image + 0.05*cloud_image_ptr[i]->image;
+    prev_sum_image = prev_sum_image + 0.05*prev_image_ptr[i]->image;
   }
   debug_img(cloud_sum_image,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_sum_image,"/tmp/mean/prev_", 0, 0, 0);  

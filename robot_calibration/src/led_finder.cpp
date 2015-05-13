@@ -115,7 +115,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() >= 10)
+    if(clouds_ptr_.size() >= 20)
     {
       waiting_ = false;
     }
@@ -474,8 +474,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   ROS_INFO("size_info : %d", size_loop);
   for(size_t i = 0; i < size_loop; i++)
   {
-    cloud_sum_image = cloud_sum_image + 0.1*cloud_image_ptr[i]->image;
-    prev_sum_image = prev_sum_image + 0.1*prev_image_ptr[i]->image;
+    cloud_sum_image = cloud_sum_image + 0.05*cloud_image_ptr[i]->image;
+    prev_sum_image = prev_sum_image + 0.05*prev_image_ptr[i]->image;
   }
   debug_img(cloud_sum_image,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_sum_image,"/tmp/mean/prev_", 0, 0, 0);  
@@ -488,7 +488,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Point *minLoc = new cv::Point(); 
   cv::Point *maxLoc = new cv::Point();
   debug_img(diff_sum_image,"/tmp/mean/diff_", 0, 0, 0);
-
+  cv::cvtColor(diff_sum_image, thresh, CV_BGR2GRAY);
+  cv::threshold(thresh, thresh, 150, 255, CV_THRESH_BINARY);
+  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
+  cv::minMaxLoc(thresh, minVal, maxVal, minLoc, maxLoc);
+  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,0), 1, 8);
   //split channels
   std::vector<cv::Mat> channels(3);
   cv::split(diff_sum_image, channels);

@@ -60,7 +60,7 @@ public:
       prev_image_ = channels[0];
       flag_ = false;
     }
-    cv::Mat curr_gray, prev_gray, no_illuminance,no_y, canny;
+    cv::Mat curr_gray, prev_gray, no_illuminance, no_y, canny;
     //cv::cvtColor(prev_image_, prev_gray, CV_BGR2GRAY);
    // cv::cvtColor(cv_ptr->image, curr_gray, CV_BGR2GRAY);
     std::vector<cv::Mat> channels(3);

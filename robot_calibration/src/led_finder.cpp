@@ -474,9 +474,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   prev_sum_image = cloud_image_ptr[0]->image;
   prev_sum_image.setTo(cv::Scalar(0,0,0));
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
-  //for(size_t i = 0; i < size_loop; i++)
+  ROS_INFO("size_info : %d", size_loop);
+  for(size_t i = 0; i < size_loop; i++)
   {
-    cloud_sum_image = cloud_image_ptr[0]->image + cloud_image_ptr[1]->image + cloud_image_ptr[2]->image;
+    cloud_sum_image = cloud_sum_image + cloud_image_ptr[i]->image;
     //prev_sum_image = prev_sum_image + 1/size_loop*prev_image_ptr[i]->image;//
   }
   debug_img(cloud_sum_image,"/tmp/mean/cloud_", 0, 0, 0);  

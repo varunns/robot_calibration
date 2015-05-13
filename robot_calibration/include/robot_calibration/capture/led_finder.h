@@ -61,13 +61,6 @@ class LedFinder : public FeatureFinder
     bool isFound(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                  double threshold);
 
-    /*overloaded functions added by varun*/
-    bool oprocess(
-      std::vector<pcloud_> cloud,
-      std::vector<pcloud_> prev,
-      double weight);
-
-
     // Gives a refined centroid using multiple points
     bool getRefinedCentroid(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                             geometry_msgs::PointStamped& point);
@@ -75,20 +68,24 @@ class LedFinder : public FeatureFinder
     // Reset the tracker
     void reset(size_t size);
 
-/*
-    // Obtaining a hough circle for the points
-    bool getHoughCirclesCentroid(const pcl::PointCloud<pcl::PointXYZRGB> cloud,
-			         geometry_msgs::PointStamped& point);*/
-
     // Looking at clouds to Obtain max_cloud and diff cloud
     bool getDifferenceCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 		                        const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
                             cv::Mat& image,
 		                        double weight);
 
+    /* Overloaded/un-overloaded left functions added by varun*/
+    bool oprocess(std::vector<pcloud_> cloud,
+                  std::vector<pcloud_> prev,
+                  double weight);
+
     // Calculate the weighted sum of the images
     void weightedSum(std::vector<cv_bridge::CvImagePtr>& images, 
                      cv::Mat& result);
+
+    // Convert pointcloud to cv_image ptr
+    void convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, 
+                            std::vector<cv_bridge::CvImagePtr>& cv_ptr);
 
     // trying out looking for contours
     bool getContourCircle(cv::Mat& cloud,
@@ -173,7 +170,7 @@ private:
 
   bool waiting_;
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_ptr_;
-  std::vector< pcl::PointCloud<pcl::PointXYZRGB>::Ptr >clouds_ptr_;
+  std::vector< pcl::PointCloud<pcl::PointXYZRGB>::Ptr > clouds_ptr_;
 
   std::vector<CloudDifferenceTracker> trackers_;
   std::vector<uint8_t> codes_;

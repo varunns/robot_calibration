@@ -396,84 +396,36 @@ bool LedFinder::CloudDifferenceTracker::process(
   return true;
 }
 
-/*overloaded types by varun*/
+/*functions by varun*/
 /*
- *@Brief the function process n number of pointclouds that come before and after
- *       finds the min difference combination of before and after assigns max
+ *@brief the function processes n number of pointclouds that come before and after
+ *       finds the weighted sum of respective vectors, and then the difference
  *@param vector of clouds before
  *@param vector of clouds after
  *@param weight assigned whether on or off
  *
- *@note: there is repetetion, the code can still be modified
+ *@note weighted some is done to avoid the noise originating from 
+ *      external illumination(can further be invested)
+ *      there is little repetetion, the code can still be modified
  */
 bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> cloud,
   std::vector<pcloud_> prev,
   double weight)
 {
-  /*converting point clouds to images*/
-
-  //ros image and ros pointcloud used for intermediate conversion
-  sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
-  sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
-
   //cv_bridge image pointers
-  std::vector<cv_bridge::CvImagePtr> cloud_image_ptr(cloud.size() );
-  std::vector<cv_bridge::CvImagePtr> prev_image_ptr(cloud.size() );
+  std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;
+  std::vector<cv_bridge::CvImagePtr> prev_image_ptr;
 
-  //opencv images for processing,   cloud_gray for grayscale images and vice versa
-  std::vector<cv::Mat> cloud_gray(cloud.size() );
-  std::vector<cv::Mat> prev_gray(cloud.size() );
-
-  //Difference grayscale images
-  std::vector<cv::Mat> diff_image(cloud.size() );
-
-  //initial processing to convert to cv::Mat
-  int size_loop = std::min(cloud.size(), prev.size());
-  for(size_t i = 0; i < size_loop; i++)
-  {
-    pcl::toROSMsg(*(cloud[i]), *ros_cloud);
-    pcl::toROSMsg(*ros_cloud, *ros_image);
-    try
-    {
-      cloud_image_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
-      cv::cvtColor(cloud_image_ptr[i]->image, cloud_gray[i], CV_BGR2GRAY);
-    }
-    catch(cv_bridge::Exception& e)
-    {
-      ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
-    }
-
-    ros_cloud.reset(new sensor_msgs::PointCloud2);
-    ros_image.reset(new sensor_msgs::Image);
-
-    pcl::toROSMsg(*(prev[i]), *ros_cloud);
-    pcl::toROSMsg(*ros_cloud, *ros_image);
-    try
-    {
-      prev_image_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
-      cv::cvtColor(prev_image_ptr[i]->image, prev_gray[i], CV_BGR2GRAY);
-    }
-    catch(cv_bridge::Exception& e)
-    {
-      ROS_ERROR("prev_rosimage is sorry: %s ", e.what());
-    }
-    ros_cloud.reset(new sensor_msgs::PointCloud2);
-    ros_image.reset(new sensor_msgs::Image);
-  }
-
-  //each struct has index combination and whole difference, queue sorts them so that the struct with combination that has min diff floats to the top
-  std::priority_queue<CombinationPtr, std::vector<CombinationPtr>, CompareCombination> combination_queue;
-  cv::Mat thresh, cloud_gry, prev_gry, diff_gray, diff_i;
-  std::vector<cv::Mat> cloud_channels(3);
-  std::vector<cv::Mat> prev_channels(3);
+  //function call for initial processing to convert to cv::Mat
+  convert2CvImagePtr(cloud, cloud_image_ptr);
+  convert2CvImagePtr(prev, prev_image_ptr);
 
   cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
   weightedSum(prev_image_ptr, prev_pix_weighed);
-/*
 
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
@@ -485,11 +437,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Point *minLoc = new cv::Point(); 
   cv::Point *maxLoc = new cv::Point();
 
-  debug_img(diff_pix_max,"/tmp/mean/diff_", 0, 0, 0);
+  cv::Mat thresh; 
   cv::cvtColor(diff_pix_max, thresh, CV_BGR2GRAY);
   cv::threshold(thresh, thresh, 150, 255, CV_THRESH_BINARY);
-  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
-  
+
   cv::minMaxLoc(thresh, minVal, maxVal, minLoc, maxLoc);
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,0), 1, 8);
   //split channels
@@ -502,16 +453,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::minMaxLoc(channels[2], minVal, maxVal, minLoc, maxLoc);
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(255,0,0), 1, 8);
 
-
+  debug_img(diff_pix_max,"/tmp/mean/diff_", 0, 0, 0);
+  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);
-*/
- /* calculating the weighted sum*/
-
-  //declaring variables
-  //cloud_sum_image.setTo(cv::Scalar(0,0,0));
-  //cv::Mat weighted_mat;
-  //weightedSum(cv_image_ptr, weighted_mat);
 }
+
 
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 
@@ -532,29 +478,44 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   //if everything is don eint he same loop the image saturates
   //TODO is to just use the cv::Array instead of cv::Mat and 
   //non-opencv options for multiplication and division
-  for(int i = 0; i < images.size() - 1; i++)
+  for(int i = 1; i < images.size(); i++)
   {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-    cv::absdiff(images[i]->image, images[i+1]->image, weight);
-   /* weights.push_back(weight);
-    norm_weight = norm_weight + weight;*/
+    cv::absdiff(images[i-1]->image, images[i]->image, weight);
+    weights.push_back(weight);
+    norm_weight = norm_weight + weight;
   }
 
-  /*for(int i = 1; i < images.size(); i++)
+  for(int i = 1; i < images.size(); i++)
   {
     cv::divide(weights[i-1], norm_weight, tmp_weight, 1);
     cv::multiply(tmp_weight, images[i]->image, weighted_image);
     result = result + weighted_image;
-  }*/
+  }
 }
 
-/*void LedFinder::CloudDifferenceTracker::maxDiff(cv::Mat diff_i)
+void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
 {
-  double *max_i, *min_i;
-  cv::Point *pt_min, *pt_max;
-  cv::minMax(diff_i, min_i, max_i, pt_min, pt_max);
-  // /cv::circle
+  sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
+  sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
+  cv_ptr.resize(pcl_cloud.size());
+  for(size_t i = 0; i < pcl_cloud.size(); i++)
+  {
+    cv_ptr[i].reset(new cv_bridge::CvImage);
+
+    pcl::toROSMsg(*(pcl_cloud[i]), *ros_cloud);
+    pcl::toROSMsg(*ros_cloud, *ros_image);
+    try
+    {
+      cv_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+    }
+    catch(cv_bridge::Exception& e)
+    {
+      ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
+    }
+  }
+
 }
-*/
+
  void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
  {
   ros::Time n = ros::Time::now();

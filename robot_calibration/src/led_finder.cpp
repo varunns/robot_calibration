@@ -487,7 +487,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   double *maxVal = new double();
   cv::Point *minLoc = new cv::Point(); 
   cv::Point *maxLoc = new cv::Point();
-
+  cv::minMaxLoc(diff_sum_image, minVal, maxVal, minLoc, maxLoc);
   debug_img(diff_sum_image,"/tmp/mean/diff_", 0, 0, 0);
 
   //split channels

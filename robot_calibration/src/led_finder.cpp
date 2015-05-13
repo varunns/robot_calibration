@@ -468,11 +468,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat thresh, cloud_gry, prev_gry, diff_gray, diff_i;
   std::vector<cv::Mat> cloud_channels(3);
   std::vector<cv::Mat> prev_channels(3);
-  cv::Mat cloud_sum_image, prev_sum_image;
-  cloud_sum_image = cloud_image_ptr[0]->image;
-  cloud_sum_image.setTo(cv::Scalar(0,0,0));
-  prev_sum_image = cloud_image_ptr[0]->image;
-  prev_sum_image.setTo(cv::Scalar(0,0,0));
+  cv::Mat cloud_sum_image(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat prev_sum_image(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   //testing the nearness -- debuc_pic is for debugging the pics .. basically observing them
   ROS_INFO("size_info : %d", size_loop);
   for(size_t i = 0; i < size_loop; i++)

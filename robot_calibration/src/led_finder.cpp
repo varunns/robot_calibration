@@ -26,6 +26,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/photo/photo.hpp>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -115,7 +116,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() >= 10)
+    if(clouds_ptr_.size() > 10)
     {
       waiting_ = false;
     }
@@ -469,29 +470,23 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr>& images, cv::Mat& result)
 {
   std::vector<cv::Mat> weights(images.size());
-  cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::Mat weighted_image(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
+  cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
+  cv::Mat weighted_image(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
   cv::Mat tmp_weight;
 
   //Calculating the weight in a different loop as the we need the overall weight to normalize, 
-  //if everything is don eint he same loop the image saturates
+  //if everything is done int he same loop the image saturates
   //TODO is to just use the cv::Array instead of cv::Mat and 
-  //non-opencv options for multiplication and division
-  for(int i = 1; i < images.size(); i++)
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-    cv::absdiff(images[i-1]->image, images[i]->image, weight);
-    weights[i] = weight;
-    norm_weight = norm_weight + weight;
+  //non-opencv options for multiplication and division  
+  std::vector<cv::Mat> img(images.size(), weight );
+  for(int i = 0; i < images.size(); i++)
+  {
+    img.push_back(images[i]->image);
   }
 
-  for(int i = 1; i < images.size(); i++)
-  {
-    ROS_INFO("i : %d", i);
-    cv::divide(weights[i], norm_weight, tmp_weight, 1);
-    cv::multiply(tmp_weight, images[i]->image, weighted_image);
-    result = result + weighted_image;
-  }
+  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 6, 10, 10, 7, 21);
+
 }
 
 void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)

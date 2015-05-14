@@ -485,7 +485,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
     img.push_back(images[i]->image);
   }
 
-  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 6, 10, 10, 7, 21);
+  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
 
 }
 

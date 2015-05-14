@@ -470,24 +470,40 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr>& images, cv::Mat& result)
 {
   std::vector<cv::Mat> weights(images.size());
-  cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
-  cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
-  cv::Mat weighted_image(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
-  cv::Mat tmp_weight;
+  cv::Mat square_img(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0, 0, 0));
+  cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
+  cv::Mat weighed_image(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
+  cv::Mat tmp_weighed(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
+
+  //giving weights equal to the pixel intensity
+  for(int i = 0; i < images.size(); i++)
+  {
+    cv::add(images.size(), norm_weight, norm_weight);
+  }
 
   //Calculating the weight in a different loop as the we need the overall weight to normalize, 
   //if everything is done int he same loop the image saturates
   //TODO is to just use the cv::Array instead of cv::Mat and 
   //non-opencv options for multiplication and division  
-  std::vector<cv::Mat> img(images.size(), weight );
-  for(int i = 0; i < images.size(); i++)
+  for(int i = 1; i < images.size(); i++)
   {
-    img.push_back(images[i]->image);
+    cv::multiply(images[i]->image, images[i]->image, square_img);
+    cv::add(square_img, tmp_weighed, tmp_weighed);
+  }
+  cv::divide(tmp_weighed,norm_weight, weighed_image);
+  result = weighed_image;
+}
+
+
+/*float LedFinder::CloudDifferenceTracker::weightCalc(double pix1, double pix2)
+{
+  if(pix1 > pix2)
+  {
+    return 1.25;
   }
 
-  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
-
-}
+  return 0.75;
+}*/
 
 void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
 {
@@ -503,6 +519,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     try
     {
       cv_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+      cv_ptr[i]->image.convertTo(cv_ptr[i]->image, CV_32S);
     }
     catch(cv_bridge::Exception& e)
     {

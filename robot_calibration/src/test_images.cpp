@@ -64,7 +64,7 @@ public:
     }
   }
 
-  void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
+void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
   {
     ros::Time n = ros::Time::now();
     std::stringstream ss(std::stringstream::in | std::stringstream::out);

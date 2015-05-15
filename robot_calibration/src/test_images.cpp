@@ -66,7 +66,7 @@ public:
   void process(std::vector<cv::Mat> images)
   {
     std::vector<cv::MatND> hist_base;
-    std::vector<cv::Mat> hsv;
+    std::vector<cv::Mat> hsv(images.size());
     
     for(int i = 0; i < images.size(); i++)
     {

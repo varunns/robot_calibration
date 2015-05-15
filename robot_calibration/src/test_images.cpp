@@ -30,6 +30,7 @@ public:
     sub_ = nh_.subscribe("/head_camera/rgb/image_rect_color", 1, &TestImages::imageCB, this);
     flag_ = true;
     i = 0;
+    std::vector<cv::Mat> images;
   }
 
   void imageCB(const sensor_msgs::ImageConstPtr& image)
@@ -46,7 +47,7 @@ public:
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
     std::cout<<"done converting"<<std::endl;
-    std::vector<cv::Mat> images;
+
     images.push_back(cv->image);
     if(images.size() > 4)
     {
@@ -59,6 +60,7 @@ public:
 
   void process(std::vector<cv::Mat> images)
   {
+    std::cout<<"in process"<<std::endl;
     for(int i = 0; i < images.size(); i++)
     {
       debug_img(images[i], "/tmp/mean/image_", 0, 0, 0);

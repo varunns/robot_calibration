@@ -74,6 +74,13 @@ public:
     for(int i = 1; i < images.size(); i++)
     {
       cv::Mat img = floats[i] - floats[i-1];
+      for(int j = 0; j < img.rows; j++)
+      {
+        for (int k = 0; k < img.cols; k++)
+        {
+          std::cout<<img.at<double>(k,j);
+        }
+      }
       debug_img(img,"/tmp/mean/imag_",0,0,0);
     }
   }

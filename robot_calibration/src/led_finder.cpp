@@ -438,6 +438,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Point *minLoc = new cv::Point(); 
   cv::Point *maxLoc = new cv::Point();
 
+  diff_pix_max.convertTo(diff_pix_max, CV_8UC3);
   cv::Mat thresh; 
   cv::cvtColor(diff_pix_max, thresh, CV_BGR2GRAY);
   cv::threshold(thresh, thresh, 150, 255, CV_THRESH_BINARY);

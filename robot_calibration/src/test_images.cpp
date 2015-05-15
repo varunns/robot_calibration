@@ -10,10 +10,15 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/core/core.hpp>
 
-#include <pcl/io/pcd_io.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/point_types.h>
+#include <pcl/filters/extract_indices.h>
 #include <pcl/filters/passthrough.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/point_types.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <algorithm>
 #include <queue>
@@ -34,7 +39,7 @@ public:
   TestImages()
   {
     sub_ = nh_.subscribe("/head_camera/depth_registered/points", 1, &TestImages::pcCB, this);
-    pub_ = nh_.advertise<geometry_msgs::Point>("/color_diff", 10);
+    pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/color_diff", 10);
     flag_ = true;
     i = 0;
     
@@ -56,38 +61,69 @@ public:
     pass.setFilterLimits(0.0, 1.0);
     pass.filter(index_in);
     index_rem = pass.getRemovedIndices();
-
+    //std::cout<<"former: "<<index_rem->size()<<std::endl;
     // Set all filtered out points to white
     for(int i = 0; i < index_rem->size(); i++)
     {
+      pcl_cloud->points[index_rem->at(i)].x = NAN;
+      pcl_cloud->points[index_rem->at(i)].y = NAN;
+      pcl_cloud->points[index_rem->at(i)].z = NAN;
       pcl_cloud->points[index_rem->at(i)].r = 255;
       pcl_cloud->points[index_rem->at(i)].g = 255;
       pcl_cloud->points[index_rem->at(i)].b = 255;
     }
+    
+    /*plane fitting*/
+    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+    pcl::SACSegmentation<pcl::PointXYZRGB> seg;
+    seg.setOptimizeCoefficients (false);
+    seg.setModelType (pcl::SACMODEL_PLANE);
+    seg.setMethodType (pcl::SAC_RANSAC);
+    seg.setDistanceThreshold (0.001);
+    seg.setInputCloud (pcl_cloud);
+    seg.segment (*inliers, *coefficients);
+     //extract indices\
+    
+    //std::vector<int>* index_out(new std::vector<int>);
+    pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
+    extract_filter.setInputCloud(pcl_cloud);
+    extract_filter.setIndices (inliers);
+    extract_filter.setNegative(true);
+
+    std::vector<int> index_in1;
+    pcl::IndicesConstPtr index_rem1;
+    extract_filter.filter(index_in1);
+    index_rem1 = extract_filter.getRemovedIndices();
+    for(int i = 0; i < index_rem1->size(); i++)
+    {
+      pcl_cloud->points[index_rem1->at(i)].x = NAN;
+      pcl_cloud->points[index_rem1->at(i)].y = NAN;
+      pcl_cloud->points[index_rem1->at(i)].z = NAN;
+      pcl_cloud->points[index_rem1->at(i)].r = 255;
+      pcl_cloud->points[index_rem1->at(i)].g = 255;
+      pcl_cloud->points[index_rem1->at(i)].b = 255;
+    }
+
 
     sensor_msgs::PointCloud2 ros_cloud;
     pcl::toROSMsg(*pcl_cloud,ros_cloud);
+    ros_cloud.header.frame_id = "base_link";
+    pub_.publish(ros_cloud);
     sensor_msgs::ImagePtr img(new sensor_msgs::Image);
     pcl::toROSMsg(ros_cloud, *img);
 
-
-    // Convert ROS image to OpenCV image (after passthrough)
-    cv_bridge::CvImagePtr cv_ptr;
+    cv_bridge::CvImagePtr cv;
     try
     {
-      cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
+      cv = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
     }
-    catch (cv_bridge::Exception& e)
+    catch(cv_bridge::Exception& e)
     {
-      ROS_ERROR("CVbridge conversion failed.");
-      return;
-    }  
-    images.push_back(cv_ptr->image);
-    if(images.size() > 5)
-    {
-      testAgain(images);
-      images.clear();
+      ROS_ERROR("sorry state : %s", e.what());
     }
+    debug_img(cv->image, "/tmp/mean/img_",0,0,0);
+
   }
 
 

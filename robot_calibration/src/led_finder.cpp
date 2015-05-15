@@ -433,8 +433,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   convert2CvImagePtr(prev, prev_image_ptr);
 
   //perform a bitwise AND
-  bitwiseAND(cloud_image_ptr, cloud_bits);
-  bitwiseAND(prev_image_ptr, prev_bits);
+/*  bitwiseAND(cloud_image_ptr, cloud_bits);
+  bitwiseAND(prev_image_ptr, prev_bits);*/
 
   /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
   debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
@@ -518,11 +518,12 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   //if everything is done int he same loop the image saturates
   //TODO is to just use the cv::Array instead of cv::Mat and 
   //non-opencv options for multiplication and division  
-  std::vector<cv::Mat> img(images.size(), weight );
+
   std::vector<cv::Mat> channels(3);
+
   for(int i = 0; i < images.size(); i++)
   {
-    cv::add(tmp_weight,(1/images.size())*(images[i]->image), result);
+    cv::add(tmp_weight,0.05*(images[i]->image), result);
     tmp_weight = result;
   }
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
@@ -561,46 +562,6 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
       pcl_cloud[i]->points[index_rem->at(j)].g = 0;
       pcl_cloud[i]->points[index_rem->at(j)].b = 0;
     }
-
-    /*plane fitting*/
-/*    
-    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
-    // Create the segmentation object
-    pcl::SACSegmentation<pcl::PointXYZRGB> seg;
-    // Optional
-    seg.setOptimizeCoefficients (true);
-    // Mandatory
-    seg.setModelType (pcl::SACMODEL_PLANE);
-    seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setDistanceThreshold (0.01);
-    
-    seg.setInputCloud (pcl_cloud[i]);
-    seg.segment (*inliers, *coefficients);
-
-    pcloud_ cloud_out (new pcl::PointCloud<pcl::PointXYZRGB>);
-    //extract indices\
-    pcloud_ clouds (new pcl::PointCloud<pcl::PointXYZRGB>());
-    std::vector<int> indices_not;
-    pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
-    extract_filter.setInputCloud (pcl_cloud[i]);
-    extract_filter.filter (*cloud_out);
-    pcl::IndicesConstPtr index_re;
-    index_re = extract_filter.getRemovedIndices(); 
-    for(int k = 0; k < index_rem->size(); k++)
-    {
-      ROS_INFO("z : %f",pcl_cloud[i]->points[index_rem->at(k)].z);
-    }
-    std::cout<<"**************************************************************************************"<<std::endl;
-    for(int j = 0; j < indices_not.size(); j++)
-    {
-     pcl_cloud[i]->points[index_re->at(j)].x = NAN;
-     pcl_cloud[i]->points[index_re->at(j)].y = NAN;
-     pcl_cloud[i]->points[index_re->at(j)].z = NAN;
-     pcl_cloud[i]->points[index_re->at(j)].r = 0;
-     pcl_cloud[i]->points[index_re->at(j)].g = 0;
-     pcl_cloud[i]->points[index_re->at(j)].b = 0; 
-    }*/
 
       
     pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);

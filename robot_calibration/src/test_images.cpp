@@ -65,7 +65,7 @@ public:
 
   }
 
-  void testAgain(std::vector<cv::Mat> images)
+  void testAgain(std::vector<cv::Mat>& images)
   {
 /*    std::vector<cv::Mat> floats(images.size());
     for(int i = 0; i < images.size(); i++)

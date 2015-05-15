@@ -54,13 +54,13 @@ public:
    
 
     images.push_back(cv->image);
-    if(images.size() > 5)
+    if(images.size() > 9)
     {
-     std::cout<<"inside if"<<std::endl;
-     testAgain(images);
-     std::cout<<"after func call"<<std::endl;
-     images.erase(images.begin(),images.end());
-     std::cout<<"after clear"<<std::endl;
+      testAgain(images);
+      for(int i = 0; i < images.size(); i++ )
+      {
+        images[i].release();
+      }
     }
 
   }

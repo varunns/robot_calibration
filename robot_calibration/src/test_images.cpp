@@ -56,10 +56,11 @@ public:
     images.push_back(cv->image);
     if(images.size() > 9)
     {
-   
-      testAgain(images);
-      if(!images.empty())
-        images.clear();
+     std::cout<<"inside if"<<std::endl;
+     testAgain(images);
+     std::cout<<"after func call"<<std::endl;
+     images.clear()
+     std::cout<<"after clear"<<std::endl;
     }
 
   }

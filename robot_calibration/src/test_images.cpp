@@ -72,10 +72,10 @@ public:
 
     for(int i = 1; i < images.size(); i++)
     {
-      for(int j = 0; j < (images[i].rows/48); j++)
+      for(int j = 0; j < (images[i].rows/2); j++)
       {
-        cv::Mat tmp1 = images[i](cv::Rect(0, 48*j, 640, 48));
-        cv::Mat tmp2 = images[i-1](cv::Rect(0, 48*j, 640, 48));
+        cv::Mat tmp1 = images[i](cv::Rect(0, 2*j, 640, 2));
+        cv::Mat tmp2 = images[i-1](cv::Rect(0, 2*j, 640, 2));
         cv::Mat diff = tmp1 - tmp2;
         std::cout<<cv::mean(diff)<<std::endl;
       }

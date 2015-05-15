@@ -79,6 +79,7 @@ public:
         cv::Mat diff = images[i] - images[i-1];
         std::cout<<cv::mean(diff)<<std::endl;
       }
+      std::cout<<"*88888888888888888888888888888888888888888888888888888888888888"<<std::endl;
       cv::Mat diff = images[i] - images[i-1];
       debug_img(diff,"/tmp/mean/imag_",0,0,0);
     }

@@ -8,6 +8,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core/core.hpp>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -93,10 +94,7 @@ public:
   void testAgain(  std::vector<cv::Mat>  images)
   {
     std::vector<cv::Mat> floats(images.size());
-    for(int i = 0; i < images.size(); i++)
-    {
-      images[i].convertTo(floats[i], CV_32SC3);
-    }
+
 
     for(int i = 1; i < images.size(); i++)
     {
@@ -111,10 +109,45 @@ public:
       }
       std::cout<<"*88888888888888888888888888888888888888888888888888888888888888"<<std::endl;*/
       cv::Mat diff = images[i] - images[i-1];
+      eliminate_wedges(diff);
       debug_img(diff,"/tmp/mean/imag_",0,0,0);
     }
 
       
+  }
+
+  void eliminate_wedges(cv::Mat& image)
+  {
+    for(int i = 0; i < image.rows - 5; i++)
+    {
+      for(int j = 0; j < image.cols - 5; j++)
+      {
+
+        cv::Rect roi = cv::Rect(j, i, 5, 5);
+        cv::Mat roi_img = image(roi);
+        cv::Mat gray;
+        cv::cvtColor(roi_img, gray, CV_BGR2GRAY);
+
+        if(cv::countNonZero(gray) == 0)
+        {
+          continue;
+        }
+
+        if(cv::countNonZero(gray)/25 < 0.1)
+        {
+         cv::Mat nonos;
+         cv::findNonZero(gray, nonos);
+        
+         for(int k = 0; k < nonos.total(); k++)
+         {
+          cv::Point p = nonos.at<cv::Point>(k);
+          image.at<cv::Vec3b>(p.x,p.y) = cv::Vec3b(0,0,0);
+         }
+
+        }
+
+      }
+    }
   }
 /*
   void diffCalc(cv::Vec3b* p1, cv::Vec3b* p2)

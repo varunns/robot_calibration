@@ -439,7 +439,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
   weightedSum(prev_image_ptr, prev_pix_weighed);
-
+  ROS_INFO("weighted");
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix ;
@@ -503,6 +503,7 @@ void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImag
  */
 void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr>& images, cv::Mat& result)
 {
+  ROS_INFO("weighing");
   std::vector<cv::Mat> weights(images.size());
   cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
   cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));

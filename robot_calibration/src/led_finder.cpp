@@ -476,6 +476,7 @@ void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImag
   cv::Mat tmp;
   cv::Mat gray; 
   std::vector<cv::Mat> bits(images.size());
+
   for(int i = 0; i < images.size(); i++)
   {
     if(i = 0)
@@ -485,10 +486,13 @@ void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImag
       bits[0] = gray;
       continue;
     }
+    ROS_INFO("after if");
     cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
     cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, bits[i-1], bits[i]);  
+    ROS_INFO("qaft after");
   }
+  ROS_INFO("im end");
   bit_img = bits[((int)images.size()-1)];
 }
 

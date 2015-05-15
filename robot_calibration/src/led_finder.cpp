@@ -431,8 +431,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   bitwiseAND(cloud_image_ptr, cloud_bits);
   bitwiseAND(prev_image_ptr, prev_bits);
 
-  debug_img(cloud_bits, "tmp/mean/cloud_", 0,0,0);
-  debug_img(prev_bits, "tmp/mean/prev_", 0,0,0);
+  debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
+  debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);
 
   /*cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));*/
@@ -566,6 +566,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
 
  void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
  {
+  ROS_INFO("I am here");
   ros::Time n = ros::Time::now();
   std::stringstream ss(std::stringstream::in | std::stringstream::out);
   ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";

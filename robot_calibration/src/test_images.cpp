@@ -71,8 +71,8 @@ public:
     for(int i = 0; i < images.size(); i++)
     {
       cv::MatND tmp_hist;
-      cv::cvtColor(images[i], hsv[i], CV_BGR2HSV);
-      constHist(hsv[i], tmp_hist);
+      //cv::cvtColor(images[i], hsv[i], CV_BGR2HSV);
+      constHist(images[i], tmp_hist);
       hist_base.push_back(tmp_hist);
     }
 
@@ -88,14 +88,21 @@ public:
   {
 
     //drawing the histogram
-    int h_bins = 50; int s_bins = 60;
-    int histSize[] = { h_bins, s_bins };
-    int hist_size[] = {h_bins, s_bins};
-    float h_ranges[] = {0,180};
-    float s_ranges[] = {0,256};
+    //int h_bins = 50; int s_bins = 60; 
+    int r_bins = 64; int g_bins = 64; int b_bins =  64;
+    //int histSize[] = { h_bins, s_bins };
+    int histSize[] = { r_bins, g_bins, b_bins };
+    //int hist_size[] = {h_bins, s_bins};
+    //float h_ranges[] = {0,180};
+    //float s_ranges[] = {0,256};
+    float r_ranges[] = {0,255};
+    float g_ranges[] = {0,255};
+    float b_ranges[] = {0,255};
 
-    const float* ranges[] = {h_ranges, s_ranges};
-    int channels[] = {0,1};
+
+    //const float* ranges[] = {h_ranges, s_ranges};
+    const float* ranges[] = {r_ranges, g_ranges, b_ranges};
+    int channels[] = {0,1,2};
 
     cv::calcHist(&image, 1, channels, cv::Mat(), hist, 2, histSize, ranges, true, false);
     cv::normalize(hist, hist, 0, 1, 32, -1, cv::Mat());

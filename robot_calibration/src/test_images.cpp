@@ -89,7 +89,7 @@ public:
     pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
     extract_filter.setInputCloud(pcl_cloud);
     extract_filter.setIndices (inliers);
-    extract_filter.setNegative(true);
+   // / extract_filter.setNegative(true);
 
     std::vector<int> index_in1;
     pcl::IndicesConstPtr index_rem1;

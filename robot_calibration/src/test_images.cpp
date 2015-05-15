@@ -23,64 +23,51 @@ private:
   cv::Mat prev_image_;
   bool flag_;
   int i;
+  std::vector<cv::Mat> image_in;
 
 public:
   TestImages()
   {
-    sub_ = nh_.subscribe("/head_camera/rgb/image_rect_color", 1, &TestImages::imageCB, this);
+    sub_ = nh_.subscribe("/camera/depth_registered/points", 1, &TestImages::imageCB, this);
     flag_ = true;
     i = 0;
   }
 
-  void imageCB(const sensor_msgs::ImageConstPtr& image)
-  { 
-    i++;
-
-    if(i < 10)
-    {
-      return;
-    }
-
+  void imageCB(const sensor_msgs::PointCloud2::Ptr& ros_cloud)
+  {     
+    sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     cv_bridge::CvImagePtr cv_ptr;
+    cv_ptr.reset(new cv_bridge::CvImage);
+
+    pcl::toROSMsg(*ros_cloud, *ros_image);
     try
     {
-      cv_ptr = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::BGR8);
+      cv_ptr = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
     }
-
     catch(cv_bridge::Exception& e)
     {
-      ROS_ERROR("sorry state : %s", e.what());
+      ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
-    cv::Mat yuv_image;
-    if(flag_)
+    cv::Mat mat;
+    (cv_ptr->image).convertTo(mat, CV_32SC3);
+    image_in.push_back(mat);
+    if(image_in.size() > 4)
     {
-      std::vector<cv::Mat> channels(3);
-      cv::cvtColor(cv_ptr->image, yuv_image, CV_BGR2YUV);
-      cv::split(yuv_image, channels);
-      prev_image_ = channels[0];
-      flag_ = false;
+      testFunc(image_in);
+      image_in.clear();
     }
-    cv::Mat curr_gray, prev_gray, no_illuminance, no_y, canny;
-    //cv::cvtColor(prev_image_, prev_gray, CV_BGR2GRAY);
-   // cv::cvtColor(cv_ptr->image, curr_gray, CV_BGR2GRAY);
-    std::vector<cv::Mat> channels(3);
-    cv::cvtColor(cv_ptr->image, yuv_image, CV_BGR2YUV);
-    cv::split(yuv_image, channels);
-    cv::Mat diff = channels[0] - prev_image_;
-    //cv::equalizeHist(channels[0], channels[0]);
-    //std::vector<cv::Mat> new_channels(3);
-   /* cv::Mat tmp(channels[0].rows, channels[0].cols, CV_8UC1);
-    tmp.setTo(cv::Scalar(0));
-    new_channels[0] = tmp;
-    new_channels[1] = channels[1];
-    new_channels[2] = channels[2];*/
-    //cv::merge(channels, no_y);
-    //cv::cvtColor(no_y, no_y, CV_YUV2BGR);
-    //cv::normalize(, no_y, 0, 1, 32);
-   // diffHist(diff_image);
-    
-    debug_pic(diff, "/tmp/test/image_", 0, 0, 0);
+  }
 
+  void testFunc(std::vector<cv::Mat> images)
+  {
+    cv::Mat tmp_img = cv::Mat::zeros(images[0].rows, images[0].cols, CV_32SC3);
+    std::cout<<"I am here"<<std::endl;
+    for(int i = 0; i < images.size(); i++)
+    {
+      tmp_img = tmp_img+images[i];
+    }
+    std::cout<<"I am outta here"<<std::endl;
   }
 
   void diffHist(cv::Mat image)

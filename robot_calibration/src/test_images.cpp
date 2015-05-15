@@ -62,12 +62,13 @@ public:
   {
    
     cv::Mat diff_image;
-    cv::Scalar diff;
+    cv::Scalar diff = cv::Scalar(0,0,0,0);
     for(int i = 1; i < images.size(); i++)
     {
       cv::absdiff(images[i], images[i-1],diff_image);
       cv::Scalar mean_diff = cv::mean(diff_image);
-      std::cout<<mean_diff<<std::endl;
+      std::cout<<mean_diff<<" ::::: "<< (mean_diff - diff)<<std::endl;
+      diff = mean_diff;
       debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);
     }
     std::cout<<"**************************************************************"<<std::endl;

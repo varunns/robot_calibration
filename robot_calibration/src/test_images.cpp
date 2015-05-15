@@ -54,7 +54,7 @@ public:
    
 
     images.push_back(cv->image);
-    if(images.size() > 4)
+    if(images.size() > 9)
     {
    
       process(images);
@@ -65,33 +65,40 @@ public:
 
   void process(std::vector<cv::Mat> images)
   {
-    std::vector<cv::Mat> luv_img(images.size());
+    std::vector<cv::MatND> hist_base;
+    std::vector<cv::Mat> hsv;
+    
     for(int i = 0; i < images.size(); i++)
     {
-      cv::cvtColor(images[i], luv_img[i], CV_BGR2Luv);
+      cv::MatND tmp_hist;
+      cv::cvtColor(images[i], hsv[i], CV_BGR2HSV);
+      constHist(hsv[i], tmp_hist);
+      hist_base.push_back(tmp_hist);
     }
-    geometry_msgs::Point p;
-    cv::Mat diff_image;
-    cv::Scalar diff = cv::Scalar(0,0,0,0);
+
     for(int i = 1; i < images.size(); i++)
     {
-
-      cv::absdiff(luv_img[i], luv_img[i-1],diff_image);
-      cv::Scalar mean_diff = cv::mean(diff_image);
-      if(i > 1)
-      {
-        p.x = (mean_diff - diff)[0];
-        p.y = (mean_diff - diff)[1];
-        p.z = (mean_diff - diff)[2];
-        pub_.publish(p);
-        diff = mean_diff;
-      }
-      else
-      {
-        diff = mean_diff;
-      }
-      debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);
+      double diff = cv::compareHist(hist_base[i], hist_base[i-1], CV_COMP_CORREL);
+      std::cout<<diff<<std::endl;
     }
+
+  }
+
+  void constHist(cv::Mat image, cv::MatND& hist)
+  {
+
+    //drawing the histogram
+    int h_bins = 50; int s_bins = 60;
+    int histSize[] = { h_bins, s_bins };
+    int hist_size[] = {h_bins, s_bins};
+    float h_ranges[] = {0,180};
+    float s_ranges[] = {0,256};
+
+    const float* ranges[] = {h_ranges, s_ranges};
+    int channels[] = {0,1};
+
+    cv::calcHist(&image, 1, channels, cv::Mat(), hist, 2, histSize, ranges, true, false);
+    cv::normalize(hist, hist, 0, 1, 32, -1, cv::Mat());
   }
 
 void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)

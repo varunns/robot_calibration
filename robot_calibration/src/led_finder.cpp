@@ -426,7 +426,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
-  weightedSum(prev_image_ptr, prev_pix_weighed);
+/*  weightedSum(prev_image_ptr, prev_pix_weighed);
 
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
@@ -456,7 +456,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   debug_img(diff_pix_max,"/tmp/mean/diff_", 0, 0, 0);
   debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
-  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);
+  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
 }
 
 
@@ -492,8 +492,8 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   for(int i = 0; i < images.size(); i++)
   {
     cv::subtract(images[i]->image, mean_image, diff_image);
-    cv::divide(unit_matrix, diff_image, inv_var); 
-    weight[i] = unit_matrix + inv_var;    //giving weights equal to the pixel variance intensity
+    cv::divide(unit_matrix, diff_image, inv_var);  }
+/*    weight[i] = unit_matrix + inv_var;    //giving weights equal to the pixel variance intensity
     norm_matrix = norm_matrix + weight[i];
   }
 
@@ -505,7 +505,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
     cv::divide(weight[i], norm_matrix, tmp_img);
     cv::multiply(tmp_img, images[i]->image, tmp_product);
     result = result + tmp_product;
-  }
+  }*/
 }
 
 void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)

@@ -72,7 +72,7 @@ public:
 
     for(int i = 1; i < images.size(); i++)
     {
-      for(int j = 0; j < (images[i].rows/10 - 1); j++)
+      for(int j = 0; j < (images[i].rows/48); j++)
       {
         cv::Mat tmp1 = images[i](cv::Rect(cv::Point(0,(48*j-1)), cv::Size(640,48)));
       }

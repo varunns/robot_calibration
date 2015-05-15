@@ -93,7 +93,7 @@ public:
   {
     for(int i = 0; i < images.size(); i++)
     {
-      debug_img(images[i], "tmp/mean/img_",0,0,0);
+      debug_img(images[i], "/tmp/mean/img_",0,0,0);
     }
   }
 

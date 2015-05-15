@@ -61,9 +61,11 @@ public:
   void process(std::vector<cv::Mat> images)
   {
     std::cout<<"in process"<<std::endl;
+    cv::Mat diff_image;
     for(int i = 0; i < images.size(); i++)
     {
-      debug_img(images[i], "/tmp/mean/image_", 0, 0, 0);
+      cv::absdiff(images[i], images[i-1],diff_image);
+      debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);
     }
   }
 

@@ -34,6 +34,7 @@ public:
 
   void imageCB(const sensor_msgs::ImageConstPtr& image)
   { 
+    std::cout<<"jus entered the CB"<<std::endl;
     cv_bridge::CvImagePtr cv;
 
     try
@@ -44,11 +45,12 @@ public:
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
-
+    std:cout<<d"done converting"<<std::endl;
     std::vector<cv::Mat> images;
     images.push_back(cv->image);
     if(images.size() > 4)
     {
+      std::cout<<"jus filled up"<<std::endl;
       process(images);
       images.clear();
     }

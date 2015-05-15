@@ -520,11 +520,11 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   //non-opencv options for multiplication and division  
 
   std::vector<cv::Mat> channels(3);
+
   for(int i = 0; i < images.size(); i++)
   {
-    cv::add(tmp_weight,(0.05)*(images[i]->image), result);
+    cv::add(tmp_weight,0.05*(images[i]->image), result);
     tmp_weight = result;
-    debug_img(result, "/tmp/mean/debug_",0,0,0);
   }
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
 

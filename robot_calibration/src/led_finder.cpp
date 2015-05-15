@@ -434,8 +434,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
   debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
 
-  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC1, cv::Scalar(0));
+  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC1, cv::Scalar(0));
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
   weightedSum(prev_image_ptr, prev_pix_weighed);
@@ -508,17 +508,19 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
   cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
   cv::Mat weighted_image(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
-  cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
+  cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC1, cv::Scalar(0));
 
   //Calculating the weight in a different loop as the we need the overall weight to normalize, 
   //if everything is done int he same loop the image saturates
   //TODO is to just use the cv::Array instead of cv::Mat and 
   //non-opencv options for multiplication and division  
   std::vector<cv::Mat> img(images.size(), weight );
+  std::vector<cv::Mat> channels(3);
   for(int i = 0; i < images.size(); i++)
   {
-   cv::add(tmp_weight,images[i]->image, result);
-   tmp_weight = result;
+    cv::split(images[i]->image, channels)
+    cv::add(tmp_weight,channels[0], result);
+    tmp_weight = result;
   }
 
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);

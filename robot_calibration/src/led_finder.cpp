@@ -484,7 +484,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   tmp_img = null_matrix;
 
   //calculate the difference matrix for each image
-  cv::Mat diff_image(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0)); 
+  /*cv::Mat diff_image(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0)); 
   cv::Mat inv_var(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0)); 
   std::vector<cv::Mat> weight(images.size(), null_matrix);
   cv::Mat norm_matrix(null_matrix);
@@ -492,7 +492,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   for(int i = 0; i < images.size(); i++)
   {
     cv::subtract(images[i]->image, mean_image, diff_image);
-    cv::divide(unit_matrix, diff_image, inv_var);  }
+    cv::divide(unit_matrix, diff_image, inv_var);  }*/
 /*    weight[i] = unit_matrix + inv_var;    //giving weights equal to the pixel variance intensity
     norm_matrix = norm_matrix + weight[i];
   }

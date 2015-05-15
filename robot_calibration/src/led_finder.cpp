@@ -557,6 +557,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     try
     {
       cv_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+      debug_img(cv_ptr[i]->image, "/tmp/mean/converted_",0,0,0);
     }
     catch(cv_bridge::Exception& e)
     {

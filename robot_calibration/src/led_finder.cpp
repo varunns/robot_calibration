@@ -481,11 +481,11 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   }
   /*matrices used in calculation of weights using inverse variance*/
   //calculate the mean image
-  ROS_INFO("tmp seize : %d   %d", tmp_img.rows, tmp_img.cols);
-  ROS_INFO("double_image seize : %d   %d", double_image[0].rows, double_image[0].cols);
   cv::Mat mean_image(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
   for(int i = 0; i < images.size(); i++)
   {
+    ROS_INFO("tmp seize : %d   %d", tmp_img.rows, tmp_img.cols);
+    ROS_INFO("double_image seize : %d   %d", double_image[0].rows, double_image[0].cols);
     tmp_img = tmp_img + double_image[i];
   }
   // /mean_image = (1/images.size())*tmp_img; 

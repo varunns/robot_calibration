@@ -522,7 +522,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   std::vector<cv::Mat> channels(3);
   for(int i = 0; i < images.size(); i++)
   {
-    cv::add(tmp_weight,(1/images.size())*(images[i]->image), result);
+    cv::add(tmp_weight,(0.05)*(images[i]->image), result);
     tmp_weight = result;
     debug_img(result, "/tmp/mean/debug_",0,0,0);
   }
@@ -555,53 +555,13 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     // Set all filtered out points to white
     for(int j = 0; j < index_rem->size(); j++)
     {
-/*      pcl_cloud[i]->points[index_rem->at(j)].x = NAN;
+      pcl_cloud[i]->points[index_rem->at(j)].x = NAN;
       pcl_cloud[i]->points[index_rem->at(j)].y = NAN;
-      pcl_cloud[i]->points[index_rem->at(j)].z = NAN;*/
+      pcl_cloud[i]->points[index_rem->at(j)].z = NAN;
       pcl_cloud[i]->points[index_rem->at(j)].r = 0;
       pcl_cloud[i]->points[index_rem->at(j)].g = 0;
       pcl_cloud[i]->points[index_rem->at(j)].b = 0;
     }
-
-    /*plane fitting*/
-/*    
-    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
-    // Create the segmentation object
-    pcl::SACSegmentation<pcl::PointXYZRGB> seg;
-    // Optional
-    seg.setOptimizeCoefficients (true);
-    // Mandatory
-    seg.setModelType (pcl::SACMODEL_PLANE);
-    seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setDistanceThreshold (0.01);
-    
-    seg.setInputCloud (pcl_cloud[i]);
-    seg.segment (*inliers, *coefficients);
-
-    pcloud_ cloud_out (new pcl::PointCloud<pcl::PointXYZRGB>);
-    //extract indices\
-    pcloud_ clouds (new pcl::PointCloud<pcl::PointXYZRGB>());
-    std::vector<int> indices_not;
-    pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
-    extract_filter.setInputCloud (pcl_cloud[i]);
-    extract_filter.filter (*cloud_out);
-    pcl::IndicesConstPtr index_re;
-    index_re = extract_filter.getRemovedIndices(); 
-    for(int k = 0; k < index_rem->size(); k++)
-    {
-      ROS_INFO("z : %f",pcl_cloud[i]->points[index_rem->at(k)].z);
-    }
-    std::cout<<"**************************************************************************************"<<std::endl;
-    for(int j = 0; j < indices_not.size(); j++)
-    {
-     pcl_cloud[i]->points[index_re->at(j)].x = NAN;
-     pcl_cloud[i]->points[index_re->at(j)].y = NAN;
-     pcl_cloud[i]->points[index_re->at(j)].z = NAN;
-     pcl_cloud[i]->points[index_re->at(j)].r = 0;
-     pcl_cloud[i]->points[index_re->at(j)].g = 0;
-     pcl_cloud[i]->points[index_re->at(j)].b = 0; 
-    }*/
 
       
     pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);

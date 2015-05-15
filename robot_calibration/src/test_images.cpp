@@ -45,7 +45,7 @@ public:
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
-    std:cout<<d"done converting"<<std::endl;
+    std:cout<<"done converting"<<std::endl;
     std::vector<cv::Mat> images;
     images.push_back(cv->image);
     if(images.size() > 4)

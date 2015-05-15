@@ -540,7 +540,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     pass.setFilterLimits(0.0, 1.0);
     pass.filter(index_in);
     index_rem = pass.getRemovedIndices();
-    ROS_INFO("I am here");
+
     // Set all filtered out points to white
     for(int i = 0; i < index_rem->size(); i++)
     {
@@ -548,7 +548,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
       pcl_cloud[i]->points[index_rem->at(i)].g = 255;
       pcl_cloud[i]->points[index_rem->at(i)].b = 255;
     }
-
+        ROS_INFO("I am here");
     pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);
     try

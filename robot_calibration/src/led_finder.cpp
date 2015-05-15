@@ -489,7 +489,7 @@ void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImag
     cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, bits[i-1], bits[i]);  
   }
-  bit_img = *(bits.end());
+  bit_img = bits[((int)images.size()-1)];
 }
 
 

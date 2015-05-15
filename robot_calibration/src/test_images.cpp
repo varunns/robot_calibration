@@ -25,7 +25,7 @@ private:
   cv::Mat prev_image_;
   bool flag_;
   int i;
-  std::vector<cv::Mat> images;
+  std::vector<boost::shared_ptr<cv::Mat> > images;
   
 public:
   TestImages()
@@ -53,19 +53,16 @@ public:
     }
    
 
-    images.push_back(cv->image);
+    images.push_back(boost::make_shared<cv::Mat>(cv->image) );
     if(images.size() > 9)
     {
       testAgain(images);
-      for(int i = 0; i < images.size(); i++ )
-      {
-        images[i].release();
-      }
+      images.clear();
     }
 
   }
 
-  void testAgain(std::vector<cv::Mat>& images)
+  void testAgain(  std::vector<boost::shared_ptr<cv::Mat> > images)
   {
 /*    std::vector<cv::Mat> floats(images.size());
     for(int i = 0; i < images.size(); i++)
@@ -75,14 +72,14 @@ public:
 
     for(int i = 1; i < images.size(); i++)
     {
-      for(int j = 0; j < images[i].rows; j++)
+      for(int j = 0; j < images[i]->rows; j++)
       {
-        for (int k = 0; k < images[i].cols; k++)
+        for (int k = 0; k < images[i]->cols; k++)
         {
-          diffCalc(images[i].at<cv::Vec3b>(k,j), images[i-1].at<cv::Vec3b>(k,j));
+          diffCalc(images[i]->at<cv::Vec3b>(k,j), images[i-1]->at<cv::Vec3b>(k,j));
         }
       }
-      cv::Mat diff = images[i] - images[i-1];
+      cv::Mat diff = *images[i] - *images[i-1];
       debug_img(diff,"/tmp/mean/imag_",0,0,0);
     }
 
@@ -104,7 +101,16 @@ public:
     }
   }
 
-  void process(std::vector<cv::Mat> images)
+  void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
+  {
+
+    ros::Time n = ros::Time::now();
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
+    imwrite(ss.str(), image);
+  }
+
+/*  void process(std::vector<cv::Mat> images)
   {
     std::vector<cv::MatND> hist_base;
     std::vector<cv::Mat> hsv(images.size());
@@ -149,14 +155,7 @@ public:
     cv::normalize(hist, hist, 0, 1, 32, -1, cv::Mat());
   }
 
-void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
-  {
 
-    ros::Time n = ros::Time::now();
-    std::stringstream ss(std::stringstream::in | std::stringstream::out);
-    ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
-    imwrite(ss.str(), image);
-  }
 
   void diffHist(cv::Mat image)
   {
@@ -188,7 +187,7 @@ void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
     ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
     imwrite(ss.str(), image);
   }
-
+*/
 };
 
 int main(int argc, char** argv)

@@ -28,10 +28,15 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/photo/photo.hpp>
 
-#include <pcl/io/pcd_io.h>
-#include <pcl_conversions/pcl_conversions.h>
- #include <pcl/point_types.h>
+#include <pcl/filters/extract_indices.h>
 #include <pcl/filters/passthrough.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/point_types.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <algorithm>
 #include <queue>
@@ -518,10 +523,9 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   std::vector<cv::Mat> channels(3);
   for(int i = 0; i < images.size(); i++)
   {
-    cv::add(tmp_weight,images[i]->image, result);
+    cv::add(tmp_weight,(1/images.size())*(images[i]->image), result);
     tmp_weight = result;
   }
-
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
 
 }
@@ -560,30 +564,39 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     }
 
     /*plane fitting*/
-    /*
-      pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-      pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
-      // Create the segmentation object
-      pcl::SACSegmentation<pcl::PointXYZ> seg;
-      // Optional
-      seg.setOptimizeCoefficients (true);
-      // Mandatory
-      seg.setModelType (pcl::SACMODEL_PLANE);
-      seg.setMethodType (pcl::SAC_RANSAC);
-      seg.setDistanceThreshold (0.01);
+    
+    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+    // Create the segmentation object
+    pcl::SACSegmentation<pcl::PointXYZRGB> seg;
+    // Optional
+    seg.setOptimizeCoefficients (true);
+    // Mandatory
+    seg.setModelType (pcl::SACMODEL_PLANE);
+    seg.setMethodType (pcl::SAC_RANSAC);
+    seg.setDistanceThreshold (0.01);
+    
+    seg.setInputCloud (pcl_cloud[i]);
+    seg.segment (*inliers, *coefficients);
+
+    //extract indices
+    std::vector<int> indices_not;
+    pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
+    extract_filter.setInputCloud (pcl_cloud[i]);
+    extract_filter.setNegative (true);
+    extract_filter.filter (indices_not);
+
+    for(int j = 0; j < indices_not.size(); j++)
+    {
+     pcl_cloud[i]->points[indices_not[j]].x = NAN;
+     pcl_cloud[i]->points[indices_not[j]].y = NAN;
+     pcl_cloud[i]->points[indices_not[j]].z = NAN;
+     pcl_cloud[i]->points[indices_not[j]].r = 0;
+     pcl_cloud[i]->points[indices_not[j]].g = 0;
+     pcl_cloud[i]->points[indices_not[j]].b = 0; 
+    }
+
       
-      seg.setInputCloud (pcl_cloud[i]);
-      seg.segment (*inliers, *coefficients);
-  
-      //extract indices
-      std::vector<int> indices_not
-      pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
-      extract_filter.setInputCloud (pcl_cloud[i]);
-      extract_filter.setNegative (true);
-      eifilter.filter (*indices_not);
-
-
-      */
     pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);
     try

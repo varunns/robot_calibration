@@ -108,6 +108,7 @@ public:
 
     sensor_msgs::PointCloud2 ros_cloud;
     pcl::toROSMsg(*pcl_cloud,ros_cloud);
+    ros_cloud.header.frame_id = "base_link";
     pub_.publish(ros_cloud);
     sensor_msgs::ImagePtr img(new sensor_msgs::Image);
     pcl::toROSMsg(ros_cloud, *img);

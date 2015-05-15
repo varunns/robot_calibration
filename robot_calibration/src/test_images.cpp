@@ -59,7 +59,7 @@ public:
       testAgain(images);
       for(int i = 0; i < images.size(); i++)
       {
-        images[i].reset();
+        images[i]->release();
       }
     }
 

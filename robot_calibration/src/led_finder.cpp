@@ -508,7 +508,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
   cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
   cv::Mat weighted_image(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
-  cv::Mat tmp_weight;
+  cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
 
   //Calculating the weight in a different loop as the we need the overall weight to normalize, 
   //if everything is done int he same loop the image saturates
@@ -517,7 +517,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   std::vector<cv::Mat> img(images.size(), weight );
   for(int i = 0; i < images.size(); i++)
   {
-    cv::add(tmp_weight,(1/images.size())*(images[i]->image), tmp_weight);
+   tmp_weight = (1/images.size())*(images[i]->image) + tmp_weight;
   }
   result = tmp_weight;
 

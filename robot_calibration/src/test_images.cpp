@@ -78,7 +78,7 @@ public:
       {
         for (int k = 0; k < img.cols; k++)
         {
-          std::cout<<img.at<double>(k,j);
+          std::cout<<img.at<double>(k,j)<<std::endl;
         }
       }
       debug_img(img,"/tmp/mean/imag_",0,0,0);

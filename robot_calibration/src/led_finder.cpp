@@ -555,9 +555,9 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     // Set all filtered out points to white
     for(int j = 0; j < index_rem->size(); j++)
     {
-      pcl_cloud[i]->points[index_rem->at(j)].x = NAN;
+/*      pcl_cloud[i]->points[index_rem->at(j)].x = NAN;
       pcl_cloud[i]->points[index_rem->at(j)].y = NAN;
-      pcl_cloud[i]->points[index_rem->at(j)].z = NAN;
+      pcl_cloud[i]->points[index_rem->at(j)].z = NAN;*/
       pcl_cloud[i]->points[index_rem->at(j)].r = 0;
       pcl_cloud[i]->points[index_rem->at(j)].g = 0;
       pcl_cloud[i]->points[index_rem->at(j)].b = 0;

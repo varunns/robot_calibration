@@ -420,17 +420,27 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;
   std::vector<cv_bridge::CvImagePtr> prev_image_ptr;
 
+  cv::Mat cloud_bits;
+  cv::Mat prev_bits;
+
   //function call for initial processing to convert to cv::Mat
   convert2CvImagePtr(cloud, cloud_image_ptr);
   convert2CvImagePtr(prev, prev_image_ptr);
 
-  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  
-  weightedSum(cloud_image_ptr, cloud_pix_weighed);
-  weightedSum(prev_image_ptr, prev_pix_weighed);
+  //perform a bitwise AND
+  bitwiseAND(cloud_image_ptr, cloud_bits);
+  bitwiseAND(prev_image_ptr, prev_bits);
 
-  debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(cloud_bits, "tmp/mean/cloud_", 0,0,0);
+  debug_img(prev_bits, "tmp/mean/prev_", 0,0,0);
+
+  /*cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));*/
+  
+  /*weightedSum(cloud_image_ptr, cloud_pix_weighed);
+  weightedSum(prev_image_ptr, prev_pix_weighed);
+*/
+  /*debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix_max;
   cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix_max);
@@ -458,7 +468,27 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   debug_img(diff_pix_max,"/tmp/mean/diff_", 0, 0, 0);
   debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
-  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);
+  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
+}
+
+void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img)
+{
+  cv::Mat tmp;
+  cv::Mat gray;
+  for(int i = 0; i < images.size(); i++)
+  {
+    if(i = 0)
+    {
+      cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
+      cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);    
+      tmp = gray;
+    }
+    cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
+    cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);
+    cv::bitwise_and(gray, tmp, tmp);
+    tmp = gray;  
+  }
+  bit_img = tmp;
 }
 
 

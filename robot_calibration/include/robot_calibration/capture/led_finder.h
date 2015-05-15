@@ -79,6 +79,9 @@ class LedFinder : public FeatureFinder
                   std::vector<pcloud_> prev,
                   double weight);
 
+    /*finding bitwise images*/
+    void bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img);
+
     // Calculate the weighted sum of the images
     void weightedSum(std::vector<cv_bridge::CvImagePtr>& images, 
                      cv::Mat& result);

@@ -474,21 +474,22 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img)
 {
   cv::Mat tmp;
-  cv::Mat gray;
+  cv::Mat gray; 
+  std::vector<cv::Mat> bits(images.size());
   for(int i = 0; i < images.size(); i++)
   {
     if(i = 0)
     {
       cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
       cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);    
-      tmp = gray;
+      bits[0] = gray;
+      continue;
     }
     cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
     cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);
-    cv::bitwise_and(gray, tmp, tmp);
-    tmp = gray;  
+    cv::bitwise_and(gray, bits[i-1], bits[i]);  
   }
-  bit_img = tmp;
+  bit_img = *(bits.end());
 }
 
 

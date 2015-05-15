@@ -59,7 +59,7 @@ public:
      std::cout<<"inside if"<<std::endl;
      testAgain(images);
      std::cout<<"after func call"<<std::endl;
-     images.clear()
+     images.clear();
      std::cout<<"after clear"<<std::endl;
     }
 

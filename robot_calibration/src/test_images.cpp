@@ -23,14 +23,14 @@ private:
   cv::Mat prev_image_;
   bool flag_;
   int i;
-
+  std::vector<cv::Mat> images;
 public:
   TestImages()
   {
     sub_ = nh_.subscribe("/head_camera/rgb/image_rect_color", 1, &TestImages::imageCB, this);
     flag_ = true;
     i = 0;
-    std::vector<cv::Mat> images;
+
   }
 
   void imageCB(const sensor_msgs::ImageConstPtr& image)

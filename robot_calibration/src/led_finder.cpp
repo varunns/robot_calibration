@@ -433,8 +433,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   convert2CvImagePtr(prev, prev_image_ptr);
 
   //perform a bitwise AND
-  bitwiseAND(cloud_image_ptr, cloud_bits);
-  bitwiseAND(prev_image_ptr, prev_bits);
+/*  bitwiseAND(cloud_image_ptr, cloud_bits);
+  bitwiseAND(prev_image_ptr, prev_bits);*/
 
   /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
   debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
@@ -518,13 +518,13 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   //if everything is done int he same loop the image saturates
   //TODO is to just use the cv::Array instead of cv::Mat and 
   //non-opencv options for multiplication and division  
-  std::vector<cv::Mat> img(images.size(), weight );
+
   std::vector<cv::Mat> channels(3);
   for(int i = 0; i < images.size(); i++)
   {
     cv::add(tmp_weight,(1/images.size())*(images[i]->image), result);
     tmp_weight = result;
-    debug_img(tmp_weight, "/tmp/mean/debug_",0,0,0);
+    debug_img(result, "/tmp/mean/debug_",0,0,0);
   }
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
 
@@ -609,7 +609,6 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     try
     {
       cv_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
-      debug_img(cv_ptr[i]->image,"/tmp/mean/deb_",0,0,0);
     }
     catch(cv_bridge::Exception& e)
     {

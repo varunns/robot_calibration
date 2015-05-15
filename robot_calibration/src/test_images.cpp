@@ -62,9 +62,12 @@ public:
   {
     std::cout<<"in process"<<std::endl;
     cv::Mat diff_image;
+    double diff;
     for(int i = 1; i < images.size(); i++)
     {
       cv::absdiff(images[i], images[i-1],diff_image);
+      cv::Scalar mean_diff = cv::mean(diff_image);
+      std::cout<<mean_diff<<std::endl;
       debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);
     }
   }

@@ -90,17 +90,17 @@ public:
 
   void diffCalc(cv::Vec3b* p1, cv::Vec3b* p2)
   {
-/*    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < 3; i++)
     {
-      if( (p1[i] - p2[i]) > 0 )
+      if( ((*p1)[i] - (*p2)[i]) > 0 )
       {
-        p1[i] = p1[i] + p1[i] - p2[i];
+        (*p1)[i] = (*p1)[i] + (*p1)[i] - (*p2)[i];
       }
       else
       {
-        p1[i] = p2[i]; 
+        (*p1)[i] = (*p2)[i]; 
       }
-    }*/
+    }
   }
 
   void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)

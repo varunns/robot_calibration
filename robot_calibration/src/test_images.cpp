@@ -75,7 +75,9 @@ public:
       for(int j = 0; j < (images[i].rows/2); j++)
       {
         cv::Mat tmp1 = images[i](cv::Rect(0, 2*j, 640, 2));
+        cv::normalize(tmp1, tmp1, 0, 1, 32);
         cv::Mat tmp2 = images[i-1](cv::Rect(0, 2*j, 640, 2));
+        cv::normalize(tmp2, tmp2, 0, 1, 32);
         cv::Mat diff = tmp1 - tmp2;
         std::cout<<cv::mean(diff)<<std::endl;
       }

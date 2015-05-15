@@ -444,7 +444,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
   weightedSum(prev_image_ptr, prev_pix_weighed);
-  ROS_INFO("weighted");
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix ;
@@ -508,7 +507,7 @@ void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImag
  */
 void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr>& images, cv::Mat& result)
 {
-  ROS_INFO("weighing");
+
   std::vector<cv::Mat> weights(images.size());
   cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
   cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
@@ -590,7 +589,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     index_re = extract_filter.getRemovedIndices(); 
     for(int k = 0; k < index_rem->size(); k++)
     {
-      std::cout<<pcl_cloud[i]->points[index_rem->at(k)].z<<std::endl;
+      ROS_INFO("z : %f",pcl_cloud[i]->points[index_rem->at(k)].z);
     }
     std::cout<<"**************************************************************************************"<<std::endl;
     for(int j = 0; j < indices_not.size(); j++)

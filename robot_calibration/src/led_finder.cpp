@@ -471,7 +471,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 {
   cv::Mat null_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0.0));
   cv::Mat unit_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(1.0));
-  cv::Mat tmp_img(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0.0));
+  cv::Mat tmp_img = cv::Mat::zeros(images[0]->image.rows, images[0]->image.cols, CV_32S);
   std::vector<cv::Mat> double_image(images.size() );
   
   //convert cv_ptr images from 8UC3 to 32S

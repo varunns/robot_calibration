@@ -564,7 +564,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     }
 
     /*plane fitting*/
-    
+    /*
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
     // Create the segmentation object
@@ -579,23 +579,25 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     seg.setInputCloud (pcl_cloud[i]);
     seg.segment (*inliers, *coefficients);
 
-    //extract indices
+    //extract indices\
+    pcloud_ clouds (new pcl::PointCloud<pcl::PointXYZRGB>());
     std::vector<int> indices_not;
     pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
     extract_filter.setInputCloud (pcl_cloud[i]);
-    extract_filter.setNegative (true);
-    extract_filter.filter (indices_not);
-
+    extract_filter.filter (*cloud_out);
+    index_rem.clear();
+    index_rem = extract_filter.getRemovedIndices(); 
+    std::cout<<"indices out : "<<indices_not<<std::endl;
     for(int j = 0; j < indices_not.size(); j++)
     {
-     pcl_cloud[i]->points[indices_not[j]].x = NAN;
-     pcl_cloud[i]->points[indices_not[j]].y = NAN;
-     pcl_cloud[i]->points[indices_not[j]].z = NAN;
-     pcl_cloud[i]->points[indices_not[j]].r = 0;
-     pcl_cloud[i]->points[indices_not[j]].g = 0;
-     pcl_cloud[i]->points[indices_not[j]].b = 0; 
+     pcl_cloud[i]->points[index_rem->at(j)].x = NAN;
+     pcl_cloud[i]->points[index_rem->at(j)].y = NAN;
+     pcl_cloud[i]->points[index_rem->at(j)].z = NAN;
+     pcl_cloud[i]->points[index_rem->at(j)].r = 0;
+     pcl_cloud[i]->points[index_rem->at(j)].g = 0;
+     pcl_cloud[i]->points[index_rem->at(j)].b = 0; 
     }
-
+*/
       
     pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);

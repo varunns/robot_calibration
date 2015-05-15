@@ -518,14 +518,15 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   std::vector<cv::Mat> channels(3);
   for(int i = 0; i < images.size(); i++)
   {
-    cv::split(images[i]->image, channels);
-    cv::add(tmp_weight,channels[0], result);
+    cv::add(tmp_weight,images[i]->image, result);
     tmp_weight = result;
   }
 
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
 
 }
+
+/*void LedFinder::CloudDifferenceTracker::planeFit()*/
 
 void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
 {
@@ -550,10 +551,39 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     // Set all filtered out points to white
     for(int j = 0; j < index_rem->size(); j++)
     {
+      pcl_cloud[i]->points[index_rem->at(j)].x = NAN;
+      pcl_cloud[i]->points[index_rem->at(j)].y = NAN;
+      pcl_cloud[i]->points[index_rem->at(j)].z = NAN;
       pcl_cloud[i]->points[index_rem->at(j)].r = 0;
       pcl_cloud[i]->points[index_rem->at(j)].g = 0;
       pcl_cloud[i]->points[index_rem->at(j)].b = 0;
     }
+
+    /*plane fitting*/
+    /*
+      pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+      pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+      // Create the segmentation object
+      pcl::SACSegmentation<pcl::PointXYZ> seg;
+      // Optional
+      seg.setOptimizeCoefficients (true);
+      // Mandatory
+      seg.setModelType (pcl::SACMODEL_PLANE);
+      seg.setMethodType (pcl::SAC_RANSAC);
+      seg.setDistanceThreshold (0.01);
+      
+      seg.setInputCloud (pcl_cloud[i]);
+      seg.segment (*inliers, *coefficients);
+  
+      //extract indices
+      std::vector<int> indices_not
+      pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
+      extract_filter.setInputCloud (pcl_cloud[i]);
+      extract_filter.setNegative (true);
+      eifilter.filter (*indices_not);
+
+
+      */
     pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);
     try

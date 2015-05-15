@@ -69,7 +69,7 @@ public:
     {
       cv::absdiff(images[i], images[i-1],diff_image);
       cv::Scalar mean_diff = cv::mean(diff_image);
-      if(i > 0)
+      if(i > 1)
         std::cout<<mean_diff - diff<<std::endl;
       diff = mean_diff;
       debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);

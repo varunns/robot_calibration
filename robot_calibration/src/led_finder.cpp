@@ -30,6 +30,8 @@
 
 #include <pcl/io/pcd_io.h>
 #include <pcl_conversions/pcl_conversions.h>
+ #include <pcl/point_types.h>
+#include <pcl/filters/passthrough.h>
 
 #include <algorithm>
 #include <queue>
@@ -493,12 +495,31 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
 {
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
+
+
   cv_ptr.resize(pcl_cloud.size());
   for(size_t i = 0; i < pcl_cloud.size(); i++)
   {
     cv_ptr[i].reset(new cv_bridge::CvImage);
+      // Create the filtering object
+    std::vector<int> index_in;
+    pcl::IndicesConstPtr index_rem;
+    pcl::PassThrough<pcl::PointXYZRGB> pass (true);
+    pass.setInputCloud(pcl_cloud[i]);
+    pass.setFilterFieldName("z");
+    pass.setFilterLimits(0.0, 1.0);
+    pass.filter(index_in);
+    index_rem = pass.getRemovedIndices();
 
-    pcl::toROSMsg(*(pcl_cloud[i]), *ros_cloud);
+    // Set all filtered out points to white
+    for(int i = 0; i < index_rem->size(); i++)
+    {
+      pcl_cloud[i]->points[index_rem->at(i)].r = 255;
+      pcl_cloud[i]->points[index_rem->at(i)].g = 255;
+      pcl_cloud[i]->points[index_rem->at(i)].b = 255;
+    }
+
+    pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);
     try
     {

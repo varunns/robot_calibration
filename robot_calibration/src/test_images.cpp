@@ -39,7 +39,7 @@ public:
 
     try
     {
-      cv = cv_bridge::toCvCopy(*image, sensor_msgs::image_encodings::BGR8);
+      cv = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::BGR8);
     }
     catch(cv_bridge::Exception& e)
     {

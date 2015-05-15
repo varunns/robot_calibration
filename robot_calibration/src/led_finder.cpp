@@ -461,7 +461,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
 
 /*
- * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 
+ * @brief create a weight_img = inv(var)/norm(1/var) , 
  *        use per element operations in opencv to calculate a 
  *        weighted image
  * @param array of image pointers
@@ -469,41 +469,44 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
  */
 void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr>& images, cv::Mat& result)
 {
-  std::vector<cv::Mat> weights(images.size());
-  cv::Mat square_img(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0, 0, 0));
-  cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
-  cv::Mat weighed_image(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
-  cv::Mat tmp_weighed(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
-
-  //giving weights equal to the pixel intensity
+  cv::Mat null_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
+  cv::Mat unit_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(1));
+  cv::Mat tmp_img(null_matrix);
+  
+  /*matrices used in calculation of weights using inverse variance*/
+  //calculate the mean image
+  cv::Mat mean_image(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
   for(int i = 0; i < images.size(); i++)
   {
-    cv::add(images.size(), norm_weight, norm_weight);
+    cv::add(images[i]->image, tmp_img, tmp_img);
+  }
+  mean_image = (1/images.size())*tmp_img; 
+  tmp_img = (null_matrix);
+
+  //calculate the difference matrix for each image
+  cv::Mat diff_image(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0)); 
+  cv::Mat inv_var(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0)); 
+  std::vector<cv::Mat> weight(images.size(), null_matrix);
+  cv::Mat norm_matrix(null_matrix);
+
+  for(int i = 0; i < images.size(); i++)
+  {
+    cv::subtract(images[i]->image, mean_image, diff_image);
+    cv::divide(unit_matrix, diff_image, inv_var); 
+    cv::add(unit_matrix, inv_var, weight[i]);        //giving weights equal to the pixel variance intensity
+    norm_matrix = norm_matrix + weight[i];
   }
 
-  //Calculating the weight in a different loop as the we need the overall weight to normalize, 
-  //if everything is done int he same loop the image saturates
-  //TODO is to just use the cv::Array instead of cv::Mat and 
-  //non-opencv options for multiplication and division  
-  for(int i = 1; i < images.size(); i++)
+  //weighted sum of all the images
+  cv::Mat tmp_product(tmp_img);
+  result = null_matrix;
+  for(int i = 0; i < images.size(); i++)
   {
-    cv::multiply(images[i]->image, images[i]->image, square_img);
-    cv::add(square_img, tmp_weighed, tmp_weighed);
+    cv::divide(weight[i], norm_matrix, tmp_img);
+    cv::multiply(tmp_img, images[i]->image, tmp_product);
+    result = result + tmp_product;
   }
-  cv::divide(tmp_weighed,norm_weight, weighed_image);
-  result = weighed_image;
 }
-
-
-/*float LedFinder::CloudDifferenceTracker::weightCalc(double pix1, double pix2)
-{
-  if(pix1 > pix2)
-  {
-    return 1.25;
-  }
-
-  return 0.75;
-}*/
 
 void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
 {

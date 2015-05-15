@@ -72,9 +72,9 @@ public:
 
     for(int i = 1; i < images.size(); i++)
     {
-      for(int j = 0; j < images[i].rows/10; j++)
+      for(int j = 0; j < (images[i].rows/10 - 1); j++)
       {
-        cv::Mat tmp1 = images[i](cv::Rect(cv::Point(j,0), cv::Size(640,48)));
+        cv::Mat tmp1 = images[i](cv::Rect(cv::Point(0,(48*j-1)), cv::Size(640,48)));
       }
       cv::Mat diff = images[i] - images[i-1];
       debug_img(diff,"/tmp/mean/imag_",0,0,0);

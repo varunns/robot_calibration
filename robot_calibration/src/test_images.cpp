@@ -35,7 +35,6 @@ public:
   void imageCB(const sensor_msgs::ImageConstPtr& image)
   { 
     cv_bridge::CvImagePtr cv;
-    cv.reset(new cv_bridge::CvImage);
 
     try
     {
@@ -66,6 +65,7 @@ public:
 
 void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
   {
+    std::cout<<"saving"<<std::endl;
     ros::Time n = ros::Time::now();
     std::stringstream ss(std::stringstream::in | std::stringstream::out);
     ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";

@@ -53,12 +53,11 @@ public:
     }
    
 
-    images.push_back(boost::make_shared<cv::Mat>(cv->image) );
+    images.push_back(boost::make_shared<cv::Mat> (cv->image));
     if(images.size() > 9)
     {
       testAgain(images);
       
-      images.clear();
     }
 
   }
@@ -83,7 +82,7 @@ public:
       cv::Mat diff = *images[i] - *images[i-1];
       debug_img(diff,"/tmp/mean/imag_",0,0,0);
     }
-
+    images.clear();
       
   }
 

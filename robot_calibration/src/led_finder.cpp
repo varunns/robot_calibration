@@ -563,7 +563,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     }
 
     /*plane fitting*/
-    
+/*    
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
     // Create the segmentation object
@@ -600,7 +600,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
      pcl_cloud[i]->points[index_re->at(j)].r = 0;
      pcl_cloud[i]->points[index_re->at(j)].g = 0;
      pcl_cloud[i]->points[index_re->at(j)].b = 0; 
-    }
+    }*/
 
       
     pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);

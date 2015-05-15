@@ -76,7 +76,7 @@ public:
       {
         cv::Mat tmp1 = images[i](cv::Rect(0, 48*j, 640, 48));
         cv::Mat tmp2 = images[i-1](cv::Rect(0, 48*j, 640, 48));
-        cv::Mat diff = images[i] - images[i-1];
+        cv::Mat diff = tmp1 - tmp2;
         std::cout<<cv::mean(diff)<<std::endl;
       }
       std::cout<<"*88888888888888888888888888888888888888888888888888888888888888"<<std::endl;

@@ -11,6 +11,8 @@
 
 #include <pcl/io/pcd_io.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_types.h>
+#include <pcl/filters/passthrough.h>
 
 #include <algorithm>
 #include <queue>
@@ -26,11 +28,11 @@ private:
   bool flag_;
   int i;
   std::vector<cv::Mat> images;
-  
+  typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
 public:
   TestImages()
   {
-    sub_ = nh_.subscribe("/head_camera/rgb/image_rect_color", 1, &TestImages::imageCB, this);
+    sub_ = nh_.subscribe("/head_camera/depth_registered/points", 1, &TestImages::pcCB, this);
     pub_ = nh_.advertise<geometry_msgs::Point>("/color_diff", 10);
     flag_ = true;
     i = 0;
@@ -38,37 +40,70 @@ public:
 
   }
 
-  void imageCB(const sensor_msgs::ImageConstPtr& image)
+  void pcCB(const sensor_msgs::PointCloud2ConstPtr& points)
   { 
-   
-    cv_bridge::CvImagePtr cv;
+    pcloud_ pcl_cloud;
+    pcloud_ pass_cloud;
+    pcl::fromROSMsg(*points, *pcl_cloud);
 
+    // Create the filtering object
+    std::vector<int> index_in;
+    pcl::IndicesConstPtr index_rem;
+    pcl::PassThrough<pcl::PointXYZRGB> pass (true);
+    pass.setInputCloud(pcl_cloud);
+    pass.setFilterFieldName("z");
+    pass.setFilterLimits(0.0, 1.0);
+    pass.filter(index_in);
+    index_rem = pass.getRemovedIndices();
+
+    // Set all filtered out points to white
+    for(int i = 0; i < index_rem->size(); i++)
+    {
+      pcl_cloud->points[index_rem->at(i)].r = 255;
+      pcl_cloud->points[index_rem->at(i)].g = 255;
+      pcl_cloud->points[index_rem->at(i)].b = 255;
+    }
+
+    sensor_msgs::PointCloud2 ros_cloud;
+    pcl::toROSMsg(*pcl_cloud,ros_cloud);
+    sensor_msgs::ImagePtr img(new sensor_msgs::Image);
+    pcl::toROSMsg(ros_cloud, *img);
+
+
+    // Convert ROS image to OpenCV image (after passthrough)
+    cv_bridge::CvImagePtr cv_ptr;
     try
     {
-      cv = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::BGR8);
+      cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
     }
-    catch(cv_bridge::Exception& e)
+    catch (cv_bridge::Exception& e)
     {
-      ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
-    }
-   
-
-    images.push_back( cv->image);
-    if(images.size() > 9)
+      ROS_ERROR("CVbridge conversion failed.");
+      return;
+    }  
+    images.push_back(cv_ptr->image);
+    if(images.size() > 5)
     {
-      testAgain(images);
+      callFunk(images);
       images.clear();
     }
-
   }
 
-  void testAgain(  std::vector<cv::Mat>  images)
+  void callFunk(std::vector<cv::Mat> images)
   {
-/*    std::vector<cv::Mat> floats(images.size());
+    for(int i = 0; i < images.size(); i++)
+    {
+      debug_img(images[i], "tmp/mean/img_",0,0,0);
+    }
+  }
+
+ /* void testAgain(  std::vector<cv::Mat>  images)
+  {
+    std::vector<cv::Mat> floats(images.size());
     for(int i = 0; i < images.size(); i++)
     {
       images[i].convertTo(floats[i], CV_32SC3);
-    }*/
+    }
 
     for(int i = 1; i < images.size(); i++)
     {
@@ -87,7 +122,7 @@ public:
     }
 
       
-  }
+  }*/
 /*
   void diffCalc(cv::Vec3b* p1, cv::Vec3b* p2)
   {

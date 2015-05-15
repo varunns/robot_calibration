@@ -39,7 +39,7 @@ public:
   TestImages()
   {
     sub_ = nh_.subscribe("/head_camera/depth_registered/points", 1, &TestImages::pcCB, this);
-    pub_ = nh_.advertise<geometry_msgs::Point>("/color_diff", 10);
+    pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/color_diff", 10);
     flag_ = true;
     i = 0;
     
@@ -80,7 +80,7 @@ public:
     seg.setOptimizeCoefficients (true);
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setDistanceThreshold (0.01);
+    seg.setDistanceThreshold (0.05);
     seg.setInputCloud (pcl_cloud);
     seg.segment (*inliers, *coefficients);
      //extract indices\
@@ -108,6 +108,7 @@ public:
 
     sensor_msgs::PointCloud2 ros_cloud;
     pcl::toROSMsg(*pcl_cloud,ros_cloud);
+    pub_.publish(ros_cloud);
     sensor_msgs::ImagePtr img(new sensor_msgs::Image);
     pcl::toROSMsg(ros_cloud, *img);
 

@@ -431,19 +431,19 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   bitwiseAND(cloud_image_ptr, cloud_bits);
   bitwiseAND(prev_image_ptr, prev_bits);
 
-  debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
-  debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);
+  /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
+  debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
 
-  /*cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));*/
+  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   
-  /*weightedSum(cloud_image_ptr, cloud_pix_weighed);
+  weightedSum(cloud_image_ptr, cloud_pix_weighed);
   weightedSum(prev_image_ptr, prev_pix_weighed);
-*/
-/*  debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
-  debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  */
-  cv::Mat diff_pix;
-  cv::absdiff(cloud_bits, prev_bits, diff_pix);
+
+  debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
+  cv::Mat diff_pix ;
+  cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);
 
 /*  double *minVal = new double();
   double *maxVal = new double();
@@ -516,8 +516,9 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   std::vector<cv::Mat> img(images.size(), weight );
   for(int i = 0; i < images.size(); i++)
   {
-    img.push_back(images[i]->image);
+    tmp_weight = tmp_weight + (1/images.size())*images[i]->image;
   }
+
 
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
 

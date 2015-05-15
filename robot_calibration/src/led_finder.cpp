@@ -469,9 +469,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
  */
 void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr>& images, cv::Mat& result)
 {
-  cv::Mat null_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
-  cv::Mat unit_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(1));
-  cv::Mat tmp_img(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
+  cv::Mat null_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0.0));
+  cv::Mat unit_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(1.0));
+  cv::Mat tmp_img(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0.0));
   std::vector<cv::Mat> double_image(images.size() );
   
   //convert cv_ptr images from 8UC3 to 32S
@@ -481,6 +481,8 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   }
   /*matrices used in calculation of weights using inverse variance*/
   //calculate the mean image
+  ROS_INFO("tmp seize : %d   %d", tmp_img.rows, tmp_img.cols);
+  ROS_INFO("double_image seize : %d   %d", double_image[0].rows, double_image[0].cols);
   cv::Mat mean_image(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
   for(int i = 0; i < images.size(); i++)
   {

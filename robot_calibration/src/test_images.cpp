@@ -65,12 +65,18 @@ public:
 
   void process(std::vector<cv::Mat> images)
   {
+    std::vector<cv::Mat> luv_img(images.size());
+    for(int i = 0; i < images.size(); i++)
+    {
+      cv::cvtColor(images[i], luv_img[i], CV_BGR2Luv);
+    }
     geometry_msgs::Point p;
     cv::Mat diff_image;
     cv::Scalar diff = cv::Scalar(0,0,0,0);
     for(int i = 1; i < images.size(); i++)
     {
-      cv::absdiff(images[i], images[i-1],diff_image);
+
+      cv::absdiff(luv_img[i], luv_img[i-1],diff_image);
       cv::Scalar mean_diff = cv::mean(diff_image);
       if(i > 1)
       {

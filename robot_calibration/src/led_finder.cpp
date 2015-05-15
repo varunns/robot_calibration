@@ -440,12 +440,12 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   /*weightedSum(cloud_image_ptr, cloud_pix_weighed);
   weightedSum(prev_image_ptr, prev_pix_weighed);
 */
-  /*debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
-  debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
-  cv::Mat diff_pix_max;
-  cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix_max);
+/*  debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  */
+  cv::Mat diff_pix;
+  cv::absdiff(cloud_bits, prev_bits, diff_pix);
 
-  double *minVal = new double();
+/*  double *minVal = new double();
   double *maxVal = new double();
   cv::Point *minLoc = new cv::Point(); 
   cv::Point *maxLoc = new cv::Point();
@@ -465,9 +465,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,255,0), 1, 8);
   cv::minMaxLoc(channels[2], minVal, maxVal, minLoc, maxLoc);
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(255,0,0), 1, 8);
-
-  debug_img(diff_pix_max,"/tmp/mean/diff_", 0, 0, 0);
-  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
+*/
+  debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
+/*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
 }
 
@@ -566,7 +566,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
 
  void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
  {
-  ROS_INFO("I am here");
+
   ros::Time n = ros::Time::now();
   std::stringstream ss(std::stringstream::in | std::stringstream::out);
   ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";

@@ -57,15 +57,13 @@ public:
     if(images.size() > 9)
     {
       testAgain(images);
-      for(int i = 0; i < images.size(); i++)
-      {
-        images[i]->release();
-      }
+      
+      images.clear();
     }
 
   }
 
-  void testAgain(  std::vector<boost::shared_ptr<cv::Mat> > images)
+  void testAgain(  std::vector<boost::shared_ptr<cv::Mat> >& images)
   {
 /*    std::vector<cv::Mat> floats(images.size());
     for(int i = 0; i < images.size(); i++)

@@ -24,14 +24,14 @@ private:
   bool flag_;
   int i;
   std::vector<cv::Mat> images;
-  cv::Scalar diff;
+  
 public:
   TestImages()
   {
     sub_ = nh_.subscribe("/head_camera/rgb/image_rect_color", 1, &TestImages::imageCB, this);
     flag_ = true;
     i = 0;
-    diff = cv::Scalar(0,0,0,0);
+    
 
   }
 
@@ -64,11 +64,13 @@ public:
   {
    
     cv::Mat diff_image;
+    cv::Scalar diff = cv::Scalar(0,0,0,0);
     for(int i = 1; i < images.size(); i++)
     {
       cv::absdiff(images[i], images[i-1],diff_image);
       cv::Scalar mean_diff = cv::mean(diff_image);
-      std::cout<<mean_diff - diff<<std::endl;
+      if(i > 0)
+        std::cout<<mean_diff - diff<<std::endl;
       diff = mean_diff;
       debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);
     }

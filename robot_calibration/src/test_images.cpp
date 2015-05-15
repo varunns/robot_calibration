@@ -72,10 +72,8 @@ public:
     {
       cv::absdiff(images[i], images[i-1],diff_image);
       cv::Scalar mean_diff = cv::mean(diff_image);
-
       if(i > 1)
       {
-
         p.x = (mean_diff - diff)[0];
         p.y = (mean_diff - diff)[1];
         p.z = (mean_diff - diff)[2];
@@ -84,7 +82,7 @@ public:
       }
       else
       {
-        diff = cv::Scalar(0,0,0);
+        diff = mean_diff;
       }
       debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);
     }

@@ -25,7 +25,7 @@ private:
   cv::Mat prev_image_;
   bool flag_;
   int i;
-  std::vector<boost::shared_ptr<cv::Mat> > images;
+  std::vector<cv::Mat> images;
   
 public:
   TestImages()
@@ -53,7 +53,7 @@ public:
     }
    
 
-    images.push_back(boost::make_shared<cv::Mat> (cv->image));
+    images.push_back( cv->image);
     if(images.size() > 9)
     {
       testAgain(images);
@@ -62,7 +62,7 @@ public:
 
   }
 
-  void testAgain(  std::vector<boost::shared_ptr<cv::Mat> >& images)
+  void testAgain(  std::vector<cv::Mat>  images)
   {
 /*    std::vector<cv::Mat> floats(images.size());
     for(int i = 0; i < images.size(); i++)
@@ -72,26 +72,11 @@ public:
 
     for(int i = 1; i < images.size(); i++)
     {
-      for(int j = 0; j < images[i]->rows; j++)
+      for(int j = 0; j < images[i].rows/10; j++)
       {
-        for (int k = 0; k < images[i]->cols; k++)
-        {
-          cv::Vec3b p1 = (images[i]->at<cv::Vec3b>(k,j));
-          cv::Vec3b p2 = (images[i-1]->at<cv::Vec3b>(k,j));
-          for(int i = 0; i < 3; i++)
-          {
-            if( (p1[i] - p2[i]) > 0 )
-            {
-              p1[i] = p1[i] + p1[i] - p2[i];
-            }
-            else
-            {
-              p1[i] = p2[i]; 
-            }
-          }
-        }
+        cv::Mat tmp1 = images[i](cv::Rect(cv::Point(j,0), cv::Size(640,48)));
       }
-      cv::Mat diff = *images[i] - *images[i-1];
+      cv::Mat diff = images[i] - images[i-1];
       debug_img(diff,"/tmp/mean/imag_",0,0,0);
     }
 

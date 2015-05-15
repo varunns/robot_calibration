@@ -68,7 +68,7 @@ public:
     std::vector<cv::Mat> floats(images.size());
     for(int i = 0; i < images.size(); i++)
     {
-      images[i].convertTo(floats[i], CV_32FC3);
+      images[i].convertTo(floats[i], CV_32SC3);
     }
 
     for(int i = 1; i < images.size(); i++)

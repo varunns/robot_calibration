@@ -77,10 +77,10 @@ public:
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
     pcl::SACSegmentation<pcl::PointXYZRGB> seg;
-    seg.setOptimizeCoefficients (true);
+    seg.setOptimizeCoefficients (false);
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setDistanceThreshold (0.05);
+    seg.setDistanceThreshold (0.1);
     seg.setInputCloud (pcl_cloud);
     seg.segment (*inliers, *coefficients);
      //extract indices\

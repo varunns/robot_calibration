@@ -80,7 +80,7 @@ public:
     seg.setOptimizeCoefficients (false);
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setDistanceThreshold (0.1);
+    seg.setDistanceThreshold (0.07);
     seg.setInputCloud (pcl_cloud);
     seg.segment (*inliers, *coefficients);
      //extract indices\

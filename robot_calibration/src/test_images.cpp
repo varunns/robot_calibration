@@ -3,6 +3,7 @@
 #include <sensor_msgs/point_cloud2_iterator.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
+#include <geometry_msgs/Point.h>
 
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -20,6 +21,7 @@ class TestImages
 private:
   ros::NodeHandle nh_;
   ros::Subscriber sub_;
+  ros::Publisher pub_;
   cv::Mat prev_image_;
   bool flag_;
   int i;
@@ -29,6 +31,7 @@ public:
   TestImages()
   {
     sub_ = nh_.subscribe("/head_camera/rgb/image_rect_color", 1, &TestImages::imageCB, this);
+    pub_ = nh_.advertise<geometry_msgs::Point>("/color_diff", 10);
     flag_ = true;
     i = 0;
     
@@ -62,16 +65,18 @@ public:
 
   void process(std::vector<cv::Mat> images)
   {
-   
+    geometry_msgs::Point p;
     cv::Mat diff_image;
     cv::Scalar diff = cv::Scalar(0,0,0,0);
     for(int i = 1; i < images.size(); i++)
     {
       cv::absdiff(images[i], images[i-1],diff_image);
       cv::Scalar mean_diff = cv::mean(diff_image);
-      if(i > 1)
-        std::cout<<mean_diff - diff<<std::endl;
-      diff = mean_diff;
+      
+      p.x = mean_diff[0];
+      p.y = mean_diff[1];
+      p.z = mean_diff[2];
+      pub_.publish(p);
       debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);
     }
   }

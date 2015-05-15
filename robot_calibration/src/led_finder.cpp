@@ -471,7 +471,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 {
   cv::Mat null_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
   cv::Mat unit_matrix(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(1));
-  cv::Mat tmp_img = null_matrix;
+  cv::Mat tmp_img(images[0]->image.rows, images[0]->image.cols, CV_32S, cv::Scalar(0));
   
   /*matrices used in calculation of weights using inverse variance*/
   //calculate the mean image

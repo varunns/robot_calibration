@@ -84,20 +84,13 @@ public:
     images.push_back(cv_ptr->image);
     if(images.size() > 5)
     {
-      callFunk(images);
+      testAgain(images);
       images.clear();
     }
   }
 
-  void callFunk(std::vector<cv::Mat> images)
-  {
-    for(int i = 0; i < images.size(); i++)
-    {
-      debug_img(images[i], "/tmp/mean/img_",0,0,0);
-    }
-  }
 
- /* void testAgain(  std::vector<cv::Mat>  images)
+  void testAgain(  std::vector<cv::Mat>  images)
   {
     std::vector<cv::Mat> floats(images.size());
     for(int i = 0; i < images.size(); i++)
@@ -107,7 +100,7 @@ public:
 
     for(int i = 1; i < images.size(); i++)
     {
-      for(int j = 0; j < (images[i].rows/2); j++)
+    /*  for(int j = 0; j < (images[i].rows/2); j++)
       {
         cv::Mat tmp1 = images[i](cv::Rect(0, 2*j, 640, 2));
         cv::normalize(tmp1, tmp1, 0, 1, 32);
@@ -116,13 +109,13 @@ public:
         cv::Mat diff = tmp1 - tmp2;
         std::cout<<cv::mean(diff)<<std::endl;
       }
-      std::cout<<"*88888888888888888888888888888888888888888888888888888888888888"<<std::endl;
+      std::cout<<"*88888888888888888888888888888888888888888888888888888888888888"<<std::endl;*/
       cv::Mat diff = images[i] - images[i-1];
       debug_img(diff,"/tmp/mean/imag_",0,0,0);
     }
 
       
-  }*/
+  }
 /*
   void diffCalc(cv::Vec3b* p1, cv::Vec3b* p2)
   {

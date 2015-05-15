@@ -518,7 +518,6 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   for(int i = 0; i < images.size(); i++)
   {
    cv::add(tmp_weight,images[i]->image, result);
-   debug_img(result,"/tmp/mean/tmp_",0,0,0);
    tmp_weight = result;
   }
 

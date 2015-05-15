@@ -542,7 +542,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     index_rem = pass.getRemovedIndices();
 
     // Set all filtered out points to white
-    for(int j = 0; j < index_rem->size(); i++)
+    for(int j = 0; j < index_rem->size(); j++)
     {
       pcl_cloud[i]->points[index_rem->at(j)].r = 255;
       pcl_cloud[i]->points[index_rem->at(j)].g = 255;

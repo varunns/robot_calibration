@@ -58,7 +58,8 @@ public:
     {
    
       testAgain(images);
-      images.clear();
+      if(!images.empty())
+        images.clear();
     }
 
   }

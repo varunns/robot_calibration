@@ -72,11 +72,14 @@ public:
     {
       cv::absdiff(images[i], images[i-1],diff_image);
       cv::Scalar mean_diff = cv::mean(diff_image);
+      if(i > 1)
+      {
+        p.x = mean_diff[0];
+        p.y = mean_diff[1];
+        p.z = mean_diff[2];
+        pub_.publish(p);
+      }
       
-      p.x = mean_diff[0];
-      p.y = mean_diff[1];
-      p.z = mean_diff[2];
-      pub_.publish(p);
       debug_img(diff_image, "/tmp/mean/image_", 0, 0, 0);
     }
   }

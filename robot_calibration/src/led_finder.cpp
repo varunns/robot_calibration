@@ -426,7 +426,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
-/*  weightedSum(prev_image_ptr, prev_pix_weighed);
+  weightedSum(prev_image_ptr, prev_pix_weighed);
 
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
@@ -456,7 +456,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   debug_img(diff_pix_max,"/tmp/mean/diff_", 0, 0, 0);
   debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
-  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
+  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);
 }
 
 

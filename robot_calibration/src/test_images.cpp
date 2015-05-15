@@ -76,9 +76,19 @@ public:
       {
         for (int k = 0; k < images[i]->cols; k++)
         {
-          cv::Vec3b* p1 = &(images[i]->at<cv::Vec3b>(k,j));
-          cv::Vec3b* p2 = &(images[i-1]->at<cv::Vec3b>(k,j));
-          diffCalc(p1,p2);
+          cv::Vec3b p1 = (images[i]->at<cv::Vec3b>(k,j));
+          cv::Vec3b p2 = (images[i-1]->at<cv::Vec3b>(k,j));
+          for(int i = 0; i < 3; i++)
+          {
+            if( (p1[i] - p2[i]) > 0 )
+            {
+              p1[i] = p1[i] + p1[i] - p2[i];
+            }
+            else
+            {
+              p1[i] = p2[i]; 
+            }
+          }
         }
       }
       cv::Mat diff = *images[i] - *images[i-1];
@@ -87,7 +97,7 @@ public:
 
       
   }
-
+/*
   void diffCalc(cv::Vec3b* p1, cv::Vec3b* p2)
   {
     for(int i = 0; i < 3; i++)
@@ -101,7 +111,7 @@ public:
         (*p1)[i] = (*p2)[i]; 
       }
     }
-  }
+  }*/
 
   void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
   {

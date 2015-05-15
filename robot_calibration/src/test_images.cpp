@@ -54,7 +54,7 @@ public:
    
 
     images.push_back(cv->image);
-    if(images.size() > 9)
+    if(images.size() > 5)
     {
      std::cout<<"inside if"<<std::endl;
      testAgain(images);

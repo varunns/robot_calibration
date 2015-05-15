@@ -65,23 +65,40 @@ public:
 
   void testAgain(std::vector<cv::Mat> images)
   {
-    std::vector<cv::Mat> floats(images.size());
+/*    std::vector<cv::Mat> floats(images.size());
     for(int i = 0; i < images.size(); i++)
     {
       images[i].convertTo(floats[i], CV_32SC3);
-    }
+    }*/
 
     for(int i = 1; i < images.size(); i++)
     {
-      cv::Mat img = floats[i] - floats[i-1];
-      for(int j = 0; j < img.rows; j++)
+      for(int j = 0; j < images[i].rows; j++)
       {
-        for (int k = 0; k < img.cols; k++)
+        for (int k = 0; k < images[i].cols; k++)
         {
-          std::cout<<(float)img.at<double>(k,j)<<std::endl;
+          diffCalc(images[i].at<cv::Vec3b>(k,j), images[i-1].at<cv::Vec3b>(k,j));
         }
       }
-      debug_img(img,"/tmp/mean/imag_",0,0,0);
+      cv::Mat diff = images[i] - images[i-1];
+      debug_img(diff,"/tmp/mean/imag_",0,0,0);
+    }
+
+      
+  }
+
+  void diffCalc(cv::Vec3b& p1, cv::Vec3b& p2)
+  {
+    for(int i = 0; i < 3; i++)
+    {
+      if( (p1[i] - p2[i]) > 0 )
+      {
+        p1[i] = p1[i] + p1[i] - p2[i];
+      }
+      else
+      {
+        p1[i] = p2[i]; 
+      }
     }
   }
 

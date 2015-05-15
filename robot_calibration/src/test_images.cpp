@@ -57,7 +57,10 @@ public:
     if(images.size() > 9)
     {
       testAgain(images);
-      images.clear();
+      for(int i = 0; i < images.size(); i++)
+      {
+        images[i].reset();
+      }
     }
 
   }

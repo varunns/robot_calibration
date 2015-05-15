@@ -57,10 +57,25 @@ public:
     if(images.size() > 9)
     {
    
-      process(images);
+      testAgain(images);
       images.clear();
     }
 
+  }
+
+  void testAgain(std::vector<cv::Mat> images)
+  {
+    std::vector<cv::Mat> floats(images.size());
+    for(int i = 0; i < images.size(); i++)
+    {
+      images[i].convertTo(floats[i], CV_32FC3);
+    }
+
+    for(int i = 1; i < images.size(); i++)
+    {
+      cv::Mat img = floats[i] - floats[i-1];
+      debug_img(img,"/tmp/mean/imag_",0,0,0);
+    }
   }
 
   void process(std::vector<cv::Mat> images)

@@ -42,8 +42,8 @@ public:
 
   void pcCB(const sensor_msgs::PointCloud2ConstPtr& points)
   { 
-    pcloud_ pcl_cloud;
-    pcloud_ pass_cloud;
+    pcloud_ pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcloud_ pass_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::fromROSMsg(*points, *pcl_cloud);
 
     // Create the filtering object

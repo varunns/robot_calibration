@@ -57,7 +57,7 @@ public:
     if(images.size() > 9)
     {
       testAgain(images);
-      
+      images.clear();
     }
 
   }
@@ -72,34 +72,34 @@ public:
 
     for(int i = 1; i < images.size(); i++)
     {
-   /*   for(int j = 0; j < images[i]->rows; j++)
+      for(int j = 0; j < images[i]->rows; j++)
       {
         for (int k = 0; k < images[i]->cols; k++)
         {
-          diffCalc(images[i]->at<cv::Vec3b>(k,j), images[i-1]->at<cv::Vec3b>(k,j));
+          diffCalc(&(images[i]->at<cv::Vec3b>(k,j)), &(images[i-1]->at<cv::Vec3b>(k,j)) );
         }
-      }*/
+      }
       cv::Mat diff = *images[i] - *images[i-1];
       debug_img(diff,"/tmp/mean/imag_",0,0,0);
     }
-    images.clear();
+
       
   }
 
-/*  void diffCalc(cv::Vec3b& p1, cv::Vec3b& p2)
+  void diffCalc(cv::Vec3b *p1, cv::Vec3b *p2)
   {
     for(int i = 0; i < 3; i++)
     {
-      if( (p1[i] - p2[i]) > 0 )
+      if( ((*p1)[i] - (*p2)[i]) > 0 )
       {
-        p1[i] = p1[i] + p1[i] - p2[i];
+        (*p1)[i] = (*p1)[i] + (*p1)[i] - (*p2)[i];
       }
       else
       {
-        p1[i] = p2[i]; 
+        (*p1)[i] = (*p2)[i]; 
       }
     }
-  }*/
+  }
 
   void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
   {

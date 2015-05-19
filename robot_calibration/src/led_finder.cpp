@@ -579,24 +579,18 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     {
 
       for(uint k = 5; k < cv_ptr[i]->image.cols-10; k++)
-      {
-        pcl::PointXYZRGB p3 = (*pcl_cloud[i])(k, j); 
-        if(isnan(p3.x) && isnan(p3.y) && isnan(p3.z))
-        {
-          continue;
-        }
-      
+      {      
         cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
         cv::Mat roi = (cv_ptr[i]->image)(rect);
         cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
-        if(cv::countNonZero(gray_roi) > 40)
+        if(cv::countNonZero(gray_roi) > 60)
         {
-          image.at<cv::Vec3b>(k,j) = cv::Vec3b(0,0,0);
+          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
         }
 
         else
         {
-          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
+          image.at<cv::Vec3b>(k,j) = cv::Vec3b(0,0,0);
         }
       }
 

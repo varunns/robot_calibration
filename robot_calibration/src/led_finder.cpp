@@ -432,71 +432,18 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   convert2CvImagePtr(cloud, cloud_image_ptr);
   convert2CvImagePtr(prev, prev_image_ptr);
 
-  //perform a bitwise AND
-/*  bitwiseAND(cloud_image_ptr, cloud_bits);
-  bitwiseAND(prev_image_ptr, prev_bits);*/
-
-  /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
-  debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
-
   cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
   weightedSum(prev_image_ptr, prev_pix_weighed);
-  debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
-  debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
+
   cv::Mat diff_pix ;
   cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);
-
-/*  double *minVal = new double();
-  double *maxVal = new double();
-  cv::Point *minLoc = new cv::Point(); 
-  cv::Point *maxLoc = new cv::Point();
-
-  cv::Mat thresh; 
-  cv::cvtColor(diff_pix_max, thresh, CV_BGR2GRAY);
-  cv::threshold(thresh, thresh, 150, 255, CV_THRESH_BINARY);
-
-  cv::minMaxLoc(thresh, minVal, maxVal, minLoc, maxLoc);
-  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,0), 1, 8);
-  //split channels
-  std::vector<cv::Mat> channels(3);
-  cv::split(diff_pix_max, channels);
-  cv::minMaxLoc(channels[0], minVal, maxVal, minLoc, maxLoc);
-  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,255), 1, 8);
-  cv::minMaxLoc(channels[1], minVal, maxVal, minLoc, maxLoc);
-  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,255,0), 1, 8);
-  cv::minMaxLoc(channels[2], minVal, maxVal, minLoc, maxLoc);
-  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(255,0,0), 1, 8);
-*/
   debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 /*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
 }
-
-void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img)
-{
-  cv::Mat tmp;
-  cv::Mat gray; 
-  std::vector<cv::Mat> bits(images.size());
-
-  for(int i = 1; i < images.size(); i++)
-  {
-    if(i == 1)
-    {
-      cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
-      cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);    
-      bits[0] = gray;
-    }
-    cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);
-    cv::bitwise_and(gray, bits[i-1], bits[i]);  
-  }
-
-  bit_img = bits[((int)images.size()-1)];
-}
-
 
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 
@@ -518,16 +465,14 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   //if everything is done int he same loop the image saturates
   //TODO is to just use the cv::Array instead of cv::Mat and 
   //non-opencv options for multiplication and division  
-
   std::vector<cv::Mat> channels(3);
-
+  cv::Mat result_pre;
   for(int i = 0; i < images.size(); i++)
   {
     cv::add(tmp_weight,0.05*(images[i]->image), result);
     tmp_weight = result;
   }
-//  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
-
+// /  cv::dilate(result_pre, result, cv::Mat(), 3, )
 }
 
 /*void LedFinder::CloudDifferenceTracker::planeFit()*/
@@ -618,68 +563,6 @@ bool LedFinder::CloudDifferenceTracker::isFound(
     if(max_ < threshold)
   }*/
 }
-
-/*added by varun*/
-/*bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
-  const pcl::PointCloud<pcl::PointXYZRGB> cloud,
-  geometry_msgs::PointStamped& hough_pt)
-{
-  ROS_INFO("in HOUGH here");
-  sensor_msgs::PointCloud2 ros_cloud;
-  sensor_msgs::Image image;
-  ROS_INFO("after image");
-  pcl::toROSMsg(cloud, ros_cloud);
-  pcl::toROSMsg(ros_cloud, image);
-  cv_bridge::CvImagePtr cv_ptr;
-  try
-  {
-    cv_ptr = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::BGR8);
-  }
-  catch(cv_bridge::Exception& e)
-  {
-    ROS_ERROR("cv_bridge is acting funny: %s", e.what());
-    return false;
-  }
-  ROS_INFO("after conversion");
-  ros::Time n = ros::Time::now();
-  std::stringstream ss(std::stringstream::in | std::stringstream::out);
-  ss<<"/tmp/image_"<<n<<".jpg";
-  imwrite(ss.str(), cv_ptr->image);
-  std::vector<cv::Vec3f> circles;
-
-  cv::Mat gray_image, norm_image;
-  cv::cvtColor( cv_ptr->image, gray_image, CV_BGR2GRAY );
-  cv::normalize(gray_image, norm_image, 0 , 255, 32,  -1); //enum for NORM_MINMAX is 32 namespace cv is not declared
-  cv::threshold(gray_image, gray_image, 200, 255, CV_THRESH_BINARY);
-  cv::HoughCircles(norm_image, circles, CV_HOUGH_GRADIENT, 1, 1, 6, 8, 0, 0);
-
-  if(circles.size() < 0)
-  {
-    return false;
-  }
-
- 
-  for(size_t i = 0; i < circles.size(); i++)
-  {
-    cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-    int radius = cvRound(circles[i][2]);
-    ROS_INFO("RADIUS OF THE CIRCLE : %d", radius);
-    // circle center
-    cv::circle(cv_ptr->image, center, 1, cv::Scalar(0,255,0), -1, 8, 0 );
-    // circle outline
-    cv::circle(cv_ptr->image, center, radius, cv::Scalar(0,0,255), 1, 8, 0 ); 
-  }
-  pcl::PointXYZRGB pt = (cloud)(cvRound(circles[0][0]),cvRound(circles[0][1]));
-  hough_pt.point.x = pt.x; hough_pt.point.y = pt.y; hough_pt.point.z = pt.z;
-
-  n = ros::Time::now();
-  ss.str(" ");
-  ss<<"tmp/image_"<<n<<".jpg";
-  imwrite(ss.str(), cv_ptr->image);
-
-  return true;
-
-}*/
 
 bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
   const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,

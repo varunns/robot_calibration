@@ -585,10 +585,10 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
         cv::Mat roi = (cv_ptr[i]->image)(rect);
         cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
         ROS_INFO("I am here before non zoe");
-        if(cv::countNonZero(gray_roi) > 60)
+        if(cv::countNonZero(gray_roi) > 75)
         {
-      /*    ROS_INFO("inside non zero I am here");
-          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);*/
+          ROS_INFO("inside non zero I am here");
+          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
         }
         else
         {

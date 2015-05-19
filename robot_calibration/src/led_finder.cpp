@@ -443,6 +443,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 /*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
+  
 }
 
 /*

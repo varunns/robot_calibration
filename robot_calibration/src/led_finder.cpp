@@ -573,7 +573,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
     }
-    cv::Mat image;
+    cv::Mat image, gray_roi;
     for(uint j = 5; j < cv_ptr[i]->image.rows-10; j++)
     {
 
@@ -587,8 +587,8 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
       
         cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
         cv::Mat roi = (cv_ptr[i]->image)(rect);
-      
-        if(cv::countNonZero(roi) > 40)
+        cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
+        if(cv::countNonZero(gray_roi) > 40)
         {
           image.at<cv::Vec3b>(k,j) = cv::Vec3b(0,0,0);
         }

@@ -597,7 +597,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
           cv::Vec3b color(0,0,0);
           image.at<cv::Vec3b>(k,j) = color;
         }
-        roi.relase();
+        roi.release();
         ROS_INFO("after else I am here");
       }
 

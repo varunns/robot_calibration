@@ -532,12 +532,13 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
 /*void LedFinder::CloudDifferenceTracker::planeFit()*/
 
-void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
+void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv)
 {
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
 
-
+  std::vector<cv_bridge::CvImagePtr> cv_ptr;
+  cv.resize(pcl_cloud.size());
   cv_ptr.resize(pcl_cloud.size());
   for(size_t i = 0; i < pcl_cloud.size(); i++)
   {
@@ -553,7 +554,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     index_rem = pass.getRemovedIndices();
 
     // Set all filtered out points to white
-    for(int j = 0; j < index_rem->size(); j++)
+    for(uint j = 0; j < index_rem->size(); j++)
     {
       pcl_cloud[i]->points[index_rem->at(j)].x = NAN;
       pcl_cloud[i]->points[index_rem->at(j)].y = NAN;
@@ -563,7 +564,6 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
       pcl_cloud[i]->points[index_rem->at(j)].b = 0;
     }
 
-      
     pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);
     pcl::toROSMsg(*ros_cloud, *ros_image);
     try
@@ -573,10 +573,48 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     catch(cv_bridge::Exception& e)
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
+      std::abort();
     }
+/*    cv::Mat image = cv::Mat::zeros(cv_ptr[i]->image.rows, cv_ptr[i]->image.cols, CV_8UC3);
+    cv::Mat gray_roi;
+    if ((cv_ptr[i]->image.rows < 15) || (cv_ptr[i]->image.cols < 15))
+    {
+      fprintf(stderr, "small image\n");
+      std::abort();
+    }
+    for(uint j = 5; j < cv_ptr[i]->image.rows-15; j++)
+    {
+      for(uint k = 5; k < cv_ptr[i]->image.cols-15; k++)
+      {      
+        fprintf(stderr, "i : %d ; j : %d ; k : %d",i,j,k);
+        cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
+        cv::Mat roi = (cv_ptr[i]->image)(rect);
+         fprintf(stderr, "I am here after rect\n");
+        cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
+        fprintf(stderr, "I am here after cvtColor\n");
+        if(cv::countNonZero(gray_roi) > 75)
+        {
+          fprintf(stderr, "I am here in if\n");
+          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
+
+        }
+        else
+        {
+          fprintf(stderr, "I am here in else\n");
+          cv::Vec3b color(0,0,0);
+          image.at<cv::Vec3b>(k,j) = color;
+        }
+       // roi.release();
+        fprintf(stderr, "after else I am here\n");
+      }
+
+    }
+    cv[i]->image =image;*/
+    
   }
 
 }
+
 
  void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
  {

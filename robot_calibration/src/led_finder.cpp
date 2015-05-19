@@ -579,7 +579,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     {
       for(uint k = 5; k < cv_ptr[i]->image.cols-15; k++)
       {      
-      /*  ROS_INFO("i : %d ; j : %d ; k : %d",i,j,k);
+        ROS_INFO("i : %d ; j : %d ; k : %d",i,j,k);
         cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
         cv::Mat roi = (cv_ptr[i]->image)(rect);
          ROS_INFO("I am here after rect");
@@ -587,18 +587,18 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
         ROS_INFO("I am here after cvtColor");
         if(cv::countNonZero(gray_roi) > 75)
         {
-          ROS_INFO("I am here in if");
-          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
+       /*   ROS_INFO("I am here in if");
+          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);*/
 
         }
         else
         {
-          ROS_INFO("I am here in else");
+/*          ROS_INFO("I am here in else");
           cv::Vec3b color(0,0,0);
-          image.at<cv::Vec3b>(k,j) = color;
+          image.at<cv::Vec3b>(k,j) = color;*/
         }
-        roi.release();
-        ROS_INFO("after else I am here");*/
+       // roi.release();
+        ROS_INFO("after else I am here");
       }
 
     }

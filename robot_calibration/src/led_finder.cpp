@@ -587,8 +587,8 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
         ROS_INFO("I am here after cvtColor");
         if(cv::countNonZero(gray_roi) > 75)
         {
-       /*   ROS_INFO("I am here in if");
-          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);*/
+          ROS_INFO("I am here in if");
+          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
 
         }
         else

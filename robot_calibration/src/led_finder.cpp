@@ -586,11 +586,11 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
         {
           image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
         }
-        else
+/*        else
         {
           ROS_INFO("in else I am here");
           image.at<cv::Vec3b>(k,j) = cv::Vec3b(0,0,0);
-        }
+        }*/
         ROS_INFO("after else I am here");
       }
 

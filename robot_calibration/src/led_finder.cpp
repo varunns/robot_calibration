@@ -431,7 +431,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //function call for initial processing to convert to cv::Mat
   convert2CvImagePtr(cloud, cloud_image_ptr);
   convert2CvImagePtr(prev, prev_image_ptr);
-
+  ROS_INFO("%d",cloud_image_ptr[0]->image.rows);
   //perform a bitwise AND
 /*  bitwiseAND(cloud_image_ptr, cloud_bits);
   bitwiseAND(prev_image_ptr, prev_bits);*/
@@ -439,7 +439,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
   debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
 
-  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+/*  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
@@ -447,7 +447,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix ;
-  cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);
+  cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);*/
 
 /*  double *minVal = new double();
   double *maxVal = new double();
@@ -470,7 +470,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::minMaxLoc(channels[2], minVal, maxVal, minLoc, maxLoc);
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(255,0,0), 1, 8);
 */
-  debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
+ // / debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 /*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
 }
@@ -573,7 +573,6 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     catch(cv_bridge::Exception& e)
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
-      std::abort();
     }
 /*    cv::Mat image = cv::Mat::zeros(cv_ptr[i]->image.rows, cv_ptr[i]->image.cols, CV_8UC3);
     cv::Mat gray_roi;

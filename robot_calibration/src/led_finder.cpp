@@ -477,7 +477,8 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
     {
       if(tmp.at<int>(j,i) == 0)
       {
-        cv::Vec3b val = diff1_image.at<cv::Vec3b>(j,i);
+        cv::Vec3b val(0,0,0);
+        diff1_image.at<cv::Vec3b>(j,i) = val;
       }
     }
   }

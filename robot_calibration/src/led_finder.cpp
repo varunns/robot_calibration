@@ -556,7 +556,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     }*/
     for(int j = 0; j < pcl_cloud[i]->size(); j++)
     {
-      if(pcl_cloud[i]->points[j].z > 1.0)
+      if(pcl_cloud[i]->points[j].z > 1.0 || isnan(pcl_cloud[i]->points[j].z))
       {
         pcl_cloud[i]->points[j].x = NAN;
         pcl_cloud[i]->points[j].y = NAN;

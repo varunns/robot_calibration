@@ -498,10 +498,10 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       }
       cv::Vec3b color(255,255,255);
       diff_image.at<cv::Vec3b>(j,i) = color;
-      cv::Vec3b color(0,0,0);
+      cv::Vec3b color1(0,0,0);
       if(tmp.at<int>(j,i) == 0)
       {
-        diff_image.at<cv::Vec3b>(j,i) = color;
+        diff_image.at<cv::Vec3b>(j,i) = color1;
         continue;
       }
 /*

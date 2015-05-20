@@ -441,7 +441,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   weightedSum(prev_image_ptr, prev_pix_weighed);
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
-  cv::Mat diff_pix = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat diff_pix = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(255,255,255));
 
   //calculate the difference Image
   differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix);
@@ -483,16 +483,17 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   {
     for(uint j = 20; j < image1.cols - 20; j++)
     {
-      cv::Mat tmp;
+      cv::Mat tmp, thesh;
       cv::absdiff(image1, image2, diff1_image);
-      cv::Rect rect = cv::Rect(j, i, 20, 20 );
+      cv::Rect rect = cv::Rect(j, i, 10, 10 );
       cv::cvtColor(image1(rect),tmp, CV_BGR2GRAY);
-      if((cv::countNonZero(tmp))/400 < 0.7)
+      cv::threshold(tmp(rect), thesh, 175, 255, THRESH_BINARY_INV);
+      if((cv::countNonZero(tmp))/100 < 0.1)
       {
         (diff_image(rect)).setTo(cv::Scalar(0,0,0));
         continue;
       }
-      cv::Vec3b color(0,0,0);
+      /*cv::Vec3b color(0,0,0);
       if((diff1_image.at<cv::Vec3b>(j,i)).val[0] < 10 && (diff1_image.at<cv::Vec3b>(j,i)).val[1] < 10 && (diff1_image.at<cv::Vec3b>(j,i)).val[2] < 10)
       {
         diff_image.at<cv::Vec3b>(j,i) = color;
@@ -501,7 +502,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       {
         diff_image.at<cv::Vec3b>(j,i) = diff1_image.at<cv::Vec3b>(j,i);
 
-      }      
+      }      */
     }
   }
 

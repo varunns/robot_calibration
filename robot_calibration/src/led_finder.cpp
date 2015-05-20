@@ -123,7 +123,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 4)
+    if(clouds_ptr_.size() > 19)
     {
       waiting_ = false;
     }
@@ -483,7 +483,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   cv::Mat diff1_image, tmp;
 
   cv::absdiff(image1, image2, diff1_image);
-    debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
+  debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
   cv::cvtColor(image1, tmp, CV_BGR2GRAY);
   cv::threshold(tmp, tmp, 175, 255, CV_THRESH_BINARY);
   //cv::cvtColor(tmp, img, CV_GRAY2BGR);
@@ -493,9 +493,9 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
     {
       if(tmp.at<uint>(j,i) == 255)
       {
-        if(diff1_image.at<cv::Vec3b>(j,i).val[0] > 10 || diff1_image.at<cv::Vec3b>(j,i).val[1] > 10 || diff1_image.at<cv::Vec3b>(j,i).val[2] > 10)
+        //if(diff1_image.at<cv::Vec3b>(j,i).val[0] > 10 || diff1_image.at<cv::Vec3b>(j,i).val[1] > 10 || diff1_image.at<cv::Vec3b>(j,i).val[2] > 10)
         {
-          diff_image.at<cv::Vec3b>(j,i) = 255;
+          diff_image.at<cv::Vec3b>(j,i) = diff1_image.at<cv::Vec3b>(j,i);
         }
       }
     }
@@ -529,7 +529,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
   for(int i = 0; i < images.size(); i++)
   {
-    cv::add(tmp_weight,0.2*(images[i]->image), result);
+    cv::add(tmp_weight,0.05*(images[i]->image), result);
     tmp_weight = result;
   }
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);

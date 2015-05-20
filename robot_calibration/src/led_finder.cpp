@@ -471,11 +471,11 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   cv::cvtColor(image1, tmp, CV_BGR2GRAY);
   cv::threshold(tmp, tmp, 175, 255, CV_THRESH_BINARY);
   cv::Canny( tmp, canny, 20, 20*3, 3 );
-  for(int i = 0; i < canny.rows; i++)
+  for(int i = 0; i < tmp.rows; i++)
   {
-    for(int j = 0; j < canny.cols; j++)
+    for(int j = 0; j < tmp.cols; j++)
     {
-      if(canny.at<uint>(j,i) == 0)
+      if(tmp.at<uint>(j,i) == 0)
       {
         cv::Vec3b color(0,0,0);
         diff1_image.at<cv::Vec3b>(j,i) = color;

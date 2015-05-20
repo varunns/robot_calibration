@@ -459,6 +459,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& image1, cv::Mat
 {
   int count = 0;
   cv::Mat diff1_image, canny;
+  cv::Mat test_img = image1;
   float max_mean = -100;
   float max_dev = -100;
   cv::Scalar mean;
@@ -488,7 +489,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& image1, cv::Mat
   double min_mahala_dist = 1000;
   cv::Mat tmp_image;
   cv::Mat gray_image;
-  cv::cvtColor(image1, gray_image, CV_BGR2GRAY);
+  cv::cvtColor(test_img, gray_image, CV_BGR2GRAY);
   /*cv::threshold(tmp_thresh, tmp, 175, 255, CV_THRESH_BINARY);
   cv::Canny( tmp, canny, 20, 20*3, 3 );*/
   //cv::cvtColor(tmp, img, CV_GRAY2BGR);

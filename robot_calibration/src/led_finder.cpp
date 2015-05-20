@@ -469,6 +469,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv::Mat>& images
   float w = (1.0/(float)(images.size()));
   for(int i = 0; i < images.size(); i++)
   {
+    ROS_INFO("%d, %d , %d , %d ",tmp_weight.rows, tmp_weight.cols, images[i].rows, images[i].cols);
     cv::add(tmp_weight,images[i], result);
     tmp_weight = result;
   }

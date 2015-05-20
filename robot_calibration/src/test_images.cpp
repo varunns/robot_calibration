@@ -49,8 +49,9 @@ public:
 
   void convert2ros(const sensor_msgs::PointCloud2ConstPtr& points)
   {
+
     cv_bridge::CvImagePtr cv_ptr;
-    sensor_msgs::Image::Ptr ros_img;
+    sensor_msgs::Image::Ptr ros_img(new sensor_msgs::Image);
     pcl::toROSMsg(*points, *ros_img);
     try
     {
@@ -69,15 +70,86 @@ public:
     if(images_.size() > 1)
     {
       // /process(images_);
+      cv::Scalar color(0,0,0);
+      cv::Mat fuse_image = cv::Mat(480, 2*640, CV_8UC3, color);
+      
+      for(int i = 0; i < 160; i++)
+      {
+        
+        if(i%2 == 1)
+        {
+          cv::Mat roi0 = images_[0](cv::Rect(8*(i/2), 0, 8, 480) );
+          roi0.copyTo(fuse_image(cv::Rect(8*i, 0, 8, 480)));
+        }
+
+        if(i%2 == 0)
+        {
+          cv::Mat roi1 = images_[1](cv::Rect(8*(i/2), 0, 8, 480) );
+          roi1.copyTo(fuse_image(cv::Rect(8*i, 0, 8, 480)));
+        }
+      }
+
+/*      cv::Rect rect1 = cv::Rect(0,0, 640, 480);
+      images_[0].copyTo(fuse_image(rect1));
+      cv::Rect rect2 = cv::Rect(640, 0, 640, 480);
+      images_[1].copyTo(fuse_image(rect2) );*/
+      cv::Mat clahe_image;
+      clahe_func(fuse_image, clahe_image);
+
+
+      std::vector<cv::Mat> img(2);
+      img[0] = cv::Mat(480, 640, CV_8UC3, color);
+      img[1] = cv::Mat(480, 640, CV_8UC3, color);
+      for(int i = 0; i < 160; i++)
+      {
+        
+        if(i%2 == 1)
+        {
+
+          cv::Mat roi2 = clahe_image(cv::Rect(8*i, 0, 8, 480));
+          roi2.copyTo((img[0])(cv::Rect(8*(i/2), 0, 8, 480) ) ) ;
+          
+        }
+
+        if(i%2 == 0)
+        {
+          cv::Mat roi3 = clahe_image(cv::Rect(8*i, 0, 8, 480) );
+          roi3.copyTo((img[1])(cv::Rect(8*(i/2), 0, 8, 480) ) ) ;
     
-      cv::Mat fuse_image = cv::Mat(cv::Size(images_[0].rows, 2*images_[0].cols), CV_8UC3, cv::Scalar(0,0,0));
-      cv::Rect rect = cv::Rect(0,0, 480, 640);
-      fuse_image(rect) = images_[0];
-      rect = cv::Rect(0, 640, 480, 640);
-      fuse_image(rect) = images_[1];
-      debug_img(fuse_image,"/tmp/mean/img_", 0, 0, 0);
+        }
+      }
+      debug_img(img[0],"/tmp/mean/img0_", 0, 0, 0);
+      debug_img(img[1],"/tmp/mean/img1_", 0, 0, 0);
+      
+      cv::Mat diff_image;
+      cv::absdiff(img[0],img[1], diff_image);
+      debug_img(diff_image,"/tmp/mean/diff_img_", 0, 0, 0);
       images_.clear();
     }
+  }
+
+  void clahe_func(cv::Mat bgr_image, cv::Mat& clahe_image)
+  {
+    cv::Mat lab_image;
+    cv::cvtColor(bgr_image, lab_image, CV_BGR2Lab);
+
+    // Extract the L channel
+    std::vector<cv::Mat> lab_planes(3);
+    cv::split(lab_image, lab_planes);  // now we have the L image in lab_planes[0]
+
+    // apply the CLAHE algorithm to the L channel
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
+    clahe->setClipLimit(16);
+    cv::Mat dst;
+    clahe->apply(lab_planes[0], dst);
+
+    // Merge the the color planes back into an Lab image
+    dst.copyTo(lab_planes[0]);
+    cv::merge(lab_planes, lab_image);
+
+   // convert back to RGB
+   
+   cv::cvtColor(lab_image, clahe_image, CV_Lab2BGR);
   }
 
   void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)

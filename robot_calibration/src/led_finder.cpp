@@ -515,7 +515,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
         if(max_mean > mean_val)
         {
           max_dev = dev_val;
-          mx_mean = mean_val;
+          max_mean = mean_val;
           pt= cv::Point(j,i);
         }
         

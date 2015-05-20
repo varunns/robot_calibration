@@ -466,7 +466,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   float mean_val;
   float dev_val;
   cv::Point pt;
-  diff1_image = image1 - image2;
+  cv::absdiff(image1, image2, diff1_image);
   
   cv::cvtColor(image1, tmp, CV_BGR2GRAY);
   cv::threshold(tmp, tmp, 175, 255, CV_THRESH_BINARY);
@@ -477,8 +477,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
     {
       if(tmp.at<uint>(j,i) == 0)
       {
-        cv::Vec3b color(0,0,0);
-        (diff1_image.at<cv::Vec3b>(j,i))[0] = 0;
+        std::cout<<diff1_image.at<cv::Vec3b>(j.i)<<std::endl;
       }
     }
   }

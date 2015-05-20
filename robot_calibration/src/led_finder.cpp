@@ -123,7 +123,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 0)
+    if(clouds_ptr_.size() == 1)
     {
       waiting_ = false;
     }

@@ -33,8 +33,9 @@ private:
   cv::Mat prev_image_;
   bool flag_;
   int i;
-  std::vector<cv::Mat> images;
+  std::vector<cv::Mat> images_;
   typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
+  //cv::Mat image_;
 public:
   TestImages()
   {
@@ -46,9 +47,39 @@ public:
 
   }
 
+  void convert2ros(const sensor_msgs::PointCloud2ConstPtr& points)
+  {
+    cv_bridge::CvImagePtr cv_ptr;
+    sensor_msgs::Image::Ptr ros_img;
+    pcl::toROSMsg(*points, *ros_img);
+    try
+    {
+      cv_ptr = cv_bridge::toCvCopy(ros_img, sensor_msgs::image_encodings::BGR8);
+    }
+    catch(cv_bridge::Exception& e)
+    {
+      ROS_ERROR("sorry state : %s", e.what());
+    }
+     images_.push_back(cv_ptr->image);
+  }
+
   void pcCB(const sensor_msgs::PointCloud2ConstPtr& points)
   { 
-    pcloud_ pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    convert2ros(points);
+    if(images_.size() > 1)
+    {
+      // /process(images_);
+    
+      cv::Mat fuse_image = cv::Mat(cv::Size(images_[0].rows, 2*images_[0].cols), CV_8UC3, cv::Scalar(0,0,0));
+      cv::Rect rect = cv::Rect(0,0, 480, 640);
+      fuse_image(rect) = images_[0];
+      rect = cv::Rect(0, 640, 480, 640);
+      fuse_image(rect) = images_[1];
+      images_.clear();
+    }
+  }
+
+/*    pcloud_ pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcloud_ pass_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::fromROSMsg(*points, *pcl_cloud);
 
@@ -73,8 +104,8 @@ public:
       pcl_cloud->points[index_rem->at(i)].b = 255;
     }
     
-    /*plane fitting*/
-    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+  /*plane fitting*/
+/*    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
     pcl::SACSegmentation<pcl::PointXYZRGB> seg;
     seg.setOptimizeCoefficients (false);
@@ -103,9 +134,9 @@ public:
       pcl_cloud->points[index_rem1->at(i)].r = 255;
       pcl_cloud->points[index_rem1->at(i)].g = 255;
       pcl_cloud->points[index_rem1->at(i)].b = 255;
-    }
+    }=*/
 
-
+/*
     sensor_msgs::PointCloud2 ros_cloud;
     pcl::toROSMsg(*pcl_cloud,ros_cloud);
     ros_cloud.header.frame_id = "base_link";
@@ -122,7 +153,7 @@ public:
     {
       ROS_ERROR("sorry state : %s", e.what());
     }
-/*     cv::Mat image = cv::Mat::zeros(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC3);
+     cv::Mat image = cv::Mat::zeros(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC3);
     cv::Mat gray_roi;
     if ((cv_ptr->image.rows < 15) || (cv_ptr->image.cols < 15))
     {
@@ -155,14 +186,14 @@ public:
         fprintf(stderr, "after else I am here\n");
       }
 
-    }
+    }*/
 // /    cv_ptr->image.release();
-    cv_bridge::CvImagePtr cv(new cv_bridge::CvImage);
-    cv->image = image;   */
+/*    cv_bridge::CvImagePtr cv(new cv_bridge::CvImage);
+    cv->image = image;   
 
     debug_img(cv_ptr->image, "/tmp/mean/img_",0,0,0);
-
-  }
+*/
+//  }
 
 /*
   void testAgain(  std::vector<cv::Mat>  images)

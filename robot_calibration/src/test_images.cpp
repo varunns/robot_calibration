@@ -38,7 +38,7 @@ private:
 public:
   TestImages()
   {
-    sub_ = nh_.subscribe("/head_camera/depth_registered/points", 1, &TestImages::pcCB, this);
+    sub_ = nh_.subscribe("/camera/depth_registered/points", 1, &TestImages::pcCB, this);
     pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/color_diff", 10);
     flag_ = true;
     i = 0;
@@ -113,27 +113,65 @@ public:
     sensor_msgs::ImagePtr img(new sensor_msgs::Image);
     pcl::toROSMsg(ros_cloud, *img);
 
-    cv_bridge::CvImagePtr cv;
+    cv_bridge::CvImagePtr cv_ptr;
     try
     {
-      cv = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
+      cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
     }
     catch(cv_bridge::Exception& e)
     {
       ROS_ERROR("sorry state : %s", e.what());
     }
-    debug_img(cv->image, "/tmp/mean/img_",0,0,0);
+/*     cv::Mat image = cv::Mat::zeros(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC3);
+    cv::Mat gray_roi;
+    if ((cv_ptr->image.rows < 15) || (cv_ptr->image.cols < 15))
+    {
+      fprintf(stderr, "small image\n");
+      std::abort();
+    }
+    for(uint j = 5; j < cv_ptr->image.rows-15; j++)
+    {
+      for(uint k = 5; k < cv_ptr->image.cols-15; k++)
+      {      
+        fprintf(stderr, "i : %d ; j : %d ; k : %d",i,j,k);
+        cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
+        cv::Mat roi = (cv_ptr->image)(rect);
+         fprintf(stderr, "I am here after rect\n");
+        cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
+        fprintf(stderr, "I am here after cvtColor\n");
+        if(cv::countNonZero(gray_roi) > 75)
+        {
+          fprintf(stderr, "I am here in if\n");
+          image.at<cv::Vec3b>(k,j) = (cv_ptr->image).at<cv::Vec3b>(k, j);
+
+        }
+        else
+        {
+          fprintf(stderr, "I am here in else\n");
+          cv::Vec3b color(0,0,0);
+          image.at<cv::Vec3b>(k,j) = color;
+        }
+       // roi.release();
+        fprintf(stderr, "after else I am here\n");
+      }
+
+    }
+// /    cv_ptr->image.release();
+    cv_bridge::CvImagePtr cv(new cv_bridge::CvImage);
+    cv->image = image;   */
+
+    debug_img(cv_ptr->image, "/tmp/mean/img_",0,0,0);
 
   }
 
-
+/*
   void testAgain(  std::vector<cv::Mat>  images)
   {
     std::vector<cv::Mat> diss(images.size());
     cv::Mat all;
     for(int i = 1; i < images.size(); i++)
     {
-    /*  for(int j = 0; j < (images[i].rows/2); j++)
+      for(int j = 0; j < (images[i].rows/2); j++)
       {
         cv::Mat tmp1 = images[i](cv::Rect(0, 2*j, 640, 2));
         cv::normalize(tmp1, tmp1, 0, 1, 32);
@@ -142,7 +180,7 @@ public:
         cv::Mat diff = tmp1 - tmp2;
         std::cout<<cv::mean(diff)<<std::endl;
       }
-      std::cout<<"*88888888888888888888888888888888888888888888888888888888888888"<<std::endl;*/
+      std::cout<<"*88888888888888888888888888888888888888888888888888888888888888"<<std::endl;
       cv::Mat diff = images[i] - images[i-1];
       diss.push_back(diff);
    
@@ -150,7 +188,7 @@ public:
    // eliminate_wedges(diss, all);
 
       
-  }
+  }*/
 
 /*
   void diffCalc(cv::Vec3b* p1, cv::Vec3b* p2)

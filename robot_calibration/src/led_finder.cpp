@@ -532,12 +532,13 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
 /*void LedFinder::CloudDifferenceTracker::planeFit()*/
 
-void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
+void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv)
 {
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
 
-
+  std::vector<cv_bridge::CvImagePtr> cv_ptr;
+  cv.resize(pcl_cloud.size());
   cv_ptr.resize(pcl_cloud.size());
   for(size_t i = 0; i < pcl_cloud.size(); i++)
   {
@@ -574,7 +575,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
       std::abort();
     }
-    cv::Mat image = cv::Mat::zeros(cv_ptr[i]->image.rows, cv_ptr[i]->image.cols, CV_8UC3);
+/*    cv::Mat image = cv::Mat::zeros(cv_ptr[i]->image.rows, cv_ptr[i]->image.cols, CV_8UC3);
     cv::Mat gray_roi;
     if ((cv_ptr[i]->image.rows < 15) || (cv_ptr[i]->image.cols < 15))
     {
@@ -608,8 +609,8 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
       }
 
     }
-    cv_ptr[i]->image.release();
-    cv_ptr[i]->image = image;    
+    cv[i]->image =image;*/
+    
   }
 
 }

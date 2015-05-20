@@ -457,7 +457,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 */
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img)
 {
-  /*int count = 0;
+/*  int count = 0;
   cv::Mat diff1_image, canny;
   float max_mean = -100;
   float max_dev = -100;
@@ -507,16 +507,15 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
         min_mahala_dist = mahala_curr;
         pt = cv::Point(j,i);
       }
-*/
+
     }
   }
 
-  tmp(cv::Rect(pt.x, pt.y, 10, 10)).setTo(cv::Scalar(0,0,0));
   cv::rectangle(diff1_image, cv::Rect(pt.x, pt.y, 10, 10), cv::Scalar(0,0,255), 1 ,8);
   debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
   debug_img(tmp,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(templte, "/tmp/mean/template_",0,0,0);
-  debug_img(canny,"/tmp/mean/canny_", 0, 0, 0);  
+  debug_img(canny,"/tmp/mean/canny_", 0, 0, 0);  */
 
 }
 /*

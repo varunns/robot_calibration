@@ -484,7 +484,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
     }
   }
   cv::Mat imcovar;
-  debug_img(templte, "/tmp/mean/template_",0,0,0);
+  
   double min_mahala_dist = 1000;
   /*
   cv::cvtColor(image1, tmp, CV_BGR2GRAY);
@@ -519,6 +519,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   cv::rectangle(diff1_image, cv::Rect(pt.x, pt.y, 10, 10), cv::Scalar(0,0,255), 1 ,8);
   debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
   debug_img(tmp,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(templte, "/tmp/mean/template_",0,0,0);
   debug_img(canny,"/tmp/mean/canny_", 0, 0, 0);  
 
 }

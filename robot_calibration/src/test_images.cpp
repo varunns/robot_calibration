@@ -75,8 +75,18 @@ public:
       fuse_image(rect) = images_[0];
       rect = cv::Rect(0, 640, 480, 640);
       fuse_image(rect) = images_[1];
+      debug_img(fuse_image,"tmp/mean/img_", 0, 0, 0);
       images_.clear();
     }
+  }
+
+  void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
+  {
+
+    ros::Time n = ros::Time::now();
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
+    imwrite(ss.str(), image);
   }
 
 /*    pcloud_ pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -237,14 +247,7 @@ public:
     }
   }*/
 
-  void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
-  {
 
-    ros::Time n = ros::Time::now();
-    std::stringstream ss(std::stringstream::in | std::stringstream::out);
-    ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
-    imwrite(ss.str(), image);
-  }
 
 /*  void process(std::vector<cv::Mat> images)
   {

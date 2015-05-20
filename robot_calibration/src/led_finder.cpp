@@ -506,7 +506,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       {
         continue;
       }
-      cv::Rect rect1(j, i, 10, 10)
+      cv::Rect rect1(j, i, 10, 10);
       cv::meanStdDev(diff1_image(rect1), mean, std_dev);
       mean_val = pow(mean[0], 2) + pow(mean[1], 2) +pow(mean[2], 2);  
       dev_val = pow(std_dev[0], 2) + pow(std_dev[1], 2) +pow(std_dev[2], 2);  

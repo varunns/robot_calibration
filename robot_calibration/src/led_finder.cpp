@@ -481,7 +481,10 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
 {
   int count = 0;
   cv::Mat diff1_image, tmp, canny;
-
+  float max_mean = -100;
+  float max_dev = -100;
+  float mean_val;
+  cv::Point pt;
   cv::absdiff(image1, image2, diff1_image);
   debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
   cv::cvtColor(image1, tmp, CV_BGR2GRAY);
@@ -492,22 +495,21 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   {
     for(int j = 20; j < image1.cols - 20; j++)
     {
-      if(diff1_image.at<cv::Vec3b>(j,i).val[0] > 15 && diff1_image.at<cv::Vec3b>(j,i).val[1] > 15 && diff1_image.at<cv::Vec3b>(j,i).val[2] > 15)
+      cv::Rect rect(j, i, 10, 10);
+      cv::Scalar mean;
+      cv::Scalar std_dev;
+      cv::meanStdDev(diff1_image(rect), mean, std_dev);
+      mean_val = pow(mean[0], 2) + pow(mean[1], 2) +pow(mean[2], 2);  
+      if(max_mean < mean_val)
       {
-        tmp.at<uint>(j,i) = 0;
-        continue;
-      }/*
-      cv::Vec3b color(255,255,255);
-      diff_image.at<cv::Vec3b>(j,i) = color;
-      cv::Vec3b color1(0,0,0);*/
-    
-/*
-      if(canny.at<uint>(j,i) == 255)
-      {
-        continue;
-      }*/
+        max_mean = mean_val;
+        //max_dev = std_dev;
+        pt= cv::Point(j,i);
+      }
     }
   }
+
+  tmp(cv::Rect(pt.x, pt.y, 10, 10)).setTo(cv::Scalar(0,0,0));
    
   debug_img(tmp,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(canny,"/tmp/mean/canny_", 0, 0, 0);  

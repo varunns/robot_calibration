@@ -441,9 +441,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   weightedSum(prev_image_ptr, prev_pix_weighed);
   //debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
-  cv::Mat diff_pix ;//= cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(255,255,255));
-  cv::Mat diff1_pix = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::absdiff(prev_pix_weighed, cloud_pix_weighed, diff_pix);
+  cv::Mat diff_pix = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+//  cv::Mat diff1_pix = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  //cv::absdiff(prev_pix_weighed, cloud_pix_weighed, diff_pix);
   //calculate the difference Image
   cv::Mat img;
  differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix, img);

@@ -441,7 +441,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   weightedSum(prev_image_ptr, prev_pix_weighed);
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
-  cv::Mat diff_pix ;
+  cv::Mat diff_pix = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
 
   //calculate the difference Image
   differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix);
@@ -473,10 +473,31 @@ debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 }
 
 /*
+ the function has to be modified for dark space by considering the point clouds
 */
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image)
 {
-  
+  int count = 0;
+  cv::Mat diff1_image;
+  for(uint i = 20; i < image1.rows - 20; i++)
+  {
+    for(uint j = 20; j < image1.cols - 20; j++)
+    {
+      cv::absdiff(image1, image2, diff1_image);
+      cv::Rect rect = cv::Rect(j, i, 20, 20 );
+      if(cv::countNonZero(image1(rect))/400 < 0.4)
+      {
+        (diff_image(rect)).setTo(cv::Scalar(0,0,0));
+        continue;
+      }
+      cv::Vec3b color(0,0,0);
+      if((diff1_image.at<cv::Vec3b>(j,i)).val[0] < 10 && (diff1_image.at<cv::Vec3b>(j,i)).val[1] < 10 && (diff1_image.at<cv::Vec3b>(j,i)).val[2] < 10)
+      {
+        diff_image.at<cv::Vec3b>(j,i) = color;
+      }
+      
+    }
+  }
 }
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 

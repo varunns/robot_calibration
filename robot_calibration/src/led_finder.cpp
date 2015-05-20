@@ -504,7 +504,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       }      
     }
   }
-  cv::threshold(diff_image, diff_image, 0, CV_THRESH_BINARY_INVERTED);
+  cv::threshold(diff_image, diff_image, 0, 255, 1);
 }
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 

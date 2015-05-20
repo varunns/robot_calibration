@@ -608,6 +608,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
       }
 
     }
+    cv_ptr[i]->image.release();
     cv_ptr[i]->image = image;    
   }
 

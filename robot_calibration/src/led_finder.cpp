@@ -480,12 +480,13 @@ debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img)
 {
   int count = 0;
-  cv::Mat diff1_image, tmp;
+  cv::Mat diff1_image, tmp, canny;
 
   cv::absdiff(image1, image2, diff1_image);
   debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
   cv::cvtColor(image1, tmp, CV_BGR2GRAY);
   cv::threshold(tmp, tmp, 175, 255, CV_THRESH_BINARY);
+  cv::Canny( tmp, canny, 20, 20*3, 3 );
   //cv::cvtColor(tmp, img, CV_GRAY2BGR);
   for(int i = 20; i < image1.rows - 20; i++)
   {
@@ -503,6 +504,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   }
    
   debug_img(tmp,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(canny,"/tmp/mean/cloud_", 0, 0, 0);  
 
 }
 /*

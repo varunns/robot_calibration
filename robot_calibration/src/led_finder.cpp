@@ -442,7 +442,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix ;
-  
+
   //calculate the difference Image
   differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix);
 
@@ -472,6 +472,12 @@ debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
 }
 
+/*
+*/
+void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image)
+{
+  
+}
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 
  *        use per element operations in opencv to calculate a 

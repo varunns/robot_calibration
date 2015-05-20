@@ -80,7 +80,7 @@ class LedFinder : public FeatureFinder
                   double weight);
 
 
-    void differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img);
+    void differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img, pcl::PointCloud<pcl::PointXYZRGB> cloud);
 
 
     /*finding bitwise images*/
@@ -196,6 +196,7 @@ private:
   bool output_debug_;   /// Should we output debug image/cloud?
   cv::Mat diff_image_;
   float led_duration_; //led duration.. to keep led on for so many secs
+  std::vector<cv::Mat> diff_images_;
 };
 
 }  // namespace robot_calibration

@@ -455,7 +455,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*
  the function has to be modified for dark space by considering the point clouds
 */
-void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img)
+void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& image1, cv::Mat& image2, cv::Mat& diff_image, cv::Mat img)
 {
   int count = 0;
   cv::Mat diff1_image, canny;

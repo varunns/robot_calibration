@@ -75,7 +75,7 @@ public:
       fuse_image(rect) = images_[0];
       rect = cv::Rect(0, 640, 480, 640);
       fuse_image(rect) = images_[1];
-      debug_img(fuse_image,"tmp/mean/img_", 0, 0, 0);
+      debug_img(fuse_image,"/tmp/mean/img_", 0, 0, 0);
       images_.clear();
     }
   }

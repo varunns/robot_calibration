@@ -446,7 +446,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //cv::absdiff(prev_pix_weighed, cloud_pix_weighed, diff_pix);
   //calculate the difference Image
   cv::Mat img;
- differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix, img);
+  differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix, img);
 
 /*  double *minVal = new double();
   double *maxVal = new double();
@@ -493,7 +493,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
     {
       if(tmp.at<uint>(j,i) == 255)
       {
-        if(diff1_image.at<cv::Vec3b>(j,i).val[0] > 0 || diff1_image.at<cv::Vec3b>(j,i).val[1] > 0 || diff1_image.at<cv::Vec3b>(j,i).val[2] > 0)
+        if(diff1_image.at<cv::Vec3b>(j,i).val[0] > 20 || diff1_image.at<cv::Vec3b>(j,i).val[1] > 20 || diff1_image.at<cv::Vec3b>(j,i).val[2] > 20)
         {
           cv::Vec3b color(255,255,255);
           diff_image.at<cv::Vec3b>(j,i) = color;

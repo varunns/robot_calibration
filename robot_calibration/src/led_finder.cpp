@@ -487,7 +487,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       cv::absdiff(image1, image2, diff1_image);
       cv::Rect rect = cv::Rect(j, i, 10, 10 );
       cv::cvtColor(image1(rect),tmp, CV_BGR2GRAY);
-      cv::threshold(tmp(rect), thesh, 175, 255, THRESH_BINARY_INV);
+      cv::threshold(tmp(rect), thesh, 175, 255, CV_THRESH_BINARY_INV);
       if((cv::countNonZero(tmp))/100 < 0.1)
       {
         (diff_image(rect)).setTo(cv::Scalar(0,0,0));

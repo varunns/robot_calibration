@@ -123,7 +123,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 19)
+    if(clouds_ptr_.size() > 4)
     {
       waiting_ = false;
     }
@@ -485,9 +485,9 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
     {
       cv::Mat tmp;
       cv::absdiff(image1, image2, diff1_image);
-      cv::Rect rect = cv::Rect(j, i, 20, 20 );
+      cv::Rect rect = cv::Rect(j, i, 10, 10 );
       cv::cvtColor(image1(rect),tmp, CV_BGR2GRAY);
-      if((cv::countNonZero(tmp))/400 < 0.4)
+      if((cv::countNonZero(tmp)) < 100)
       {
         (diff_image(rect)).setTo(cv::Scalar(0,0,0));
         continue;
@@ -531,7 +531,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
   for(int i = 0; i < images.size(); i++)
   {
-    cv::add(tmp_weight,0.05*(images[i]->image), result);
+    cv::add(tmp_weight,0.2*(images[i]->image), result);
     tmp_weight = result;
   }
 //  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);

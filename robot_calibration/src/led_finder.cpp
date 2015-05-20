@@ -469,7 +469,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   cv::absdiff(image1, image2, diff1_image);
 
   //creating a blob template
-  /*cv::Mat templte(13, 13, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat templte(13, 13, CV_8UC3, cv::Scalar(0,0,0));
   for(int i = 0; i < templte.rows; i++)
   {
     for(int j = 0; j < templte.cols; j++)
@@ -491,7 +491,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   cv::threshold(tmp_thresh, tmp, 175, 255, CV_THRESH_BINARY);
   cv::Canny( tmp, canny, 20, 20*3, 3 );
   //cv::cvtColor(tmp, img, CV_GRAY2BGR);
-  for(int i = 50; i < image1.rows - 50; i++)
+/*  for(int i = 50; i < image1.rows - 50; i++)
   {
     for(int j = 50; j < image1.cols - 50; j++)
     {

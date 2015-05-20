@@ -486,20 +486,16 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   cv::Mat imcovar;
   
   double min_mahala_dist = 1000;
-  /*
+  
   cv::cvtColor(image1, tmp, CV_BGR2GRAY);
   cv::threshold(tmp, tmp, 175, 255, CV_THRESH_BINARY);
-  cv::Canny( tmp, canny, 20, 20*3, 3 );*/
+  cv::Canny( tmp, canny, 20, 20*3, 3 );
   //cv::cvtColor(tmp, img, CV_GRAY2BGR);
   for(int i = 50; i < image1.rows - 50; i++)
   {
     for(int j = 50; j < image1.cols - 50; j++)
     {
       cv::Rect rect(j, i, 15, 15);
-      cv::meanStdDev(tmp(rect), mean, std_dev);
-      dev_val = pow(std_dev[0], 2) + pow(std_dev[1], 2) + pow(std_dev[2], 2);  
-      mean_val = pow(mean[0], 2) + pow(mean[1], 2) + pow(mean[2], 2);  
-
       if(cv::countNonZero(tmp(rect) < 200 ) || cv::countNonZero(canny(rect)) > 9)
       {
         continue;

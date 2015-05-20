@@ -492,8 +492,9 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   {
     for(int j = 20; j < image1.cols - 20; j++)
     {
-      if(tmp.at<uint>(j,i) == 0)
+      if(tmp.at<int>(j,i) == 0)
       {
+          
         continue;
       }
 /*

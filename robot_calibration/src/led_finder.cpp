@@ -572,9 +572,15 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     catch(cv_bridge::Exception& e)
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
+      std::abort();
     }
     cv::Mat image = cv::Mat::zeros(cv_ptr[i]->image.rows, cv_ptr[i]->image.cols, CV_8UC3);
     cv::Mat gray_roi;
+    if ((cv_ptr[i]->image.rows < 15) || (cv_ptr[i]->image.cols < 15))
+    {
+      fprintf(stderr, "small image\n");
+      std::abort();
+    }
     for(uint j = 5; j < cv_ptr[i]->image.rows-15; j++)
     {
       for(uint k = 5; k < cv_ptr[i]->image.cols-15; k++)
@@ -582,23 +588,23 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
         fprintf(stderr, "i : %d ; j : %d ; k : %d",i,j,k);
         cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
         cv::Mat roi = (cv_ptr[i]->image)(rect);
-         fprintf(stderr, "I am here after rect");
+         fprintf(stderr, "I am here after rect\n");
         cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
-        fprintf(stderr, "I am here after cvtColor");
+        fprintf(stderr, "I am here after cvtColor\n");
         if(cv::countNonZero(gray_roi) > 75)
         {
-          fprintf(stderr, "I am here in if");
+          fprintf(stderr, "I am here in if\n");
           image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
 
         }
         else
         {
-          fprintf(stderr, "I am here in else");
+          fprintf(stderr, "I am here in else\n");
           cv::Vec3b color(0,0,0);
           image.at<cv::Vec3b>(k,j) = color;
         }
        // roi.release();
-        fprintf(stderr, "after else I am here");
+        fprintf(stderr, "after else I am here\n");
       }
 
     }

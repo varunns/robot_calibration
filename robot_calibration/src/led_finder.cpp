@@ -421,6 +421,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> prev,
   double weight)
 {
+  ROS_INFO("i am here");
   //cv_bridge image pointers
   std::vector<cv::Mat> cloud_images(cloud.size());
   std::vector<cv::Mat> prev_images(cloud.size());
@@ -528,7 +529,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
 
  void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
  {
-
+  ROS_INFO("i am here debug");
   ros::Time n = ros::Time::now();
   std::stringstream ss(std::stringstream::in | std::stringstream::out);
   ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";

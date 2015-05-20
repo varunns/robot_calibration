@@ -532,13 +532,13 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
 /*void LedFinder::CloudDifferenceTracker::planeFit()*/
 
-void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv)
+void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
 {
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
 
-  std::vector<cv_bridge::CvImagePtr> cv_ptr;
-  cv.resize(pcl_cloud.size());
+/*  std::vector<cv_bridge::CvImagePtr> cv_ptr;
+  cv.resize(pcl_cloud.size());*/
   cv_ptr.resize(pcl_cloud.size());
   for(size_t i = 0; i < pcl_cloud.size(); i++)
   {
@@ -575,6 +575,24 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
       std::abort();
     }
+    cv::Mat lab_image;
+    cv::cvtColor(cv_ptr[i]->image, lab_image, CV_BGR2Lab);
+
+    std::vector<cv::Mat> lab_channels(3);
+    cv::split(lab_image, lab_channels);
+    //apply clahe
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
+    clahe->setClipLimit(4);
+    cv::Mat dst;
+    clahe->apply(lab_channels[0], dst);
+
+    //merge
+    dst.copyTo(lab_channels[0]);
+    cv::merge(lab_channels, lab_image);
+
+    //convert back to rgb
+    cv::cvtColor(lab_image, cv_ptr[i]->image, CV_Lab2BGR);
+    //cv:Mat
 /*    cv::Mat image = cv::Mat::zeros(cv_ptr[i]->image.rows, cv_ptr[i]->image.cols, CV_8UC3);
     cv::Mat gray_roi;
     if ((cv_ptr[i]->image.rows < 15) || (cv_ptr[i]->image.cols < 15))

@@ -80,7 +80,7 @@ class LedFinder : public FeatureFinder
                   double weight);
 
     // Calculate the weighted sum of the images
-    void weightedSum(std::vector<cv_bridge::CvImagePtr>& images, 
+    void weightedSum(std::vector<cv::Mat>& images, 
                      cv::Mat& result);
 
     // Convert pointcloud to cv_image ptr

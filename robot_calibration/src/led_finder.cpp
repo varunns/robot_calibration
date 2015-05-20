@@ -123,7 +123,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 19)
+    if(clouds_ptr_.size() > 0)
     {
       waiting_ = false;
     }
@@ -422,81 +422,27 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   double weight)
 {
   //cv_bridge image pointers
-  std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;
-  std::vector<cv_bridge::CvImagePtr> prev_image_ptr;
-
-  cv::Mat cloud_bits;
-  cv::Mat prev_bits;
+  std::vector<cv::Mat> cloud_images(cloud.size());
+  std::vector<cv::Mat> prev_images(cloud.size());
 
   //function call for initial processing to convert to cv::Mat
-  convert2CvImagePtr(cloud, cloud_image_ptr);
-  convert2CvImagePtr(prev, prev_image_ptr);
+  convert2CvImagePtr(cloud, cloud_images);
+  convert2CvImagePtr(prev, prev_images);
 
-  //perform a bitwise AND
-/*  bitwiseAND(cloud_image_ptr, cloud_bits);
-  bitwiseAND(prev_image_ptr, prev_bits);*/
-
-  /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
-  debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
-
-  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat cloud_pix_weighed(cloud_images[0]->image.rows, cloud_images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat prev_pix_weighed(cloud_images[0]->image.rows, cloud_images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   
-  weightedSum(cloud_image_ptr, cloud_pix_weighed);
-  weightedSum(prev_image_ptr, prev_pix_weighed);
+  weightedSum(cloud_images, cloud_pix_weighed);
+  weightedSum(prev_images, prev_pix_weighed);
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix ;
   cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);
 
-/*  double *minVal = new double();
-  double *maxVal = new double();
-  cv::Point *minLoc = new cv::Point(); 
-  cv::Point *maxLoc = new cv::Point();
-
-  cv::Mat thresh; 
-  cv::cvtColor(diff_pix_max, thresh, CV_BGR2GRAY);
-  cv::threshold(thresh, thresh, 150, 255, CV_THRESH_BINARY);
-
-  cv::minMaxLoc(thresh, minVal, maxVal, minLoc, maxLoc);
-  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,0), 1, 8);
-  //split channels
-  std::vector<cv::Mat> channels(3);
-  cv::split(diff_pix_max, channels);
-  cv::minMaxLoc(channels[0], minVal, maxVal, minLoc, maxLoc);
-  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,255), 1, 8);
-  cv::minMaxLoc(channels[1], minVal, maxVal, minLoc, maxLoc);
-  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,255,0), 1, 8);
-  cv::minMaxLoc(channels[2], minVal, maxVal, minLoc, maxLoc);
-  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(255,0,0), 1, 8);
-*/
   debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 /*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
 }
-
-void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img)
-{
-  cv::Mat tmp;
-  cv::Mat gray; 
-  std::vector<cv::Mat> bits(images.size());
-
-  for(int i = 1; i < images.size(); i++)
-  {
-    if(i == 1)
-    {
-      cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
-      cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);    
-      bits[0] = gray;
-    }
-    cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);
-    cv::bitwise_and(gray, bits[i-1], bits[i]);  
-  }
-
-  bit_img = bits[((int)images.size()-1)];
-}
-
 
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 
@@ -532,17 +478,15 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
 /*void LedFinder::CloudDifferenceTracker::planeFit()*/
 
-void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv)
+void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv::Mat>& images)
 {
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
 
-  std::vector<cv_bridge::CvImagePtr> cv_ptr;
-  cv.resize(pcl_cloud.size());
-  cv_ptr.resize(pcl_cloud.size());
+  
   for(size_t i = 0; i < pcl_cloud.size(); i++)
   {
-    cv_ptr[i].reset(new cv_bridge::CvImage);
+    cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);
       // Create the filtering object
     std::vector<int> index_in;
     pcl::IndicesConstPtr index_rem;
@@ -568,49 +512,13 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     pcl::toROSMsg(*ros_cloud, *ros_image);
     try
     {
-      cv_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+      cv_ptr = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
     }
     catch(cv_bridge::Exception& e)
     {
       ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
-      std::abort();
-    }
-/*    cv::Mat image = cv::Mat::zeros(cv_ptr[i]->image.rows, cv_ptr[i]->image.cols, CV_8UC3);
-    cv::Mat gray_roi;
-    if ((cv_ptr[i]->image.rows < 15) || (cv_ptr[i]->image.cols < 15))
-    {
-      fprintf(stderr, "small image\n");
-      std::abort();
-    }
-    for(uint j = 5; j < cv_ptr[i]->image.rows-15; j++)
-    {
-      for(uint k = 5; k < cv_ptr[i]->image.cols-15; k++)
-      {      
-        fprintf(stderr, "i : %d ; j : %d ; k : %d",i,j,k);
-        cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
-        cv::Mat roi = (cv_ptr[i]->image)(rect);
-         fprintf(stderr, "I am here after rect\n");
-        cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
-        fprintf(stderr, "I am here after cvtColor\n");
-        if(cv::countNonZero(gray_roi) > 75)
-        {
-          fprintf(stderr, "I am here in if\n");
-          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
-
-        }
-        else
-        {
-          fprintf(stderr, "I am here in else\n");
-          cv::Vec3b color(0,0,0);
-          image.at<cv::Vec3b>(k,j) = color;
-        }
-       // roi.release();
-        fprintf(stderr, "after else I am here\n");
-      }
-
-    }
-    cv[i]->image =image;*/
-    
+    }    
+    images[i] = cv_ptr->image;
   }
 
 }

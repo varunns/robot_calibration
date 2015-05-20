@@ -79,16 +79,13 @@ class LedFinder : public FeatureFinder
                   std::vector<pcloud_> prev,
                   double weight);
 
-    /*finding bitwise images*/
-    void bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img);
-
     // Calculate the weighted sum of the images
     void weightedSum(std::vector<cv_bridge::CvImagePtr>& images, 
                      cv::Mat& result);
 
     // Convert pointcloud to cv_image ptr
     void convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, 
-                            std::vector<cv_bridge::CvImagePtr>& cv_ptr);
+                            std::vector<cv::Mat>& cv_ptr);
 
     // trying out looking for contours
     bool getContourCircle(cv::Mat& cloud,

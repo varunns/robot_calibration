@@ -457,7 +457,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 */
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img)
 {
-  int count = 0;
+  /*int count = 0;
   cv::Mat diff1_image, canny;
   float max_mean = -100;
   float max_dev = -100;
@@ -507,7 +507,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
         min_mahala_dist = mahala_curr;
         pt = cv::Point(j,i);
       }
-
+*/
     }
   }
 

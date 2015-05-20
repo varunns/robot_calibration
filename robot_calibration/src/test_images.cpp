@@ -19,6 +19,8 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/segmentation/organized_connected_component_segmentation.h>
+
 
 #include <algorithm>
 #include <queue>
@@ -51,6 +53,8 @@ public:
     pcloud_ pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcloud_ pass_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::fromROSMsg(*points, *pcl_cloud);
+
+    //segmentation
 
     // Create the filtering object
     std::vector<int> index_in;

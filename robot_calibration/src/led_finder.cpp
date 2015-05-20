@@ -457,7 +457,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 */
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img)
 {
-/*  int count = 0;
+  int count = 0;
   cv::Mat diff1_image, canny;
   float max_mean = -100;
   float max_dev = -100;
@@ -469,7 +469,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   cv::absdiff(image1, image2, diff1_image);
 
   //creating a blob template
-  cv::Mat templte(13, 13, CV_8UC3, cv::Scalar(0,0,0));
+  /*cv::Mat templte(13, 13, CV_8UC3, cv::Scalar(0,0,0));
   for(int i = 0; i < templte.rows; i++)
   {
     for(int j = 0; j < templte.cols; j++)

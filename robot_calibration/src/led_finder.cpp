@@ -494,15 +494,15 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       {
         continue;
       }
-      if(diff1_image.at<cv::Vec3b>(j,i).val[0] < 10 && diff1_image.at<cv::Vec3b>(j,i).val[1] < 10 && diff1_image.at<cv::Vec3b>(j,i).val[2] < 10)
+  /*    if(diff1_image.at<cv::Vec3b>(j,i).val[0] < 10 && diff1_image.at<cv::Vec3b>(j,i).val[1] < 10 && diff1_image.at<cv::Vec3b>(j,i).val[2] < 10)
       {
         continue;
-      }
+      }*/
       diff_image.at<cv::Vec3b>(j,i) = diff1_image.at<cv::Vec3b>(j,i);
     }
   }
    
-  debug_img(img,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(tmp,"/tmp/mean/cloud_", 0, 0, 0);  
 
 }
 /*

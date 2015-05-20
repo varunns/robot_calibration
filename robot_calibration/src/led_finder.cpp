@@ -483,6 +483,8 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   cv::Mat diff1_image, tmp, canny;
   float max_mean = -100;
   float max_dev = -100;
+      cv::Scalar mean;
+      cv::Scalar std_dev;
   float mean_val;
   float dev_val;
   cv::Point pt;
@@ -503,8 +505,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       {
         continue;
       }
-      cv::Scalar mean;
-      cv::Scalar std_dev;
+  
       cv::meanStdDev(diff1_image(rect), mean, std_dev);
       mean_val = pow(mean[0], 2) + pow(mean[1], 2) +pow(mean[2], 2);  
       dev_val = pow(std_dev[0], 2) + pow(std_dev[1], 2) +pow(std_dev[2], 2);  

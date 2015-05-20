@@ -484,6 +484,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
   float max_mean = -100;
   float max_dev = -100;
   float mean_val;
+  float dev_val;
   cv::Point pt;
   cv::absdiff(image1, image2, diff1_image);
   debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
@@ -496,13 +497,20 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
     for(int j = 20; j < image1.cols - 20; j++)
     {
       cv::Rect rect(j, i, 10, 10);
+      cv::meanStdDev(tmp(rect), mean, std_dev);
+      dev_val = pow(std_dev[0], 2) + pow(std_dev[1], 2) +pow(std_dev[2], 2);  
+      if(dev_val != 0)
+      {
+        continue;
+      }
       cv::Scalar mean;
       cv::Scalar std_dev;
       cv::meanStdDev(diff1_image(rect), mean, std_dev);
       mean_val = pow(mean[0], 2) + pow(mean[1], 2) +pow(mean[2], 2);  
-      if(max_mean < mean_val)
+      dev_val = pow(std_dev[0], 2) + pow(std_dev[1], 2) +pow(std_dev[2], 2);  
+      if(max_dev < mean_val)
       {
-        max_mean = mean_val;
+        max_dev = dev_val;
         //max_dev = std_dev;
         pt= cv::Point(j,i);
       }
@@ -862,7 +870,7 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
   bool LedFinder::CloudDifferenceTracker::getContourCircle(cv::Mat&  image,
                                                            geometry_msgs::PointStamped& point)
   {
-/*   cv::Mat gray_image, norm_image, canny_image;
+ /*  cv::Mat gray_image, norm_image, canny_image;
 
    cv::cvtColor(image, gray_image, CV_BGR2GRAY);
    cv::normalize(image, norm_image, 0, 255, 32, -1);

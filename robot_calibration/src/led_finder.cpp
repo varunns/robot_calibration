@@ -433,11 +433,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   convert2CvImagePtr(prev, prev_image_ptr);
   ROS_INFO("%d",cloud_image_ptr[0]->image.rows);
   //perform a bitwise AND
-/*  bitwiseAND(cloud_image_ptr, cloud_bits);
-  bitwiseAND(prev_image_ptr, prev_bits);*/
-
-  /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
-  debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
 
   cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
@@ -447,7 +442,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix ;
-  cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);
+  
+  //calculate the difference Image
+  differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix);
 
 /*  double *minVal = new double();
   double *maxVal = new double();
@@ -474,29 +471,6 @@ debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 /*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
 }
-
-void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img)
-{
-  cv::Mat tmp;
-  cv::Mat gray; 
-  std::vector<cv::Mat> bits(images.size());
-
-  for(int i = 1; i < images.size(); i++)
-  {
-    if(i == 1)
-    {
-      cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
-      cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);    
-      bits[0] = gray;
-    }
-    cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);
-    cv::bitwise_and(gray, bits[i-1], bits[i]);  
-  }
-
-  bit_img = bits[((int)images.size()-1)];
-}
-
 
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 

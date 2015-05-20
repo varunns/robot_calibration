@@ -79,6 +79,10 @@ class LedFinder : public FeatureFinder
                   std::vector<pcloud_> prev,
                   double weight);
 
+
+    void differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image);
+
+
     /*finding bitwise images*/
     void bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img);
 

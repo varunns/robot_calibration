@@ -446,7 +446,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //cv::absdiff(prev_pix_weighed, cloud_pix_weighed, diff_pix);
   //calculate the difference Image
   cv::Mat img;
-  differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix, img, *(cloud[0]));
+  differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix, img);
   debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 /*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
@@ -455,7 +455,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*
  the function has to be modified for dark space by considering the point clouds
 */
-void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img, pcl::PointCloud<pcl::PointXYZRGB> cloud)
+void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img)
 {
   int count = 0;
   cv::Mat diff1_image, tmp, canny;

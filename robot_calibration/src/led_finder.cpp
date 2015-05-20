@@ -439,7 +439,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
   debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
 
-/*  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   
   weightedSum(cloud_image_ptr, cloud_pix_weighed);
@@ -447,7 +447,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
   cv::Mat diff_pix ;
-  cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);*/
+  cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);
 
 /*  double *minVal = new double();
   double *maxVal = new double();
@@ -470,7 +470,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::minMaxLoc(channels[2], minVal, maxVal, minLoc, maxLoc);
   cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(255,0,0), 1, 8);
 */
- // / debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
+debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
 /*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
   debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
 }
@@ -537,7 +537,6 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
 
-  std::vector<cv_bridge::CvImagePtr> cv_ptr;
   cv_ptr.resize(pcl_cloud.size());
   for(size_t i = 0; i < pcl_cloud.size(); i++)
   {

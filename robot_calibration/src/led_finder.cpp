@@ -565,11 +565,11 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
         
         int a = (lab[i].at<cv::Vec3b>(k,j))[0];
         int b = (lab[i].at<cv::Vec3b>(k,j))[1];
-        int c = (lab[i].at<cv::Vec3b>(k,j))[2];
+        /*int c = (lab[i].at<cv::Vec3b>(k,j))[2];
         cv::Scalar val = cv::Scalar(a,b,c,0);
-        sum = sum + val;
+        sum = sum + val;*/
       }
-      cv::Scalar mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
+      /*cv::Scalar mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
       sum = cv::Scalar(0,0,0);
 
       //calculating standard deviation
@@ -588,7 +588,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       {
         cv::Point pt = cv::Point(k,j);
         max = sqrd_dist;
-      }
+      }*/
 
       /*std::cout<<"curr_image: "<<lab_curr.at<cv::Vec3b>(k,j)<<" ";
       std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
@@ -597,10 +597,10 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
 */
     }
   }
-  std::cout<<max<<" "<<pt<<std::endl;
+ /* std::cout<<max<<" "<<pt<<std::endl;
   cv::rectangle(lab_curr, cv::Rect(pt.x-5, pt.y-5, 10, 10),cv::Scalar(0,0,255), 2, 8);
   debug_img(lab_curr, "/tmp/mean/curr_",0,0,0);
-  std::cout<<"****************************************************************************************************"<<std::endl;
+  std::cout<<"****************************************************************************************************"<<std::endl;*/
 }
 
 

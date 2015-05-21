@@ -550,7 +550,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   }
   cv::cvtColor(curr_images[0], lab_curr, CV_BGR2Lab);
   cv::rectangle(lab_curr, cv::Rect(544, 45, 10, 10),cv::Scalar(0,0,255), 2, 8);
-  std::cout<<lab_curr.at<cv::Vec3b>(548, 50)<<" ";
+  
   debug_img(lab_curr,"/tmp/mean/curr_",0,0,0);
 
 
@@ -562,6 +562,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       //calculating the mean of the image
       for(int i = 0; i < past_images.size(); i++)
       {
+        std::cout<<lab[i].at<cv::Vec3b>(k,j)<<" ";
         int a = (lab[i].at<cv::Vec3b>(k,j))[0];
         int b = (lab[i].at<cv::Vec3b>(k,j))[1];
         int c = (lab[i].at<cv::Vec3b>(k,j))[2];
@@ -579,7 +580,6 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       }
       sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
 
-      std::cout<<k<<" "<<j<<" "<<std::endl;
       cv::Scalar dist = cv::Scalar((lab_curr.at<cv::Vec3b>(k,j))[0] - mean[0], (lab_curr.at<cv::Vec3b>(k,j))[1]-mean[1], (lab_curr.at<cv::Vec3b>(k,j))[2]-mean[2], 0);
       dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
       double sqrd_dist = dist[0]*dist[0] + dist[1]*dist[1] + dist[2]*dist[2];

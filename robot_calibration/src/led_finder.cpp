@@ -521,6 +521,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
       std::cout<<sum<<std::endl;
     }
   }
+  std::cout<<"****************************************************************************************************"<<std::endl;
 }
 
 

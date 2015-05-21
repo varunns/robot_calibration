@@ -439,7 +439,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   cv::Mat led_image;
   std::vector<cv::Mat> curr_images;
-  curr_images.push_back(cloud_images[30]->image);
+  curr_images.push_back((cloud_images[30])->image);
 
   differenceImage(curr_images, past_images, led_image);
 

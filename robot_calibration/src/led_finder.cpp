@@ -573,15 +573,15 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
 
       std::cout<<"mean :"<<mean<<std::endl;
       std::cout<<"point :"<< lab_curr.rows<<std::endl;
-      cv::Scalar dist = cv::Scalar( (lab_curr.at<cv::Vec3b>(k,j))[0], (lab_curr.at<cv::Vec3b>(k,j))[1], (lab_curr.at<cv::Vec3b>(k,j))[2], 0 ) - mean;
-      dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
+      /*cv::Scalar dist = */ std::cout<<(cv::Scalar( (lab_curr.at<cv::Vec3b>(k,j))[0], (lab_curr.at<cv::Vec3b>(k,j))[1], (lab_curr.at<cv::Vec3b>(k,j))[2], 0 ) - mean)<<std::endl;
+      /*dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
       double sqrd_dist = dist[0]*dist[0] + dist[1]*dist[1] + dist[2]*dist[2];
       
       if(!isnan(sqrd_dist) && sqrd_dist > max)
       {
         cv::Point pt = cv::Point(k,j);
         max = sqrd_dist;
-      }
+      }*/
 
       /*std::cout<<"curr_image: "<<lab_curr.at<cv::Vec3b>(k,j)<<" ";
       std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";

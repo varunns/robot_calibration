@@ -576,11 +576,11 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       //calculating standard deviation
       for(int i = 0; i < past_images.size(); i++)
       {
-        val = cv::Scalar( (lab[i]).at<cv::Vec3b>(k,j)[0], (lab[i]).at<cv::Vec3b>(k,j)[1], (lab[i]).at<cv::Vec3b>(k,j)[2], 0);
- /*       int a = pow((val[0] - mean[0]), 2); 
-        int b = pow((val[1] - mean[1]), 2); 
-        int c = pow((val[2] - mean[2]), 2);
-        sum = sum + cv::Scalar(a, b, c, 0);*/
+        int a = (lab[i].at<cv::Vec3b>(k,j))[0];
+        int b = (lab[i].at<cv::Vec3b>(k,j))[1];
+        int c = (lab[i].at<cv::Vec3b>(k,j))[2];
+        val = cv::Scalar( a,b,c, 0);
+        //sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
       }
      // sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
 /*    

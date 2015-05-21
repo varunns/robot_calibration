@@ -447,7 +447,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*
  the function has to be modified for dark space by considering the point clouds
 */
-/*void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
+void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 { 
   cv::Rect rect = cv::Rect(324, 183,10,10);
   cv::Scalar sum = cv::Scalar(0,0,0);
@@ -477,10 +477,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::cout<<dist<<" ";
   std::cout<<sum<<std::endl;
  
-}*/
+}
 
 /*for roi*/
-void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
+/*void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
   cv::Rect rect = cv::Rect(326 , 187,1,1);
   
@@ -526,7 +526,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
     }
   }
   std::cout<<"****************************************************************************************************"<<std::endl;
-}
+}*/
 
 
 /* convertin pcl cloud to cv::Mat*/

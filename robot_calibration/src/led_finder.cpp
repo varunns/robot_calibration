@@ -123,7 +123,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 34)
+    if(clouds_ptr_.size() > 59)
     {
       waiting_ = false;
     }
@@ -432,15 +432,15 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   //taking images indexed 6 to 6+8 to avoid starting images
   std::vector<cv::Mat> past_images;
-  for(int i = 0; i < 15; i++)
+  for(int i = 0; i < 30; i++)
   {
-    past_images.push_back((prev_images[i+10])->image);
+    past_images.push_back((prev_images[i+15])->image);
   }
 
   cv::Mat led_image;
   
 
-  differenceImage(cloud_images[15]->image, past_images, led_image);
+  differenceImage(cloud_images[30]->image, past_images, led_image);
 
 }
 

@@ -430,7 +430,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //function call for initial processing to convert to cv::Mat
   convert2CvImage(cloud, cloud_images);
   convert2CvImage(prev, prev_images);
-
+  std::cout<<"cloud : "<<cloud[0]->points[0].x<<std::endl;
+  std::cout<<"pre cloud : "<<prev[0]->points[0].x<<std::endl;
   //taking images indexed 6 to 6+8 to avoid starting images
   std::vector<cv::Mat> past_images(8);
   for(int i = 0; i < 8; i++)
@@ -438,7 +439,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     past_images.push_back(prev_images[i+6]);
   }
   cv::Mat led_image;
-  std::cout<<prev_images[0].rows<<std::endl;
+ // std::cout<<prev_images[0].rows<<std::endl;
   if(past_images[0].rows > 0)
   {
     differenceImage(cloud_images[8], past_images, led_image);
@@ -500,7 +501,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pc
     {
       ROS_ERROR("cloud was unwilling: %s", e.what());
     }
-
+    std::cout<<"image : "<<(cv->image).rows<<std::endl;
     images.push_back(cv->image);
   }
    ROS_INFO("exit convert");

@@ -543,6 +543,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   cv::Mat lab_curr = cv::Mat(curr_images[0].rows, curr_images[0].cols, CV_8UC3, cv::Scalar(0,0,0));
   float max = -1000;
   cv::Point pt;
+  cv::Scalar val = cv::Scalar(0,0,0,0);
   for(int i = 0; i < past_images.size(); i++)
   {
     lab[i] = cv::Mat(past_images[i].rows, past_images[i].cols, CV_8UC3, cv::Scalar(0,0,0));
@@ -566,20 +567,20 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
         int a = (lab[i].at<cv::Vec3b>(k,j))[0];
         int b = (lab[i].at<cv::Vec3b>(k,j))[1];
         int third = (lab[i].at<cv::Vec3b>(k,j))[2];
-        cv::Scalar val = cv::Scalar(a,b,third,0);
+        val = cv::Scalar(a,b,third,0);
         sum = sum + val;
       }
       cv::Scalar mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
-      sum = cv::Scalar(0,0,0);
-
+      sum = cv::Scalar(0,0,0,0);
+      val = cv::Scalar(0,0,0,0);
       //calculating standard deviation
-/*      for(int i = 0; i < past_images.size(); i++)
+      for(int i = 0; i < past_images.size(); i++)
       {
-        cv::Scalar val = cv::Scalar( (lab[i]).at<cv::Vec3b>(k,j)[0], (lab[i]).at<cv::Vec3b>(k,j)[1], (lab[i]).at<cv::Vec3b>(k,j)[2], 0);
+        val = cv::Scalar( (lab[i]).at<cv::Vec3b>(k,j)[0], (lab[i]).at<cv::Vec3b>(k,j)[1], (lab[i]).at<cv::Vec3b>(k,j)[2], 0);
         sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
       }
-      sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);*/
-/*
+      sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
+/*    
       cv::Scalar dist = cv::Scalar((lab_curr.at<cv::Vec3b>(k,j))[0] - mean[0], (lab_curr.at<cv::Vec3b>(k,j))[1]-mean[1], (lab_curr.at<cv::Vec3b>(k,j))[2]-mean[2], 0);
       dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
       double sqrd_dist = dist[0]*dist[0] + dist[1]*dist[1] + dist[2]*dist[2];

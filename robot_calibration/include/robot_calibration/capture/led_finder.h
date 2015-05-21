@@ -81,7 +81,7 @@ class LedFinder : public FeatureFinder
 
 
     void differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& prev_images, cv::Mat& led);
-
+    cv::Scalar calcSum(std::vector<cv::Mat*> images, int k, int j, cv::Scalar mean, int ind);
 
     /*finding bitwise images*/
     void bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img);

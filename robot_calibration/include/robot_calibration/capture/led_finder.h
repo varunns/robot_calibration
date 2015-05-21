@@ -80,7 +80,7 @@ class LedFinder : public FeatureFinder
                   double weight);
 
 
-    void differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& prev_images, cv::Mat& led);
+    void differenceImage(cv::Mat* curr_image, std::vector<cv::Mat>& prev_images, cv::Mat& led);
 
 
     /*finding bitwise images*/

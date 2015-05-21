@@ -429,14 +429,14 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //function call for initial processing to convert to cv::Mat
   convert2CvImage(cloud, cloud_images);
   convert2CvImage(prev, prev_images);
-  debug_img(prev_images[6]->image, "/tmp/mean/test_",0,0,0);
+
   //taking images indexed 6 to 6+8 to avoid starting images
   std::vector<cv::Mat> past_images;
   for(int i = 0; i < 8; i++)
   {
     past_images.push_back((prev_images[i+6])->image);
   }
-  debug_img(past_images[0], "/tmp/mean/past_",0,0,0);
+
   cv::Mat led_image;
   differenceImage(cloud_images[8]->image, past_images, led_image);
 
@@ -450,7 +450,6 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
 
   cv::Scalar sum = cv::Scalar(0,0,0);
   //calculating the mean of the image
-  std::cout<<past_images[0].rows<<std::endl;
   for(int i = 0; i < past_images.size(); i ++)
   {
     cv::Scalar val = cv::Scalar((past_images[i].at<cv::Vec3b>(200,200))[0], (past_images[i].at<cv::Vec3b>(200,200))[1], (past_images[i].at<cv::Vec3b>(200,200))[2]);
@@ -460,7 +459,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   sum = cv::Scalar(0,0,0);
 
   //calculating standard deviation
-  for(int i = 1; i < past_images.size(); i++)
+  for(int i = 0; i < past_images.size(); i++)
   {
     cv::Scalar val = cv::Scalar((past_images[i].at<cv::Vec3b>(200,200))[0], (past_images[i].at<cv::Vec3b>(200,200))[1], (past_images[i].at<cv::Vec3b>(200,200))[2]);
     sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);

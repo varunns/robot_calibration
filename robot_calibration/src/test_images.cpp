@@ -40,7 +40,7 @@ private:
 public:
   TestImages()
   {
-    sub_ = nh_.subscribe("/camera/depth_registered/points", 1, &TestImages::pcCB, this);
+    sub_ = nh_.subscribe("/head_camera/depth_registered/points", 1, &TestImages::pcCB, this);
     pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/color_diff", 10);
     flag_ = true;
     i = 0;

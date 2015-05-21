@@ -539,15 +539,15 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
   cv::Rect rect = cv::Rect(326 , 187,1,1);
-  std::vector<cv::Mat> lab(past_images.size());
+  std::vector<cv::Mat*> lab;
   cv::Mat lab_curr = cv::Mat(curr_images[0].rows, curr_images[0].cols, CV_8UC3, cv::Scalar(0,0,0));
   float max = -1000;
   cv::Point pt;
   
   for(int i = 0; i < past_images.size(); i++)
   {
-    lab[i] = cv::Mat(past_images[i].rows, past_images[i].cols, CV_8UC3, cv::Scalar(0,0,0));
-    cv::cvtColor(past_images[i], lab[i], CV_BGR2Lab);
+    *(lab[i]) = cv::Mat(past_images[i].rows, past_images[i].cols, CV_8UC3, cv::Scalar(0,0,0));
+    cv::cvtColor(past_images[i], *(lab[i]), CV_BGR2Lab);
   }
   cv::cvtColor(curr_images[0], lab_curr, CV_BGR2Lab);
   cv::rectangle(lab_curr, cv::Rect(544, 45, 10, 10),cv::Scalar(0,0,255), 2, 8);
@@ -568,9 +568,9 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       for(int i = 0; i < past_images.size(); i++)
       {
         
-        a = (lab[i].at<cv::Vec3b>(k,j))[0];
-        b = (lab[i].at<cv::Vec3b>(k,j))[1];
-        c = (lab[i].at<cv::Vec3b>(k,j))[2];
+        a = lab[i]->at<cv::Vec3b>(k,j)[0];
+        b = lab[i]->at<cv::Vec3b>(k,j)[1];
+        c = lab[i]->at<cv::Vec3b>(k,j)[2];
         val = cv::Scalar(a,b,c,0);
         sum += val;
       }
@@ -581,12 +581,11 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       //calculating standard deviation
       for(int i = 0; i < past_images.size(); i++)
       {
-        int d = (lab[i].at<cv::Vec3b>(k,j))[0];
-        b = (lab[i].at<cv::Vec3b>(k,j))[1];
-        c = (lab[i].at<cv::Vec3b>(k,j))[2];
-        val = cv::Scalar( d,b,c, 0);
-        a = pow((val[0] - mean[0]), 2);
- // /       sum += cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
+        a = lab[i]->at<cv::Vec3b>(k,j)[0];
+        b = lab[i]->at<cv::Vec3b>(k,j)[1];
+        c = lab[i]->at<cv::Vec3b>(k,j)[2];
+        val = cv::Scalar( a,b,c, 0);
+ // /   sum += cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
       }
      // sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
 /*    

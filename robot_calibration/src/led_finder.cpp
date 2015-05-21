@@ -143,7 +143,7 @@ bool LedFinder::waitForCloud()
       // success
       return true;
     }
-    ros::Duration(0.1).sleep();
+    ros::Duration(0.2).sleep();
   }
   ROS_ERROR("Failed to get cloud");
   return !waiting_;

@@ -438,7 +438,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   cv::Mat led_image;
-  cv::Mat m.clone(cloud_images[30]->image);
+  cv::Mat m = (cloud_images[30]->image).clone();
 
   differenceImage(m, past_images, led_image);
 

@@ -447,7 +447,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 */
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 { 
-
+  debug_img(curr_image,"tmp/mean/curr_",0,0,0);
   cv::Scalar sum = cv::Scalar(0,0,0);
   cv::Mat lab;
   //calculating the mean of the image

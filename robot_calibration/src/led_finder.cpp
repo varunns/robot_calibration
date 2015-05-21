@@ -430,7 +430,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //function call for initial processing to convert to cv::Mat
   convert2CvImage(cloud, cloud_images);
   convert2CvImage(prev, prev_images);
-  std::cout<<"cloud : "<<cloud[0]->points[0].x<<std::endl;
+  std::cout<<"images size : "<<cloud_images[0].rows<<std::endl;
   std::cout<<"pre cloud : "<<prev[0]->points[0].x<<std::endl;
   //taking images indexed 6 to 6+8 to avoid starting images
   std::vector<cv::Mat> past_images(8);

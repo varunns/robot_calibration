@@ -436,7 +436,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   {
     past_images.push_back((prev_images[i+6])->image);
   }
-  debug_img(prev_images[0]->image, "/tmp/mean/past_",0,0,0);
+  debug_img(past_images[0]->image, "/tmp/mean/past_",0,0,0);
   cv::Mat led_image;
   differenceImage(cloud_images[8]->image, past_images, led_image);
 

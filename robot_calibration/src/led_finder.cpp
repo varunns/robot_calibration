@@ -543,7 +543,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   cv::Mat lab_curr = cv::Mat(curr_images[0].rows, curr_images[0].cols, CV_8UC3, cv::Scalar(0,0,0));
   float max = -1000;
   cv::Point pt;
-  cv::Scalar val = cv::Scalar(0,0,0,0);
+  
   for(int i = 0; i < past_images.size(); i++)
   {
     lab[i] = cv::Mat(past_images[i].rows, past_images[i].cols, CV_8UC3, cv::Scalar(0,0,0));
@@ -559,7 +559,8 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   {
     for(int k = 50; k < lab_curr.cols - 50; k++)
     {
-      cv::Scalar sum = cv::Scalar(0,0,0);
+      cv::Scalar sum = cv::Scalar(0,0,0,0);
+      cv::Scalar val = cv::Scalar(0,0,0,0);
       //calculating the mean of the image
       for(int i = 0; i < past_images.size(); i++)
       {
@@ -580,7 +581,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
         int b = (lab[i].at<cv::Vec3b>(k,j))[1];
         int c = (lab[i].at<cv::Vec3b>(k,j))[2];
         val = cv::Scalar( a,b,c, 0);
-      //  sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
+        sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
       }
      // sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
 /*    

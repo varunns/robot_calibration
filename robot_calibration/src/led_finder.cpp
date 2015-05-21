@@ -470,14 +470,13 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
 }
 
 /* convertin pcl cloud to cv::Mat*/
-void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv)
+void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
 {
 
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   cv_bridge::CvImagePtr cv(new cv_bridge::CvImage);
-  images.resize(pcl_cloud.size());
-
+  cv_ptr.resize(pcl_cloud.size());
   for(int i = 0; i < pcl_cloud.size(); i++)
   {
     ros_cloud.reset(new sensor_msgs::PointCloud2);
@@ -488,7 +487,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pc
 
     try
     {
-      cv[i] = cv_bridge::toCvCopy(ros_image, sensor_msgs::image_encodings::BGR8);
+      cv_ptr[i] = cv_bridge::toCvCopy(ros_image, sensor_msgs::image_encodings::BGR8);
     }
     catch(cv_bridge::Exception& e)
     {

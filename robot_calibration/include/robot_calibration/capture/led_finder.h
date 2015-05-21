@@ -92,7 +92,7 @@ class LedFinder : public FeatureFinder
 
     // Convert pointcloud to cv_image ptr
     void convert2CvImage(std::vector<pcloud_>& pcl_cloud, 
-                            std::vector<cv_bridge::CvImagePtr>& images);
+                            std::vector<cv_bridge::CvImagePtr>& cv_ptr);
 
     // trying out looking for contours
     bool getContourCircle(cv::Mat& cloud,

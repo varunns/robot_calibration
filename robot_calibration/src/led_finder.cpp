@@ -548,7 +548,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
     cv::cvtColor(past_images[i], lab[i], CV_BGR2Lab);
   }
   cv::cvtColor(curr_image, lab_curr, CV_BGR2Lab);
-  std::cout<<(lab_curr.at<cv::Vec3b>(549,50))[2]<<std::endl;//<<" "<<(lab_curr.at<cv::Vec3b>(549,49))[1]<<" "<<(lab_curr.at<cv::Vec3b>(549,49))[2]<<std::endl;
+  std::cout<<(lab_curr.at<cv::Vec3b>(549,49))[2]<<std::endl;//<<" "<<(lab_curr.at<cv::Vec3b>(549,49))[1]<<" "<<(lab_curr.at<cv::Vec3b>(549,49))[2]<<std::endl;
   for(int j = 50; j < lab_curr.rows - 50; j++)
   {
     for(int k = 50; k < lab_curr.cols - 50; k++)

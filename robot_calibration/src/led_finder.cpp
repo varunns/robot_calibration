@@ -501,8 +501,9 @@ void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pc
     {
       ROS_ERROR("cloud was unwilling: %s", e.what());
     }
-    std::cout<<"image : "<<(cv->image).rows<<std::endl;
-    images.push_back(cv->image);
+    cv::Mat tmp;
+    (cv->image).copyTo(tmp);
+    images.push_back(tmp);
   }
    ROS_INFO("exit convert");
 }

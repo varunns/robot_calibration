@@ -605,6 +605,8 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   cv::rectangle(lab_curr, cv::Rect(pt.x-5, pt.y-5, 10, 10),cv::Scalar(0,0,255), 2, 8);
   debug_img(lab_curr, "/tmp/mean/curr_",0,0,0);
   std::cout<<"****************************************************************************************************"<<std::endl;*/
+  lab.clear();
+  lab_curr.release();
 }
 
 

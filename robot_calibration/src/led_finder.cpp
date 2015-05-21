@@ -447,9 +447,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*
  the function has to be modified for dark space by considering the point clouds
 */
-void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
-{ 
-  cv::Rect rect = cv::Rect(324, 183,10,10);
+/*void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
+{ */
+  /*cv::Rect rect = cv::Rect(324, 183,10,10);
   cv::Scalar sum = cv::Scalar(0,0,0);
   cv::Mat lab;
   //calculating the mean of the image
@@ -477,10 +477,10 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(320,240)<<" ";
   //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
   std::cout<<dist<<" ";
-  std::cout<<sum<<std::endl;
+  std::cout<<sum<<std::endl;*/
 
   /* to be deleted*/
-    for(int i = 0; i < past_images.size(); i ++)
+  /*  for(int i = 0; i < past_images.size(); i ++)
   {
     cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
     cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(200,150))[0], (lab.at<cv::Vec3b>(200, 150))[1], (lab.at<cv::Vec3b>(200,150))[2]);
@@ -505,9 +505,9 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
   std::cout<<dist<<" ";
   std::cout<<sum<<std::endl;
- 
+ */
  /*compare blue image*/
-  for(int i = 0; i < past_images.size(); i ++)
+  /*for(int i = 0; i < past_images.size(); i ++)
   {
     cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
     cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(326,187))[0], (lab.at<cv::Vec3b>(326,187))[1], (lab.at<cv::Vec3b>(326,187))[2]);
@@ -531,27 +531,28 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(326,187)<<" ";
   //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
   std::cout<<dist<<" ";
-  std::cout<<sum<<std::endl; 
-}
+  std::cout<<sum<<std::endl; */
+//}
 
 /*for roi*/
-/*void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
+void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
   cv::Rect rect = cv::Rect(326 , 187,1,1);
   
   std::vector<cv::Mat> lab(past_images.size());
   cv::Mat lab_curr;
+  float max = -1000;
+  cv::Point pt;
   for(int i = 0; i < past_images.size(); i++)
   {
-    cv::cvtColor(past_images[i](rect), lab[i], CV_BGR2Lab);
+    cv::cvtColor(past_images[i], lab[i], CV_BGR2Lab);
   }
-  cv::cvtColor(curr_image(rect), lab_curr, CV_BGR2Lab);
+  cv::cvtColor(curr_image, lab_curr, CV_BGR2Lab);
 
-  for(int j = 0; j < rect.height; j++)
+  for(int j = 50; j < rect.height - 50; j++)
   {
-    for(int k = 0; k < rect.width; k++)
+    for(int k = 50; k < rect.width - 50; k++)
     {
-      k = 326, j = 187;
       cv::Scalar sum = cv::Scalar(0,0,0);
       //calculating the mean of the image
       for(int i = 0; i < past_images.size(); i++)
@@ -573,15 +574,23 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
 
       cv::Scalar dist = cv::Scalar((lab_curr.at<cv::Vec3b>(k,j))[0], (lab_curr.at<cv::Vec3b>(k,j))[1], (lab_curr.at<cv::Vec3b>(k,j))[2], 0) - mean;
       dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
-      std::cout<<"curr_image: "<<lab_curr.at<cv::Vec3b>(k,j)<<" ";
+      double sqrd_dist = dist[0]*dist[0] + dist[1]*dist[1] + dist[2]*dist[2];
+      if(sqrd_dist > max)
+      {
+        cv::Point pt = cv::Point(k,j);
+        max = sqrd_dist;
+      }
+      /*std::cout<<"curr_image: "<<lab_curr.at<cv::Vec3b>(k,j)<<" ";
       std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
       std::cout<<"std_dev: "<<sum<<" ";
       std::cout<<"dist: "<<dist<<std::endl;
-
+*/
     }
   }
+  cv::rectangle(curr_image, cv::Rect(pt.x-5, pt.y-5, 10, 10),cv::Scalar(0,0,255), 2, 8);
+  debug_img(curr_image, "/tmp/mean/curr_",0,0,0);
   std::cout<<"****************************************************************************************************"<<std::endl;
-}*/
+}
 
 
 /* convertin pcl cloud to cv::Mat*/

@@ -447,7 +447,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
 { 
   cv::Scalar sum = cv::Scalar(0,0,0);
   //calculating the mean of the image
-  std::cout<<past_images.size()<<std::endl;
+  std::cout<<past_images[0].rows<<std::endl;
 /*  for(int i = 0; i < past_images.size(); i ++)
   {
     cv::Scalar val = cv::Scalar((past_images[i].at<cv::Vec3b>(200,200))[0], (past_images[i].at<cv::Vec3b>(200,200))[1], (past_images[i].at<cv::Vec3b>(200,200))[2]);

@@ -486,7 +486,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
     cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(200,150))[0], (lab.at<cv::Vec3b>(200, 150))[1], (lab.at<cv::Vec3b>(200,150))[2]);
     sum = sum + val;
   }
-  cv::Scalar mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
+  mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
   sum = cv::Scalar(0,0,0);
 
   //calculating standard deviation
@@ -499,7 +499,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
 
   cv::cvtColor(curr_image, lab, CV_BGR2Lab);
-  cv::Scalar dist = cv::Scalar((lab.at<cv::Vec3b>(200,150))[0], (lab.at<cv::Vec3b>(200,150))[1], (lab.at<cv::Vec3b>(200,150))[2], 0) - mean;
+  dist = cv::Scalar((lab.at<cv::Vec3b>(200,150))[0], (lab.at<cv::Vec3b>(200,150))[1], (lab.at<cv::Vec3b>(200,150))[2], 0) - mean;
   dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
   std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(200, 150)<<" ";
   //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";

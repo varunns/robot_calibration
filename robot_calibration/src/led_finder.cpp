@@ -474,7 +474,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   cv::cvtColor(curr_image, lab, CV_BGR2Lab);
   cv::Scalar dist = cv::Scalar((lab.at<cv::Vec3b>(320,240))[0], (lab.at<cv::Vec3b>(320,240))[1], (lab.at<cv::Vec3b>(320,240))[2], 0) - mean;
   dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
-  std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(k,j)<<" ";
+  std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(320,240)<<" ";
   //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
   std::cout<<dist<<" ";
   std::cout<<sum<<std::endl;

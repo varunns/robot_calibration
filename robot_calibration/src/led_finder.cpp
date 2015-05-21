@@ -421,6 +421,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> prev,
   double weight)
 {
+
+  ROS_INFO("in process");
   //cv_bridge image pointers
   std::vector<cv::Mat> cloud_images;
   std::vector<cv::Mat> prev_images;
@@ -440,6 +442,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   {
     differenceImage(cloud_images[8], past_images, led_image);
   }
+   ROS_INFO("exit process");
 }
 
 /*
@@ -447,6 +450,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 */
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 { 
+  ROS_INFO("in diff");
   cv::Scalar sum = cv::Scalar(0,0,0);
   //calculating the mean of the image
  
@@ -466,12 +470,13 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   }
   sum = cv::Scalar(sqrt(sum[0]/(past_images.size() - 1)), sqrt(sum[1]/(past_images.size()-1)), sqrt(sum[2]/(past_images.size()-1)), 0);
   std::cout<<sum<<std::endl;
-   
+   ROS_INFO("exit diff");  
 }
 
 /* convertin pcl cloud to cv::Mat*/
 void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pcl_cloud, std::vector<cv::Mat>& images)
 {
+  ROS_INFO("in convert");
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   cv_bridge::CvImagePtr cv(new cv_bridge::CvImage);
@@ -497,6 +502,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pc
 
     images.push_back(cv->image);
   }
+   ROS_INFO("exit convert");
 }
 
 /*

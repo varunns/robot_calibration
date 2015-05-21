@@ -482,7 +482,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*for roi*/
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
-  cv::Rect rect = cv::Rect(370, 187,1,1);
+  cv::Rect rect = cv::Rect(370 , 187,1,1);
   
   std::vector<cv::Mat> lab(past_images.size());
   cv::Mat lab_curr;
@@ -496,11 +496,12 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   {
     for(int k = 0; k < rect.width; k++)
     {
+      k = 370, j = 187;
       cv::Scalar sum = cv::Scalar(0,0,0);
       //calculating the mean of the image
       for(int i = 0; i < past_images.size(); i++)
       {
-        cv::Scalar val = cv::Scalar( (lab[i]).at<cv::Vec3b>(k,j)[0], (lab[i]).at<cv::Vec3b>(k,j)[1], (lab[i]).at<cv::Vec3b>(k,j)[2] );
+        cv::Scalar val = cv::Scalar( (past_images[i]).at<cv::Vec3b>(k,j)[0], (past_images[i]).at<cv::Vec3b>(k,j)[1], (past_images[i]).at<cv::Vec3b>(k,j)[2] );
         sum = sum + val;
       }
       cv::Scalar mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
@@ -509,13 +510,13 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
       //calculating standard deviation
       for(int i = 0; i < past_images.size(); i++)
       {
-        cv::Scalar val = cv::Scalar( (lab[i]).at<cv::Vec3b>(k,j)[0], (lab[i]).at<cv::Vec3b>(k,j)[1], (lab[i]).at<cv::Vec3b>(k,j)[2]);
+        cv::Scalar val = cv::Scalar( (past_images[i]).at<cv::Vec3b>(k,j)[0], (past_images[i]).at<cv::Vec3b>(k,j)[1], (past_images[i]).at<cv::Vec3b>(k,j)[2]);
         sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
       }
       sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
 
 
-      cv::Scalar dist = cv::Scalar((lab_curr.at<cv::Vec3b>(k,j))[0], (lab_curr.at<cv::Vec3b>(k,j))[1], (lab_curr.at<cv::Vec3b>(k,j))[2], 0) - mean;
+      cv::Scalar dist = cv::Scalar((curr_image.at<cv::Vec3b>(k,j))[0], (curr_image.at<cv::Vec3b>(k,j))[1], (curr_image.at<cv::Vec3b>(k,j))[2], 0) - mean;
       dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
       std::cout<<"std_dev: "<<sum<<" ";
       std::cout<<"dist: "<<dist<<std::endl;

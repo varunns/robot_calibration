@@ -552,13 +552,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   std::cout<<lab_curr.at<cv::Vec3b>(549, 50)<<" ";
   debug_img(lab_curr,"/tmp/mean/curr_",0,0,0);
 
-  for(int j = 50; j < lab_curr.rows; j++)
-  {
-    for(int k = 50; k < lab_curr.cols; k++)
-    {
-      std::cout<<lab_curr.at<cv::Vec3b>(k,j)<<" ";
-    }
-  }
+
   for(int j = 50; j < lab_curr.rows - 50; j++)
   {
     for(int k = 50; k < lab_curr.cols - 50; k++)

@@ -562,7 +562,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       //calculating the mean of the image
       for(int i = 0; i < past_images.size(); i++)
       {
-        std::cout<<lab[i].at<cv::Vec3b>(k,j)<<" ";
+        
         int a = (lab[i].at<cv::Vec3b>(k,j))[0];
         int b = (lab[i].at<cv::Vec3b>(k,j))[1];
         int c = (lab[i].at<cv::Vec3b>(k,j))[2];

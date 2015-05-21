@@ -554,7 +554,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   
   debug_img(lab_curr,"/tmp/mean/curr_",0,0,0);
 
-
+  int a, b, c;
   for(int j = 50; j < lab_curr.rows - 50; j++)
   {
     
@@ -567,9 +567,9 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       //cv::Scalar std
       for(int i = 0; i < past_images.size(); i++)
       {
-        int a  = lab[i].at<cv::Vec3b>(k,j)[0];
-        int b  = lab[i].at<cv::Vec3b>(k,j)[1];
-        int c  = lab[i].at<cv::Vec3b>(k,j)[2];
+        a  = lab[i].at<cv::Vec3b>(k,j)[0];
+        b  = lab[i].at<cv::Vec3b>(k,j)[1];
+        c  = lab[i].at<cv::Vec3b>(k,j)[2];
         kjScalars[i] = cv::Scalar(a, b, c, 0);
       }
       //calculating the mean of the image

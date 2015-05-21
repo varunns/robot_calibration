@@ -489,7 +489,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
   sum = cv::Scalar(0,0,0);
 
-/*  //calculating standard deviation
+  //calculating standard deviation
   for(int i = 0; i < past_images.size(); i++)
   {
     cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
@@ -504,8 +504,34 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(200, 150)<<" ";
   //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
   std::cout<<dist<<" ";
-  std::cout<<sum<<std::endl;*/
+  std::cout<<sum<<std::endl;
  
+ /*compare blue image*/
+  for(int i = 0; i < past_images.size(); i ++)
+  {
+    cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
+    cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(326,187))[0], (lab.at<cv::Vec3b>(326,187))[1], (lab.at<cv::Vec3b>(326,187))[2]);
+    sum = sum + val;
+  }
+  mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
+  sum = cv::Scalar(0,0,0);
+
+  //calculating standard deviation
+  for(int i = 0; i < past_images.size(); i++)
+  {
+    cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
+    cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(326, 187))[0], (lab.at<cv::Vec3b>(326,187))[1], (lab.at<cv::Vec3b>(326,187))[2]);
+    sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
+  }
+  sum = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
+
+  cv::cvtColor(curr_image, lab, CV_BGR2Lab);
+  dist = cv::Scalar((lab.at<cv::Vec3b>(326,187))[0], (lab.at<cv::Vec3b>(326,187))[1], (lab.at<cv::Vec3b>(326,187))[2], 0) - mean;
+  dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
+  std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(326,187)<<" ";
+  //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
+  std::cout<<dist<<" ";
+  std::cout<<sum<<std::endl; 
 }
 
 /*for roi*/

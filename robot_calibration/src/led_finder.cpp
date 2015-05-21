@@ -438,9 +438,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   cv::Mat led_image;
-  
+  cv::Mat m.clone(cloud_images[30]->image);
 
-  differenceImage(cloud_images[30], past_images, led_image);
+  differenceImage(m, past_images, led_image);
 
 }
 
@@ -535,7 +535,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 //}
 
 /*for roi*/
-void LedFinder::CloudDifferenceTracker::differenceImage(cv_bridge::CvImagePtr& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
+void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
   cv::Rect rect = cv::Rect(326 , 187,1,1);
   
@@ -547,7 +547,8 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv_bridge::CvImagePtr& c
   {
     cv::cvtColor(past_images[i], lab[i], CV_BGR2Lab);
   }
-  cv::cvtColor(curr_image->image, lab_curr, CV_BGR2Lab);
+  cv::cvtColor(curr_image, lab_curr, CV_BGR2Lab);
+
   std::cout<<"here :"<<(lab_curr.at<cv::Vec3b>(0,0))[1]<<std::endl;//<<" "<<(lab_curr.at<cv::Vec3b>(549,49))[1]<<" "<<(lab_curr.at<cv::Vec3b>(549,49))[2]<<std::endl;
   for(int j = 50; j < lab_curr.rows - 50; j++)
   {

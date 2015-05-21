@@ -482,7 +482,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*for roi*/
 void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
-  cv::Rect rect = cv::Rect(326, 187,1,1);
+  cv::Rect rect = cv::Rect(340, 187,1,1);
   
   std::vector<cv::Mat> lab(past_images.size());
   cv::Mat lab_curr;

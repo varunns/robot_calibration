@@ -549,9 +549,9 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std
   }
   cv::cvtColor(curr_image, lab_curr, CV_BGR2Lab);
 
-  for(int j = 50; j < rect.height - 50; j++)
+  for(int j = 50; j < lab_curr.rows - 50; j++)
   {
-    for(int k = 50; k < rect.width - 50; k++)
+    for(int k = 50; k < lab_curr.cols - 50; k++)
     {
       cv::Scalar sum = cv::Scalar(0,0,0);
       //calculating the mean of the image

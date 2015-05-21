@@ -440,7 +440,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat led_image;
   std::vector<cv::Mat> curr_images;
   curr_images.push_back((cloud_images[30])->image);
-  
+
   differenceImage(curr_images, past_images, led_image);
 
 }
@@ -539,7 +539,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
   cv::Rect rect = cv::Rect(326 , 187,1,1);
-  debug_img(curr_images[0],"/tmp/mean/curr_",0,0,0);
   std::vector<cv::Mat> lab(past_images.size());
   cv::Mat lab_curr;
   float max = -1000;
@@ -549,6 +548,8 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
     cv::cvtColor(past_images[i], lab[i], CV_BGR2Lab);
   }
   cv::cvtColor(curr_images[0], lab_curr, CV_BGR2Lab);
+
+  debug_img(lab_curr,"/tmp/mean/curr_",0,0,0);
 
  
   for(int j = 50; j < lab_curr.rows - 50; j++)

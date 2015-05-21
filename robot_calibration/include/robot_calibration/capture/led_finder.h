@@ -80,7 +80,7 @@ class LedFinder : public FeatureFinder
                   double weight);
 
 
-    void differenceImage(cv::Mat& image1, cv::Mat& image2, cv::Mat& diff_image, cv::Mat img);
+    void differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& prev_images, cv::Mat& led);
 
 
     /*finding bitwise images*/
@@ -91,8 +91,8 @@ class LedFinder : public FeatureFinder
                      cv::Mat& result);
 
     // Convert pointcloud to cv_image ptr
-    void convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, 
-                            std::vector<cv_bridge::CvImagePtr>& cv_ptr);
+    void convert2CvImage(std::vector<pcloud_>& pcl_cloud, 
+                            std::vector<cv::Mat>& images);
 
     // trying out looking for contours
     bool getContourCircle(cv::Mat& cloud,

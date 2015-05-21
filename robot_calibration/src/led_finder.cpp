@@ -422,104 +422,80 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   double weight)
 {
   //cv_bridge image pointers
-  std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;
-  std::vector<cv_bridge::CvImagePtr> prev_image_ptr;
-
-  cv::Mat cloud_bits;
-  cv::Mat prev_bits;
+  std::vector<cv::Mat> cloud_images;
+  std::vector<cv::Mat> prev_images;
 
   //function call for initial processing to convert to cv::Mat
-  convert2CvImagePtr(cloud, cloud_image_ptr);
-  convert2CvImagePtr(prev, prev_image_ptr);
-  ROS_INFO("%d",cloud_image_ptr[0]->image.rows);
-  //perform a bitwise AND
+  convert2CvImage(cloud, cloud_images);
+  convert2CvImage(prev, prev_images);
 
-  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  
-  weightedSum(cloud_image_ptr, cloud_pix_weighed);
-  weightedSum(prev_image_ptr, prev_pix_weighed);
-  //debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
-  debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
-  cv::Mat diff_pix = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-//  cv::Mat diff1_pix = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
-  //cv::absdiff(prev_pix_weighed, cloud_pix_weighed, diff_pix);
-  //calculate the difference Image
-  cv::Mat img;
-  differenceImage(cloud_pix_weighed, prev_pix_weighed, diff_pix, img);
-  debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
-/*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
-  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
+  //taking images indexed 6 to 6+8 to avoid starting images
+  std::vector<cv::Mat> past_images(8);
+  for(int i = 0; i < 8; i++)
+  {
+    prev_images[i+6].copyTo(past_images[i]);
+  }
+  cv::Mat led_image;
+  differenceImage(cloud_images[8], past_images, led_image);
+
 }
 
 /*
  the function has to be modified for dark space by considering the point clouds
 */
-void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& image1, cv::Mat& image2, cv::Mat& diff_image, cv::Mat img)
-{
-  int count = 0;
-  cv::Mat diff1_image, canny;
-  cv::Mat test_img = image1;
-  float max_mean = -100;
-  float max_dev = -100;
-  cv::Scalar mean;
-  cv::Scalar std_dev;
-  float mean_val;
-  float dev_val;
-  cv::Point pt;
-  cv::absdiff(image1, image2, diff1_image);
-
-  //creating a blob template
-  cv::Mat templte(13, 13, CV_8UC3, cv::Scalar(0,0,0));
-  for(int i = 0; i < templte.rows; i++)
+void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
+{ 
+  cv::Scalar sum = cv::Scalar(0,0,0);
+  //calculating the mean of the image
+  for(int i = 0; i < past_images.size(); i ++)
   {
-    for(int j = 0; j < templte.cols; j++)
-    {
-      if( i > 3 && i < 9 )
-      { 
-        if( j > 3 && j < 9 )
-        {
-          templte.at<cv::Scalar>(j,i) = cv::Scalar(255,255,255);
-        }
-      }
-    }
+    cv::Scalar val = cv::Scalar((past_images[i].at<cv::Vec3b>(200,200))[0], (past_images[i].at<cv::Vec3b>(200,200))[1], (past_images[i].at<cv::Vec3b>(200,200))[2]);
+    sum = sum + val;
   }
-  cv::Mat imcovar;
-  
-  double min_mahala_dist = 1000;
-  cv::Mat tmp_image;
-  cv::Mat gray_image;
-  cv::cvtColor(test_img, gray_image, CV_BGR2GRAY);
-  /*cv::threshold(tmp_thresh, tmp, 175, 255, CV_THRESH_BINARY);
-  cv::Canny( tmp, canny, 20, 20*3, 3 );*/
-  //cv::cvtColor(tmp, img, CV_GRAY2BGR);
-/*  for(int i = 50; i < image1.rows - 50; i++)
+  cv::Scalar mean = cv::Scalar(sum[0]/(past_images.size()-1), sum[1]/(past_images.size()-1), sum[2]/(past_images.size()-1), 0);
+  sum = cv::Scalar(0,0,0);
+
+  //calculating standard deviation
+  for(int i = 1; i < past_images.size(); i++)
   {
-    for(int j = 50; j < image1.cols - 50; j++)
-    {
-      cv::Rect rect(j, i, 15, 15);
-      if(cv::countNonZero(tmp(rect) < 200 ) || cv::countNonZero(canny(rect)) > 9)
-      {
-        continue;
-      }
-      cv::Rect rect1(j, i, 10, 10);
-      double mahala_curr =  cv::Mahalanobis(templte, templte, imcovar);
-      if(mahala_curr < min_mahala_dist)
-      {
-        min_mahala_dist = mahala_curr;
-        pt = cv::Point(j,i);
-      }
-
-    }
+    cv::Scalar val = cv::Scalar((past_images[i].at<cv::Vec3b>(200,200))[0], (past_images[i].at<cv::Vec3b>(200,200))[1], (past_images[i].at<cv::Vec3b>(200,200))[2]);
+    sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
   }
-
-  cv::rectangle(diff1_image, cv::Rect(pt.x, pt.y, 10, 10), cv::Scalar(0,0,255), 1 ,8);
-  debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
-  debug_img(tmp,"/tmp/mean/cloud_", 0, 0, 0);  
-  debug_img(templte, "/tmp/mean/template_",0,0,0);
-  debug_img(canny,"/tmp/mean/canny_", 0, 0, 0);  */
-
+  sum = cv::Scalar(sqrt(sum[0]/(past_images.size() - 1)), sqrt(sum[1]/(past_images.size()-1)), sqrt(sum[2]/(past_images.size()-1)), 0);
+  std::cout<<sum<<std::endl;
+   
 }
+
+/* convertin pcl cloud to cv::Mat*/
+void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pcl_cloud, std::vector<cv::Mat>& images)
+{
+  sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
+  sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
+  cv_bridge::CvImagePtr cv(new cv_bridge::CvImage);
+  images.resize(pcl_cloud.size());
+
+  for(int i = 0; i < pcl_cloud.size(); i++)
+  {
+    ros_cloud.reset(new sensor_msgs::PointCloud2);
+    ros_image.reset(new sensor_msgs::Image);
+    cv.reset(new cv_bridge::CvImage);
+
+    pcl::toROSMsg(*(pcl_cloud[i]), *ros_cloud);
+    pcl::toROSMsg(*ros_cloud, *ros_image);
+
+    try
+    {
+      cv = cv_bridge::toCvCopy(ros_image, sensor_msgs::image_encodings::BGR8);
+    }
+    catch(cv_bridge::Exception& e)
+    {
+      ROS_ERROR("cloud was unwilling: %s", e.what());
+    }
+
+    images.push_back(cv->image);
+  }
+}
+
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 
  *        use per element operations in opencv to calculate a 
@@ -553,43 +529,6 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 }
 
 /*void LedFinder::CloudDifferenceTracker::planeFit()*/
-
-void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
-{
-  sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
-  sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
-
-  cv_ptr.resize(pcl_cloud.size());
-  for(size_t i = 0; i < pcl_cloud.size(); i++)
-  {
-    cv_ptr[i].reset(new cv_bridge::CvImage);
-    for(int j = 0; j < pcl_cloud[i]->size(); j++)
-    {
-      if(pcl_cloud[i]->points[j].z > 1.0 || isnan(pcl_cloud[i]->points[j].z))
-      {
-        pcl_cloud[i]->points[j].x = NAN;
-        pcl_cloud[i]->points[j].y = NAN;
-        pcl_cloud[i]->points[j].z = NAN;
-        pcl_cloud[i]->points[j].r = 0;
-        pcl_cloud[i]->points[j].g = 0;
-        pcl_cloud[i]->points[j].b = 0; 
-      }
-    }
-
-    pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);
-    pcl::toROSMsg(*ros_cloud, *ros_image);
-    try
-    {
-      cv_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
-    }
-    catch(cv_bridge::Exception& e)
-    {
-      ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
-    }
-    
-  }
-
-}
 
 
  void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)

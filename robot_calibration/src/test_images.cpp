@@ -35,7 +35,7 @@ private:
   cv::Mat prev_image_;
   bool flag_;
   int i;
-  std::vector<cv::Mat> images;
+  std::vector<cv::Mat> images_;
   typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
 public:
   TestImages()
@@ -52,122 +52,66 @@ public:
   { 
     pcloud_ pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcloud_ pass_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::fromROSMsg(*points, *pcl_cloud);
-
-    //segmentation
-
-    // Create the filtering object
-    std::vector<int> index_in;
-    pcl::IndicesConstPtr index_rem;
-    pcl::PassThrough<pcl::PointXYZRGB> pass (true);
-    pass.setInputCloud(pcl_cloud);
-    pass.setFilterFieldName("z");
-    pass.setFilterLimits(0.0, 1.0);
-    pass.filter(index_in);
-    index_rem = pass.getRemovedIndices();
-    //std::cout<<"former: "<<index_rem->size()<<std::endl;
-    // Set all filtered out points to white
-    for(int i = 0; i < index_rem->size(); i++)
-    {
-      pcl_cloud->points[index_rem->at(i)].x = NAN;
-      pcl_cloud->points[index_rem->at(i)].y = NAN;
-      pcl_cloud->points[index_rem->at(i)].z = NAN;
-      pcl_cloud->points[index_rem->at(i)].r = 255;
-      pcl_cloud->points[index_rem->at(i)].g = 255;
-      pcl_cloud->points[index_rem->at(i)].b = 255;
-    }
     
-    /*plane fitting*/
-    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
-    pcl::SACSegmentation<pcl::PointXYZRGB> seg;
-    seg.setOptimizeCoefficients (false);
-    seg.setModelType (pcl::SACMODEL_PLANE);
-    seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setDistanceThreshold (0.001);
-    seg.setInputCloud (pcl_cloud);
-    seg.segment (*inliers, *coefficients);
-     //extract indices\
-    
-    //std::vector<int>* index_out(new std::vector<int>);
-    pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
-    extract_filter.setInputCloud(pcl_cloud);
-    extract_filter.setIndices (inliers);
-    extract_filter.setNegative(true);
-
-    std::vector<int> index_in1;
-    pcl::IndicesConstPtr index_rem1;
-    extract_filter.filter(index_in1);
-    index_rem1 = extract_filter.getRemovedIndices();
-    for(int i = 0; i < index_rem1->size(); i++)
-    {
-      pcl_cloud->points[index_rem1->at(i)].x = NAN;
-      pcl_cloud->points[index_rem1->at(i)].y = NAN;
-      pcl_cloud->points[index_rem1->at(i)].z = NAN;
-      pcl_cloud->points[index_rem1->at(i)].r = 255;
-      pcl_cloud->points[index_rem1->at(i)].g = 255;
-      pcl_cloud->points[index_rem1->at(i)].b = 255;
-    }
-
-
-    sensor_msgs::PointCloud2 ros_cloud;
-    pcl::toROSMsg(*pcl_cloud,ros_cloud);
-    ros_cloud.header.frame_id = "base_link";
-    pub_.publish(ros_cloud);
-    sensor_msgs::ImagePtr img(new sensor_msgs::Image);
-    pcl::toROSMsg(ros_cloud, *img);
-
-    cv_bridge::CvImagePtr cv_ptr;
+    sensor_msgs::Image::Ptr rosimg(new sensor_msgs::Image);
+    pcl::toROSMsg(*points, *rosimg);
+    cv_bridge::CvImagePtr cv;
     try
     {
-      cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
+      cv = cv_bridge::toCvCopy(rosimg, sensor_msgs::image_encodings::BGR8);
     }
     catch(cv_bridge::Exception& e)
     {
-      ROS_ERROR("sorry state : %s", e.what());
+      ROS_ERROR("sorry state of the image : %s", e.what());
     }
-/*     cv::Mat image = cv::Mat::zeros(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC3);
-    cv::Mat gray_roi;
-    if ((cv_ptr->image.rows < 15) || (cv_ptr->image.cols < 15))
+    
+    images_.push_back(cv->image);
+
+    if(images_.size() > 10)
     {
-      fprintf(stderr, "small image\n");
-      std::abort();
+      imageCB();
+      images_.clear();
     }
-    for(uint j = 5; j < cv_ptr->image.rows-15; j++)
-    {
-      for(uint k = 5; k < cv_ptr->image.cols-15; k++)
-      {      
-        fprintf(stderr, "i : %d ; j : %d ; k : %d",i,j,k);
-        cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
-        cv::Mat roi = (cv_ptr->image)(rect);
-         fprintf(stderr, "I am here after rect\n");
-        cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
-        fprintf(stderr, "I am here after cvtColor\n");
-        if(cv::countNonZero(gray_roi) > 75)
-        {
-          fprintf(stderr, "I am here in if\n");
-          image.at<cv::Vec3b>(k,j) = (cv_ptr->image).at<cv::Vec3b>(k, j);
-
-        }
-        else
-        {
-          fprintf(stderr, "I am here in else\n");
-          cv::Vec3b color(0,0,0);
-          image.at<cv::Vec3b>(k,j) = color;
-        }
-       // roi.release();
-        fprintf(stderr, "after else I am here\n");
-      }
-
-    }
-// /    cv_ptr->image.release();
-    cv_bridge::CvImagePtr cv(new cv_bridge::CvImage);
-    cv->image = image;   */
-
-    debug_img(cv_ptr->image, "/tmp/mean/img_",0,0,0);
 
   }
 
+  void imageCB()
+  {
+    cv::Mat lab;
+    cv::Mat tmp;
+    cv::Scalar std_dev = cv::Scalar(0,0,0);
+    cv::Scalar sum = cv::Scalar(0,0,0);
+    for(int i = 1; i < images_.size(); i++)
+    {
+      cv::cvtColor(images_[i], lab, CV_BGR2Lab);
+      cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(320,240))[0], (lab.at<cv::Vec3b>(320,240))[1], (lab.at<cv::Vec3b>(320,240))[2]);
+      sum = sum + val;
+    }
+
+    cv::Scalar mean = cv::Scalar(sum[0]/(images_.size()-1), sum[1]/(images_.size()-1), sum[2]/(images_.size()-1), 0);
+    sum = cv::Scalar(0,0,0);
+    for(int i = 1; i < images_.size(); i++)
+    {
+      cv::cvtColor(images_[i], lab, CV_BGR2Lab);
+      cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(320,240))[0], (lab.at<cv::Vec3b>(320,240))[1], (lab.at<cv::Vec3b>(320,240))[2]);
+      sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
+    }
+    sum = cv::Scalar(sqrt(sum[0]/(images_.size()-1)), sqrt(sum[1]/(images_.size()-1)), sqrt(sum[2]/(images_.size()-1)), 0);
+    cv::cvtColor(images_[0], lab, CV_BGR2Lab);
+    cv::Scalar dist = cv::Scalar((lab.at<cv::Vec3b>(320,240))[0], (lab.at<cv::Vec3b>(320,240))[1], (lab.at<cv::Vec3b>(320,240))[2], 0) - mean;
+    dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
+    for(int i = 0; i < images_.size(); i++)
+    {
+      cv::cvtColor(images_[i], lab, CV_BGR2Lab);
+      std::cout<<lab.at<cv::Vec3b>(320,240)<<" ";
+    }
+    std::cout<<sum;
+    std::cout<<std::endl;
+    std::cout<<dist<<std::endl;
+    std::cout<<std::endl;
+  }
+
+  //void calDev(cv::Scalar mean,)
 /*
   void testAgain(  std::vector<cv::Mat>  images)
   {

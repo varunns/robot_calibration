@@ -432,9 +432,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   //taking images indexed 6 to 6+8 to avoid starting images
   std::vector<cv::Mat> past_images;
-  for(int i = 0; i < 30; i++)
+  for(int i = 0; i < 10; i++)
   {
-    past_images.push_back((prev_images[i+15])->image);
+    past_images.push_back((prev_images[i+20])->image);
   }
 
   cv::Mat led_image;

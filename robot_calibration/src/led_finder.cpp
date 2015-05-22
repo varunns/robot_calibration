@@ -594,7 +594,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       dist = cv::Scalar(dist[0]/sum[0], dist[1]/sum[1], dist[2]/sum[2], 0);
       double sqrd_dist = dist[0]*dist[0] + dist[1]*dist[1] + dist[2]*dist[2];
       
-      if(!isnan(sqrd_dist) && sqrd_dist > max)
+      if(!isinf(sqrd_dist) && !isnan(sqrd_dist) && sqrd_dist > max)
       {
         cv::Point pt = cv::Point(k,j);
         max = sqrd_dist;

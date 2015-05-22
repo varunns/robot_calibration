@@ -580,7 +580,7 @@ void LedFinder::CloudDifferenceTracker::passThru(pcloud_ cloud, cv_bridge::CvIma
 void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led, cv_bridge::CvImagePtr cv)
 {
   cv::Vec3b color(0,0,0);
-  std::vector<cv::Mat> channels;
+
   for( int i = 0; i < past_images[5].rows; i++)
   {
     for( int j = 0; j < past_images[5].cols; j++)

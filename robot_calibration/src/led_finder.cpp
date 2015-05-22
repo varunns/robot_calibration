@@ -580,7 +580,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   double *max;
   cv::Point *minpt(new cv::Point);
   cv::Point *maxpt(new cv::Point);
-  cv::minMaxLoc(dist, min, max, minpt, maxpt);
+  // /cv::minMaxLoc(dist, min, max, minpt, maxpt);
 
 
 /*  for(int j = 0; j < curr_images[0].rows; j++)

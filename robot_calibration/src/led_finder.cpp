@@ -441,9 +441,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat led_image;
   std::vector<cv::Mat> curr_images;
   curr_images.push_back((cloud_images[30])->image);
-    curr_images.push_back(imgptr->image);
+    // /curr_images.push_back(imgptr->image);
 
-  differenceImage(curr_images, past_images, led_image);
+  differenceImage(curr_images, past_images, led_image, imgptr);
 
 }
   
@@ -577,7 +577,7 @@ void LedFinder::CloudDifferenceTracker::passThru(pcloud_ cloud, cv_bridge::CvIma
 //}
 
 /*for roi*/
-void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led)
+void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led, cv_bridge::CvImagePtr cv)
 {
   cv::Mat sum_image = cv::Mat::zeros(past_images[0].size(), CV_32SC1);
   float w = ((float)1)/(float)((float)past_images.size());
@@ -619,6 +619,17 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   channels[0].convertTo(curr_SC1, CV_32SC1);
   cv::absdiff(curr_SC1, mean_image,tmp);
   cv::divide(tmp, std_dev_SC1, dist);
+
+  for(int i = 0; i < std_dev_SC1.rows; i++)
+  {
+    for(int j = 0; j < std_dev_SC1.cols; j++)
+    {
+      if(cv->image.at<cv::Vec3b>(j,i)[0] == 0 && cv->image.at<cv::Vec3b>(j,i)[1] == 0 && cv->image.at<cv::Vec3b>(j,i)[2] == 0 )
+      {
+        std_dev_SC1.at<uint>(j,i) = 0;
+      }
+    }
+  }
   debug_img(std_dev_SC1,"/tmp/mean/imag_", 0,0,0);
 
   cv::Mat dist_32SC1;

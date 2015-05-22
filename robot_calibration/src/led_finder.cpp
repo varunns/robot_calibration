@@ -574,6 +574,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   cv::Mat lab_curr;
   cv::cvtColor(curr_images[0], lab_curr, CV_BGR2Lab);
   std::vector<cv::Mat> channels(3);
+  cv::split(lab_curr, channels);
   channels[0].convertTo(curr_SC1, CV_32SC1);
   cv::absdiff(curr_SC1, mean_image,tmp);
   cv::divide(tmp, std_dev_SC1, dist);

@@ -631,6 +631,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
     }
   }
   debug_img(std_dev_SC1,"/tmp/mean/imag_", 0,0,0);
+  debug_img(cv->image,"/tmp/mean/imag_", 0,0,0);
 
   cv::Mat dist_32SC1;
   dist.convertTo(dist_32SC1, CV_32SC1);

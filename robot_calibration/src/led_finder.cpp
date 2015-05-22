@@ -443,7 +443,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   curr_images.push_back((cloud_images[30])->image);
     // /curr_images.push_back(imgptr->image);
 
-  differenceImage(curr_images, past_images, led_image, imgptr);
+  differenceImage(curr_images, past_images, led_image, imgptr, cloud[30]);
 
 }
   
@@ -577,9 +577,11 @@ void LedFinder::CloudDifferenceTracker::passThru(pcloud_ cloud, cv_bridge::CvIma
 //}
 
 /*for roi*/
-void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led, cv_bridge::CvImagePtr cv)
+void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led, cv_bridge::CvImagePtr cv, pcloud_ cl)
 {
   cv::Vec3b color(0,0,0);
+  cv_bridge::CvImagePtr im;
+  passThru(cl, im);
 
   for( int i = 0; i < past_images[5].rows; i++)
   {
@@ -593,7 +595,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   }
   std::vector<cv::Mat> channels(3);
   cv::Mat lab1;
-  cv::cvtColor(past_images[5], lab1, CV_BGR2Lab);
+  cv::cvtColor(im->image, lab1, CV_BGR2Lab);
   cv::split(lab1, channels);
   cv::Mat one = channels[1];
 
@@ -603,7 +605,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   cv::split(lab2, channels);
   cv::Mat two = channels[1];
   cv::Mat diff;
-  cv::absdiff(past_images[5], cv->image, diff);
+  cv::absdiff(im->image, cv->image, diff);
 
 /*  double *min;
   double *max;

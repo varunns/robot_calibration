@@ -538,7 +538,43 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*for roi*/
 void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
-  std::cout<<curr_images[0].rows<<std::endl;
+  cv::Mat lab_curr;
+  cv::cvtColor(curr_image[0], lab_curr, CV_BGR2Lab);
+  for(int j = 0; j < curr_images[0].rows; j++)
+  {
+    for(int k = 0; k < curr_image[0].cols; k++)
+    {
+
+      cv::Scalar sum = cv::Scalar(0,0,0);
+      cv::Scalar std_dev = cv::Scalar(0,0,0);
+      cv::Mat lab; 
+      //calculating the mean of the image
+      for(int i = 0; i < past_images.size(); i ++)
+      {
+        cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
+        cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(k,j))[0], (lab.at<cv::Vec3b>(k,j))[1], (lab.at<cv::Vec3b>(k,j))[2]);
+        sum = sum + val;
+      }
+      cv::Scalar mean = cv::Scalar(sum[0]/(past_images.size()), sum[1]/(past_images.size()), sum[2]/(past_images.size()), 0);
+      sum = cv::Scalar(0,0,0);
+
+      //calculating standard deviation
+      for(int i = 0; i < past_images.size(); i++)
+      {
+        cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
+        cv::Scalar val = cv::Scalar((lab.at<cv::Vec3b>(k,j))[0], (lab.at<cv::Vec3b>(k,j))[1], (lab.at<cv::Vec3b>(k,j))[2]);
+        sum = sum + cv::Scalar(pow((val[0] - mean[0]), 2), pow((val[1] - mean[1]), 2), pow((val[2] - mean[2]), 2), 0);
+      }
+      std_dev = cv::Scalar(sqrt(sum[0]/(past_images.size())), sqrt(sum[1]/(past_images.size())), sqrt(sum[2]/(past_images.size())), 0);
+
+      cv::Scalar dist = cv::Scalar((lab.at<cv::Vec3b>(k,j))[0], (lab.at<cv::Vec3b>(k,j))[1], (lab.at<cv::Vec3b>(k,j))[2], 0) - mean;
+      dist = cv::Scalar(dist[0]/std_dev[0], dist[1]/std_dev[1], dist[2]/std_dev[2], 0);
+      //std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(320,240)<<" ";
+      //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
+      std::cout<<dist<<" ";
+      std::cout<<std_dev<<std::endl;
+    }
+  }
 }
 
 

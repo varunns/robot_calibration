@@ -578,6 +578,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       if(max < dist_squared)
       {
         max = dist_squared;
+        std::cout<<max<<std::endl;
       }
     }
   }

@@ -103,7 +103,7 @@ public:
     for(int i = 0; i < images_.size(); i++)
     {
       cv::cvtColor(images_[i], lab, CV_BGR2Lab);
-      std::cout<<lab.at<cv::Vec3b>(320,240)<<" ";
+ //     std::cout<<lab.at<cv::Vec3b>(320,240)<<" ";
     }
     std::cout<<sum;
     std::cout<<std::endl;

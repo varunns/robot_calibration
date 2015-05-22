@@ -512,6 +512,13 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       dev_val = pow(std_dev[0], 2) + pow(std_dev[1], 2) +pow(std_dev[2], 2);  
       if(max_dev < dev_val)
       {
+          cv::Rect rect_test = cv::Rect(pt.x, pt.y, 20, 20);
+          cv::Mat diffroi;
+          (diff1_image(rect_test)).convertTo(diffroi,CV_8UC1);
+          if(cv::countNonZero(diffroi)>5)
+          {
+            continue;
+          }
         if(max_mean < mean_val)
         {
 
@@ -524,15 +531,14 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
     }
   }
 
-  cv::Rect rect_test = cv::Rect(pt.x, pt.y, 20, 20);
-  cv::Mat diffroi;
-  (diff1_image(test)).convertTo(diffroi, CV_8UC1);
+
+  /*(diff1_image(rect_test)).convertTo(diffroi, CV_8UC1);
   cv::Point *maxpt;
-  cv::minMaxLoc(diffroi, 0,0,0,maxpt, cv::Mat());
+  cv::minMaxLoc(diffroi, 0,0,0,maxpt, cv::Mat());*/
 
   tmp(cv::Rect(pt.x, pt.y, 10, 10)).setTo(cv::Scalar(0,0,0));
 
-  cv::rectangle(diff1_image, cv::Rect(pt.x+maxpt->x, pt.y+maxpt->y, 10, 10), cv::Scalar(0,0,255), 1 ,8);
+  cv::rectangle(diff1_image, cv::Rect(pt.x, pt.y, 10, 10), cv::Scalar(0,0,255), 1 ,8);
   debug_img(diff1_image,"/tmp/mean/diff1_", 0, 0, 0);
   debug_img(tmp,"/tmp/mean/cloud_", 0, 0, 0);  
   debug_img(canny,"/tmp/mean/canny_", 0, 0, 0);  

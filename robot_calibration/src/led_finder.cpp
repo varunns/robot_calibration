@@ -539,10 +539,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
   cv::Mat lab_curr;
-  cv::cvtColor(curr_image[0], lab_curr, CV_BGR2Lab);
+  cv::cvtColor(curr_images[0], lab_curr, CV_BGR2Lab);
   for(int j = 0; j < curr_images[0].rows; j++)
   {
-    for(int k = 0; k < curr_image[0].cols; k++)
+    for(int k = 0; k < curr_images[0].cols; k++)
     {
 
       cv::Scalar sum = cv::Scalar(0,0,0);

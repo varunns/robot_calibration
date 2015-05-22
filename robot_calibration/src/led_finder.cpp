@@ -448,7 +448,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*
  the function has to be modified for dark space by considering the point clouds
 */
-void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
+/*void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 { 
   //cv::Rect rect = cv::Rect(324, 183,10,10);
   cv::Scalar sum = cv::Scalar(0,0,0);
@@ -478,7 +478,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   //std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(320,240)<<" ";
   //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
   std::cout<<dist<<" ";
-  std::cout<<sum<<std::endl;
+  std::cout<<sum<<std::endl;*/
 
   /* to be deleted*/
 /*    for(int i = 0; i < past_images.size(); i ++)
@@ -533,84 +533,14 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
   std::cout<<dist<<" ";
   std::cout<<sum<<std::endl; */
-}
+//}
 
 /*for roi*/
-/*void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led)
+void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
-  cv::Rect rect = cv::Rect(326 , 187,1,1);
-  std::vector<cv::Mat> lab(past_images.size());
-  cv::Mat lab_curr = cv::Mat(curr_images[0].rows, curr_images[0].cols, CV_8UC3, cv::Scalar(0,0,0));
-  float max = -1000;
-  cv::Point pt;
-  
-  for(int i = 0; i < past_images.size(); i++)
-  {
-    lab[i] = cv::Mat(past_images[i].rows, past_images[i].cols, CV_8UC3, cv::Scalar(0,0,0));
-    cv::cvtColor(past_images[i], lab[i], CV_BGR2Lab);
-  }
-  cv::cvtColor(curr_images[0], lab_curr, CV_BGR2Lab);
-  
-  
-  debug_img(lab_curr,"/tmp/mean/curr_",0,0,0);
-
-  int a, b, c;
-
-  for(int j = 50; j < lab_curr.rows - 50; j++)
-  {
-    
-    for(int k = 50; k < lab_curr.cols - 50; k++)
-    {
-      std::vector<cv::Scalar> kjScalars(past_images.size());
-      cv::Scalar sum = cv::Scalar(0,0,0,0);
-      cv::Scalar val = cv::Scalar(0,0,0,0);
-      cv::Scalar mean = cv::Scalar(0,0,0,0);
-      cv::Scalar std_dev = cv::Scalar(0,0,0);
-      //cv::Scalar std;
-      for(int i = 0; i < past_images.size()-1; i++)
-      {
-        a  = lab[i].at<cv::Vec3b>(k,j)[0];
-        b  = lab[i].at<cv::Vec3b>(k,j)[1];
-        c  = lab[i].at<cv::Vec3b>(k,j)[2];
-        kjScalars[i] = cv::Scalar(a, b, c, 0);
-      }
-      //calculating the mean of the image
-      for(int i = 0; i < kjScalars.size(); i++)
-      {
-        sum += cv::Scalar( (kjScalars[i])[0], (kjScalars[i])[1], (kjScalars[i])[2], 0);
-      }
-      mean = cv::Scalar(sum[0]/kjScalars.size(), sum[1]/kjScalars.size(), sum[2]/kjScalars.size(), 0);
-      sum = cv::Scalar(0,0,0,0);
-
-      for(int i = 0; i < kjScalars.size(); i++)
-      {
-        sum += cv::Scalar( pow( ( (kjScalars[i])[0] - mean[0] ), 2), pow( ( (kjScalars[i])[1] - mean[1] ), 2), pow( ( (kjScalars[i])[2] - mean[2] ), 2), 0 ); 
-      }
-      std::cout<<sum[0]/kjScalars.size()<<" "<<sum[1]/kjScalars.size()<<" "<<sum[2]/kjScalars.size()<<std::endl;
- 
-      std_dev = cv::Scalar(sqrt(sum[0]/(kjScalars.size())), sqrt(sum[1]/(kjScalars.size())), sqrt(sum[2]/(kjScalars.size())), 0);
-
-      kjScalars.clear();
-    
-      cv::Scalar dist = cv::Scalar((lab_curr.at<cv::Vec3b>(k,j))[0] - mean[0], (lab_curr.at<cv::Vec3b>(k,j))[1]-mean[1], (lab_curr.at<cv::Vec3b>(k,j))[2]-mean[2], 0);
-      dist = cv::Scalar(dist[0]/std_dev[0], dist[1]/std_dev[1], dist[2]/std_dev[2], 0);
-      double sqrd_dist = dist[0]*dist[0] + dist[1]*dist[1] + dist[2]*dist[2];
-      
-      std::cout<<"curr_image: "<<lab_curr.at<cv::Vec3b>(k,j)<<" ";
-      std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
-      std::cout<<"std_dev: "<<sum<<" ";
-      std::cout<<"dist: "<<dist<<std::endl;
-
-    }
-  }
-  std::cout<<max<<" "<<pt<<std::endl;
-  cv::rectangle(lab_curr, cv::Rect(pt.x-5, pt.y-5, 10, 10),cv::Scalar(0,0,255), 2, 8);
-  debug_img(lab_curr, "/tmp/mean/curr_",0,0,0);
-  std::cout<<"****************************************************************************************************"<<std::endl;
-  lab.clear();
-  lab_curr.release();
+  std::cout<<curr_images[0].rows<<std::endl;
 }
-*/
+
 
 /* convertin pcl cloud to cv::Mat*/
 void LedFinder::CloudDifferenceTracker::convert2CvImage(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)

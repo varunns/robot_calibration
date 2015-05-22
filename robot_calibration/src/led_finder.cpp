@@ -619,12 +619,12 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       if(max < channels[0].at<uint>(j,i))
       {
         max = (double)channels[0].at<uint>(j,i);
-        pt.x = j ;
+        pt.x = j;
         pt.y = i;
       }
     }
   }
-  std:::cout<<pt<<" "<<mav<<std::endl;
+  std::cout<<pt<<" "<<max<<std::endl;
   
 
   debug_img(im->image, "/tmp/mean/past_", 0,0,0);

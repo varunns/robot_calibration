@@ -512,13 +512,6 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       dev_val = pow(std_dev[0], 2) + pow(std_dev[1], 2) +pow(std_dev[2], 2);  
       if(max_dev < dev_val)
       {
-          cv::Rect rect_test = cv::Rect(pt.x, pt.y, 20, 20);
-          cv::Mat roiffid;
-          cv::cvtColor(diff1_image(rect_test), roiffid, CV_BGR2GRAY);
-          if(cv::countNonZero(roiffid)>5)
-          {
-            continue;
-          }
         if(max_mean < mean_val)
         {
 

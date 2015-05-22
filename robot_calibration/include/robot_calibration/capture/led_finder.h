@@ -80,7 +80,7 @@ class LedFinder : public FeatureFinder
                   double weight);
 
 
-    void differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& prev_images, cv::Mat& led, cv_bridge::CvImagePtr cv);
+    void differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& prev_images, cv::Mat& led, cv_bridge::CvImagePtr cv, pcloud_ cl);
     cv::Scalar calcSum(std::vector<cv::Mat*>& images, int k, int j, cv::Scalar mean, int ind);
     void passThru(pcloud_ cloud, cv_bridge::CvImagePtr& cv_ptr);
     /*finding bitwise images*/

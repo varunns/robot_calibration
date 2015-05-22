@@ -579,7 +579,21 @@ void LedFinder::CloudDifferenceTracker::passThru(pcloud_ cloud, cv_bridge::CvIma
 /*for roi*/
 void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led, cv_bridge::CvImagePtr cv)
 {
-  cv::Mat sum_image = cv::Mat::zeros(past_images[0].size(), CV_32SC1);
+  cv::Vec3b color(0,0,0);
+  std::vector<cv::Mat> channels;
+  for( int i = 0; i < past_images[5].rows; i++)
+  {
+    for( int j = 0; j < past_images[5].cols; j++)
+    {
+      if(cv->image.at<cv::Vec3b>(j,i) == color)
+      {
+        past_images[5].at<cv::vec3b>(j,i) = color;
+      }
+    }
+  }
+  debug_img(past_images[5], "/tmp/mean/past_", 0,0,0);
+  debug_img(cv->image, "/tmp/mean/curr_", 0,0,0);
+/*  cv::Mat sum_image = cv::Mat::zeros(past_images[0].size(), CV_32SC1);
   float w = ((float)1)/(float)((float)past_images.size());
   for(int i = 0; i < past_images.size(); i++)
   {
@@ -642,7 +656,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   cv::Point *maxpt(new cv::Point);
   cv::minMaxLoc(dist, min, max, minpt, maxpt, cv::Mat());
   std::cout<<*maxpt<<std::endl;
-
+*/
 
 /*  cv::Mat sum_image = cv::Mat::zeros(past_images[0].size(), CV_32SC3);
   float w = ((float)1)/(float)((float)past_images.size());

@@ -555,6 +555,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   debug_img(lab_curr,"/tmp/mean/curr_",0,0,0);
 
   int a, b, c;
+  cv::Point pt;
   for(int j = 50; j < lab_curr.rows - 50; j++)
   {
     
@@ -596,7 +597,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       
       if(!isinf(sqrd_dist) && !isnan(sqrd_dist) && sqrd_dist > max)
       {
-        cv::Point pt = cv::Point(k,j);
+        pt.x = k , pt.y = j
         max = sqrd_dist;
       }
 

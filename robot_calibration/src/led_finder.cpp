@@ -513,9 +513,9 @@ void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat image1, cv::Mat 
       if(max_dev < dev_val)
       {
           cv::Rect rect_test = cv::Rect(pt.x, pt.y, 20, 20);
-          cv::Mat diffroi;
-          (diff1_image(rect_test)).convertTo(diffroi,CV_8UC1);
-          if(cv::countNonZero(diffroi)>5)
+          cv::Mat roiffid;
+          cv::cvtColor(diff1_image(rect_test), roiffid, CV_BGR2GRAY);
+          if(cv::countNonZero(roiffid)>5)
           {
             continue;
           }

@@ -564,6 +564,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   sum_image.convertTo(tmp, CV_32FC3);
   cv::sqrt(tmp, std_dev_FC3);
   std_dev_FC3.convertTo(std_dev_SC3, CV_32SC3);
+  debug_img(std_deve_SC3,"/tmp/mean/img_", 0,0,0);
   tmp.release();
 
   cv::Mat curr_SC3,dist;
@@ -578,12 +579,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   dist.convertTo(dist_8UC1, CV_8UC1);
   cv::Mat gray;
   cv::cvtColor(dist_8UC1, gray, CV_BGR2GRAY);
-  double *min;
-  double *max;
-  cv::Point *minpt(new cv::Point);
-  cv::Point *maxpt(new cv::Point);
-  cv::minMaxLoc(gray(rect), min, max, minpt, maxpt, cv::Mat());
-  std::cout<<*maxpt<<std::endl;
+
   
 
 

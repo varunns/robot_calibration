@@ -429,7 +429,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //function call for initial processing to convert to cv::Mat
   convert2CvImage(cloud, cloud_images);
   convert2CvImage(prev, prev_images);
-
+  cv_bridge::CvImagePtr imgptr;
+  passThru(cloud[3],imgptr);
   //taking images indexed 6 to 6+8 to avoid starting images
   std::vector<cv::Mat> past_images;
   for(int i = 0; i < 10; i++)
@@ -440,11 +441,51 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Mat led_image;
   std::vector<cv::Mat> curr_images;
   curr_images.push_back((cloud_images[30])->image);
+    curr_images.push_back(imgptr->image);
 
   differenceImage(curr_images, past_images, led_image);
 
 }
+  
+void LedFinder::CloudDifferenceTracker::passThru(pcloud_ cloud, cv_bridge::CvImagePtr& cv_ptr)
+{
+  sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
+  sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
 
+  
+      // Create the filtering object
+  std::vector<int> index_in;
+  pcl::IndicesConstPtr index_rem;
+  pcl::PassThrough<pcl::PointXYZRGB> pass (true);
+  pass.setInputCloud(cloud);
+  pass.setFilterFieldName("z");
+  pass.setFilterLimits(0.0, 1.0);
+  pass.filter(index_in);
+  index_rem = pass.getRemovedIndices();
+
+  for(uint j = 0; j < index_rem->size(); j++)
+  {
+    cloud->points[index_rem->at(j)].x = NAN;
+    cloud->points[index_rem->at(j)].y = NAN;
+    cloud->points[index_rem->at(j)].z = NAN;
+    cloud->points[index_rem->at(j)].r = 0;
+    cloud->points[index_rem->at(j)].g = 0;
+    cloud->points[index_rem->at(j)].b = 0;
+  }
+
+  pcl::toROSMsg(*(cloud),*ros_cloud);
+  pcl::toROSMsg(*ros_cloud, *ros_image);
+  try
+  {
+    cv_ptr = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+  }
+  catch(cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
+  }    
+  
+  
+}
 /*
  the function has to be modified for dark space by considering the point clouds
 */

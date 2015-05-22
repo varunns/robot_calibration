@@ -40,7 +40,7 @@ private:
 public:
   TestImages()
   {
-    sub_ = nh_.subscribe("/head_camera/depth_registered/points", 1, &TestImages::pcCB, this);
+    sub_ = nh_.subscribe("/camera/depth_registered/points", 1, &TestImages::pcCB, this);
     pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/color_diff", 10);
     flag_ = true;
     i = 0;
@@ -69,7 +69,7 @@ public:
 
     if(images_.size() > 30)
     {
-      imageCB();
+      image1CB();
       images_.clear();
     }
 
@@ -111,6 +111,34 @@ public:
     std::cout<<std::endl;
   }
 
+  void image1CB()
+  {
+    cv::Mat sum_image = cv::Mat::zeros(images_[0].size(), CV_32SC3);  
+    float w = ((float)1)/(float)((float)images_.size());
+    for(int i = 0; i < images_.size(); i++)
+    {
+      cv::Mat lab, lab32;
+      cv::cvtColor(images_[i], lab, CV_BGR2Lab);
+      lab.convertTo(lab32, CV_32SC3);
+      sum_image += w*lab32;
+    }
+    cv::Mat mean = sum_image;
+    sum_image = cv::Mat::zeros(images_[0].size(), CV_32SC3);  
+
+    for(int i = 0; i < images_.size(); i++)
+    {
+      cv::Mat lab, lab32, element_diff, sqrd;
+      cv::cvtColor(images_[i], lab, CV_BGR2Lab);
+      lab.convertTo(lab32, CV_32SC3);
+      cv::absdiff(lab32, mean, element_diff);
+      cv::multiply(element_diff, element_diff, sqrd);
+      sum_image +=  w*sqrd;
+    }
+    cv::Mat std_dev, tmp;
+    sum_image.convertTo(tmp, CV_32FC3);
+    cv::sqrt(tmp, std_dev);
+
+  }
   //void calDev(cv::Scalar mean,)
 /*
   void testAgain(  std::vector<cv::Mat>  images)

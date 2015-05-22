@@ -538,10 +538,52 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*for roi*/
 void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_images, std::vector<cv::Mat>& past_images, cv::Mat& led)
 {
+  cv::Mat sum_image = cv::Mat::zeros(past_images[0].size(), CV_32SC3);
+  float w = ((float)1)/(float)((float)past_images.size());
+  for(int i = 0; i < past_images.size(); i++)
+  {        
+    cv::Mat lab, lab32;
+    cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
+    lab.convertTo(lab32, CV_32SC3);
+    sum_image += w*lab32;
+  }
+  cv::Mat mean_image = sum_image;
+  sum_image = cv::Mat::zeros(past_images[0].size(), CV_32SC3);
+
+  for(int i = 0; i < past_images.size(); i++)
+  {
+    cv::Mat lab, lab32, element_diff, sqrd;
+    cv::cvtColor(past_images[i], lab, CV_BGR2Lab);
+    lab.convertTo(lab32, CV_32SC3);
+    cv::absdiff(lab32, mean_image, element_diff);
+    cv::multiply(element_diff, element_diff, sqrd);
+    sum_image +=  w*sqrd;
+  }
+
+  cv::Mat std_dev_FC3, std_dev_SC3,tmp;
+  sum_image.convertTo(tmp, CV_32FC3);
+  cv::sqrt(tmp, std_dev_FC3);
+  std_dev_FC3.convertTo(std_dev_SC3, CV_32SC3);
+  tmp.release();
+
+  cv::Mat curr_SC3,dist;
   cv::Mat lab_curr;
   cv::cvtColor(curr_images[0], lab_curr, CV_BGR2Lab);
-  double max = -1000;
-  for(int j = 0; j < curr_images[0].rows; j++)
+  lab_curr.convertTo(curr_SC3, CV_32SC3);
+  cv::absdiff(curr_SC3, mean_image,tmp);
+  cv::divide(tmp, std_dev_SC3, dist);
+
+  cv::Mat dist_8UC1;
+  dist.convertTo(dist_8UC1, CV_8UC1);
+
+  double *min;
+  double *max;
+  cv::Point *minpt(new cv::Point);
+  cv::Point *maxpt(new cv::Point);
+  cv::minMaxLoc(dist, min, max, minpt, maxpt);
+
+
+/*  for(int j = 0; j < curr_images[0].rows; j++)
   {
     for(int k = 0; k < curr_images[0].cols; k++)
     {
@@ -572,8 +614,8 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       dist = cv::Scalar(dist[0]/std_dev[0], dist[1]/std_dev[1], dist[2]/std_dev[2], 0);
       //std::cout<<"curr_image: "<<lab.at<cv::Vec3b>(320,240)<<" ";
       //std::cout<<"past_image: "<<(lab[0]).at<cv::Vec3b>(k,j)<<" ";
-     /* std::cout<<dist<<" ";
-      std::cout<<std_dev<<std::endl;*/
+      std::cout<<dist<<" ";
+      std::cout<<std_dev<<std::endl;
       double dist_squared = pow(dist[0],2)+pow(dist[1],2)+pow(dist[2],2);
       if(max < dist_squared)
       {
@@ -582,7 +624,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
       }
     }
   }
-  std::cout<<max<<std::endl;
+  std::cout<<max<<std::endl;*/
 }
 
 

@@ -67,7 +67,7 @@ public:
     
     images_.push_back(cv->image);
 
-    if(images_.size() > 10)
+    if(images_.size() > 30)
     {
       imageCB();
       images_.clear();

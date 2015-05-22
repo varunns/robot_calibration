@@ -448,7 +448,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 /*
  the function has to be modified for dark space by considering the point clouds
 */
-void LedFinder::CloudDifferenceTracker::differenceImage(cv::Mat& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
+void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& curr_image, std::vector<cv::Mat>& past_images, cv::Mat& led)
 { 
   //cv::Rect rect = cv::Rect(324, 183,10,10);
   cv::Scalar sum = cv::Scalar(0,0,0);

@@ -610,12 +610,22 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   channels.resize(3);cv::Mat lab3;
   cv::cvtColor(diff,lab3, CV_BGR2Lab);
   cv::split(lab3,channels);
-  double *min;
-  double *max;
-  cv::Point *minpt(new cv::Point);
-  cv::Point *maxpt(new cv::Point);
-  cv::minMaxLoc(channels[0], min, max, minpt, maxpt, cv::Mat());
-  std::cout<<*maxpt<<" "<< max<<std::endl;
+  double max = -1000;
+  cv::Point pt;
+  for( int i = 0 ; i < diff.rows; i++)
+  {
+    for( int j = 0; j < diff.cols; j++)
+    {
+      if(max < channels[0].at<uint>(j,i))
+      {
+        max = (double)channels[0].at<uint>(j,i);
+        pt.x = j ;
+        pt.y = i;
+      }
+    }
+  }
+  std:::cout<<pt<<" "<<mav<<std::endl;
+  
 
   debug_img(im->image, "/tmp/mean/past_", 0,0,0);
   debug_img(cv->image, "/tmp/mean/curr_", 0,0,0);

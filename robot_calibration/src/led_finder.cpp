@@ -603,7 +603,7 @@ void LedFinder::CloudDifferenceTracker::differenceImage(std::vector<cv::Mat>& cu
   cv::split(lab2, channels);
   cv::Mat two = channels[1];
   cv::Mat diff;
-  cv::absdiff(past_images[5], cv-image, diff);
+  cv::absdiff(past_images[5], cv->image, diff);
 
   double *min;
   double *max;

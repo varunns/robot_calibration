@@ -75,16 +75,23 @@ class LedFinder : public FeatureFinder
 		                        double weight);
 
     /* Overloaded/un-overloaded left functions added by varun*/
-    bool oprocess(std::vector<pcloud_> cloud,
+    bool oprocess(pcl::PointXYZRGB pt,
+                  std::vector<pcloud_> cloud,
                   std::vector<pcloud_> prev,
                   double weight);
 
+    // function to determine possible contours
+    void possibleContours(cv::Mat& diff_image, 
+                          std::vector<std::vector<cv::Point> >& centers);
 
-    void differenceImage(cv::Mat image1, cv::Mat image2, cv::Mat& diff_image, cv::Mat img);
+    //calculating the distance of contours from the led position
+    bool calcDistQueue(pcl::PointXYZRGB pt,
+                       std::vector<pcloud_> cloud, 
+                       std::vector<pcloud_> prev, 
+                       cv::Point2f center,
+                       float radius,
+                       float& dist);
 
-
-    /*finding bitwise images*/
-    void bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img);
 
     // Calculate the weighted sum of the images
     void weightedSum(std::vector<cv_bridge::CvImagePtr>& images, 
@@ -105,35 +112,31 @@ class LedFinder : public FeatureFinder
                    int l,
                    float diff);
 
-    /*struct holding all the combinations of indexes of before and after clouds
-      along with the respective differences */
-    struct Combination
+    /*struct holding all the contours and their distance */
+    struct ContourDist
     {
-      int cloud_index;
-      int prev_index;
-      float diff;
-      cv::Mat diff_image;
+      std::vector<cv::Point> contour;
+      float dist;
       
-      Combination()
+      ContourDist()
       {
 
       }
 
-      Combination(int x, int y, float z, cv::Mat diff_image)
+      ContourDist(std::vector<cv::Point> contour_in, float mean_distance)
       {
-        cloud_index = x;
-        prev_index = y;
-        diff = z;
+        contour = contour_in;
+        dist = mean_distance;
       }
     };
 
     //struct for combination queue sorting rule, min at the top
-    typedef boost::shared_ptr<Combination> CombinationPtr;
-    struct CompareCombination
+    typedef boost::shared_ptr<ContourDist> ContourDistPtr;
+    struct CompareContourDist
     {
-      bool operator()(CombinationPtr a, CombinationPtr b)
+      bool operator()(ContourDistPtr a, ContourDistPtr b)
       {
-        return(a->diff > b->diff);
+        return(a->dist > b->dist);
       }
     };
     

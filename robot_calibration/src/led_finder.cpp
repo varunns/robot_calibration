@@ -427,6 +427,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::vector<pcloud_> prev,
   double weight)
 {
+  ROS_INFO("in oprocess");
   //cv_bridge image pointers
   std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;
   std::vector<cv_bridge::CvImagePtr> prev_image_ptr;

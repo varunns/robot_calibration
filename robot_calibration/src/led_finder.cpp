@@ -638,7 +638,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
 /*void LedFinder::CloudDifferenceTracker::planeFit()*/
 
-void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr, cv::Mat& weight_img)
+void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
 {
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);

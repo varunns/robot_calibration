@@ -527,7 +527,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
       for( int k = 0; k < limit; k++)
       {
        pcl::PointXYZRGB pt1 = (*(cloud[k]))(j,i);
-       pcl::PointXYZRGB pt2 = (*(prev[i]))(j,i); 
+       pcl::PointXYZRGB pt2 = (*(prev[k]))(j,i); 
 
 
        if(!isnan(pt1.x) && !isnan(pt1.y) && !isnan(pt1.z))

@@ -50,6 +50,33 @@ class LedFinder : public FeatureFinder
   struct CloudDifferenceTracker
   {
 
+
+        //struct to save all the contours belonging to the same tracker in a 
+    struct TrackContours
+    {
+      //to be filled first time
+      bool first_time;
+      pcl::PointXYZRGB pt3d;
+
+      //to be filled in process
+      std::vector<std::vector<std::vector<cv::Point> > > contours;
+      std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> pclouds;
+      std::vector<cv::Mat> diff_images;
+      std::vector<cv::Mat> rgb_image;
+
+      TrackContours()
+      {
+
+      }
+      TrackContours(bool flag, pcl::PointXYZRGB pt)
+      {
+        first_time = flag;
+        pt3d = pt;
+      }
+    };
+
+    typedef boost::shared_ptr<TrackContours> TrackContoursPtr;
+
     CloudDifferenceTracker(std::string frame, double x, double y, double z);
 
     // Weight should be +/- 1 typically
@@ -76,9 +103,10 @@ class LedFinder : public FeatureFinder
 
     /* Overloaded/un-overloaded left functions added by varun*/
     bool oprocess(pcl::PointXYZRGB pt,
+                  int tracker_id,
                   std::vector<pcloud_> cloud,
                   std::vector<pcloud_> prev,
-                  double weight);
+                  std::vector<TrackContoursPtr>& trackContourPtr);
 
     // function to determine possible contours
     void possibleContours(cv::Mat& diff_image, 
@@ -112,6 +140,8 @@ class LedFinder : public FeatureFinder
                    int k,
                    int l,
                    float diff);
+
+
 
     /*struct holding all the contours and their distance */
     struct ContourDist
@@ -149,6 +179,7 @@ class LedFinder : public FeatureFinder
     geometry_msgs::Point point;  //coordinates of led this is tracking
   };
   
+ 
   typedef actionlib::SimpleActionClient<robot_calibration_msgs::GripperLedCommandAction> LedClient;
 
 public:
@@ -160,6 +191,9 @@ public:
    * \returns True if point has been filled in.
    */
   bool find(robot_calibration_msgs::CalibrationData * msg);
+   
+  //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
+  void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& pt);
   
   static bool getDebug()
   {

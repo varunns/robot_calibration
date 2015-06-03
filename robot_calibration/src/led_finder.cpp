@@ -573,7 +573,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
 
 void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, std::vector<std::vector<cv::Point> >& contours)
 {
-  float canny_thresh = 70;
+  float canny_thresh = 60;
   cv::Mat canny_image;
   std::vector<cv::Vec4i> hierarchy;
   cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);

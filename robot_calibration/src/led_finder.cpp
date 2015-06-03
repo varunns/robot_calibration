@@ -578,7 +578,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   //  std::cout<<dist<<std::endl;
     return false;
   }
-  std::cout<<"dist out"<<dist<<std::endl;
+  //std::cout<<"dist out"<<dist<<std::endl;
   return true;
 }
 

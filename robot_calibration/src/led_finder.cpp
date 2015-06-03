@@ -498,6 +498,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   ROS_INFO("no. of contours is %d", final_contours.size());
   int max = -1000;
   cv::Point max_pt = cv::Point(0,0);
+  int index = 0;
   if(final_contours.size() < 1)
   {
     ROS_INFO("no contours found");
@@ -516,6 +517,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       std::cout<<sums<<std::endl;
       if(max < sums)
       {
+        index = j;
         max = sums;
         max_pt = cv::Point(pt.x-5,pt.y-5);
       }
@@ -548,6 +550,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
   std::cout<<x/total<<" "<<y/total<<" "<<std::endl;\
   if(total >0)
+    cv::minEnclosingCircle(final_contours[index], center, r);
+    cv::circle(diff_image, center,2,cv::Scalar(0,255,0), 1,8,0);
     cv::circle(diff_image, cv::Point(std::floor(x/total),std::floor(y/total)),5,cv::Scalar(0,0,255), 2,8,0);
   //getting the center of LED and searching for the location method 2, using the difference image
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);

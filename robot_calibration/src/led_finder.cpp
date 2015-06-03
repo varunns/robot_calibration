@@ -523,14 +523,14 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
     for( int j = (cvpt.y - 10); j < (cvpt.y + 10); j++)
     {
       //continue if the point is nan else use the ffirst non nan point to get the distance from led_pt
-      std::cout<<"clooud_size : "<<cloud.size()<<std::endl;
-      std::cout<<"clooud_size : "<<prev.size()<<std::endl;
+      std::cout<<"cloud_size : "<<cloud.size()<<std::endl;
+      std::cout<<"cloud_size : "<<prev.size()<<std::endl;
       int limit = std::min(cloud.size(), prev.size());
-      std::cout<<"clooud_size : "<<limit<<std::endl;
+      std::cout<<"cloud_size : "<<limit<<std::endl;
       for( int k = 0; k < limit; k++)
       {
        pcl::PointXYZRGB pt1 = (*(cloud[i]))(j,i);
-       pcl::PointXYZRGB pt2 = (*(prev[i]))(j,i); 
+       //pcl::PointXYZRGB pt2 = (*(prev[i]))(j,i); 
 
 
        if(!isnan(pt1.x) && !isnan(pt1.y) && !isnan(pt1.z))
@@ -539,11 +539,11 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
         break;
        }
 
-       if(!isnan(pt2.x) && !isnan(pt2.y) && !isnan(pt2.z))
+       /*if(!isnan(pt2.x) && !isnan(pt2.y) && !isnan(pt2.z))
        {
         non_nan_pt = pt2;
         break;
-       }
+       }*/
 
        else
        {

@@ -530,7 +530,19 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //getting the center of LED and searching for the location method 1, using just the led flash
   cv::Rect search_roi = cv::Rect(max_pt.x -8, max_pt.y - 8, 20,20);
   cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-8,max_pt.y-8, 20, 20), cv::Scalar(255,100,0), 1, 8);
-  
+  cv::Mat gray;
+  cv::cvtColor(diff_image, gray, CV_BGR2GRAY);
+  cv::Point led_center = cv::Point(0,0);
+  for(int i = max_pt.x-8; i < max_pt.x+12; i++)
+  {
+    for( int j = max_pt.y-8; j < max_pt.y+12; j++)
+    {
+      led_center.x += (gray.at<int>(j,i)/255)*i;
+      led_center.y += (gray.at<int>(j,i)/255)*j;
+    }
+  }
+
+  cv::circle(diff_image, cv::Point(led_center.x,led_center.y),2,cv::Scalar(0,0,255), 2,8,0);
   //getting the center of LED and searching for the location method 2, using the difference image
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
   debug_img(cloud_pix_weighed, "/tmp/mean/colorimage_",0,0,0);

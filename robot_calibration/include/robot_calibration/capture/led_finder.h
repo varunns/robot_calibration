@@ -90,7 +90,7 @@ class LedFinder : public FeatureFinder
                        std::vector<pcloud_> cloud, 
                        std::vector<pcloud_> prev, 
                        cv::Point2f center,
-                       float radius,
+                       float r,
                        float& dist);
 
 

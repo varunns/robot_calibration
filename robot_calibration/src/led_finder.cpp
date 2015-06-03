@@ -520,11 +520,16 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
         max1 = sums;
         max1_pt = cv::Point(pt.x-5,pt.y-5);
       }
-    /*  cv:Mat lum;
-
-      cv::cvtColor(cloud_pix_weighed(roi), lum, CV_BGR2Luv);*/
-
-      
+      cv:Mat lum;
+      std::vector<cv::Mat> channels;
+      cv::split(lum, channels);
+      cv::cvtColor(cloud_pix_weighed(roi), lum, CV_BGR2Luv);
+      sums = pow((cv::sum(channels[0])[0],2) + pow((cv::sum(channels[0])[1],2) + pow((cv::sum(channels[0])[2],2);
+      if(max2 < sums)
+      {
+        max2 = sums;
+        max2_pt = cv::Point(pt.x-5,pt.y-5);
+      }
      // cv::Point pt = (final_contours[j])[0];
 //      cv::rectangle(cloud_pix_weighed, cv::Rect(max1_pt.x-5,max1_pt.y-5, 20, 20), cv::Scalar(0,0,255), 1, 8);
 /*    cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
@@ -536,6 +541,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   //getting the center of LED and searching for the location method 1, using just the led flash
   cv::Rect search_roi = cv::Rect(max1_pt.x -8, max1_pt.y - 8, 20,20);
   cv::rectangle(cloud_pix_weighed, cv::Rect(max1_pt.x-8,max1_pt.y-8, 20, 20), cv::Scalar(255,100,0), 1, 8);
+  cv::rectangle(cloud_pix_weighed, cv::Rect(max2_pt.x-8,max2_pt.y-8, 20, 20), cv::Scalar(100,255,100), 1, 8);
 
   
   //getting the center of LED and searching for the location method 2, using the difference image

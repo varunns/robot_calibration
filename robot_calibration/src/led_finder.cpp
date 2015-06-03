@@ -488,6 +488,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       final_contours.push_back(possible_contours[i]);
     }
   }
+  ROS_INFO("no. of possible contours is %d", possible_contours.size());
   ROS_INFO("no. of contours is %d", final_contours.size());
   if(final_contours.size() < 1)
   {
@@ -499,7 +500,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     for( int j = 0 ; j < final_contours.size(); j++)
     {
       cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-      cv::drawContours(diff_image, final_contours[j], j, color, 2, 8, cv::noArray(), 0, cv::Point());
+      cv::drawContours(cloud_pix_weighed, final_contours[j], j, color, 2, 8, cv::noArray(), 0, cv::Point());
     }
   }
 

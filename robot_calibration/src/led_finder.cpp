@@ -522,7 +522,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       /*int sums_tmp = std::max((cv::sum(gray_cloud))[0], (cv::sum(gray_prev))[0]);
       int sums = std::max(sums_tmp, (int)(cv::sum(gray_diff)[0]));*/
 //      std::cout<<sums<<std::endl;
-      cv::Scalar scalar_sum = cv::mean(cloud_pix_weighed(roi));
+      cv::Scalar scalar_sum = cv::mean(diff_image(roi));
       double a = scalar_sum.val[0];
       double b = scalar_sum.val[1];
       double c = scalar_sum.val[2];

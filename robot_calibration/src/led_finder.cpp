@@ -503,7 +503,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < 5; j++)
+    for( int j = 0 ; j < 10; j++)
     {
       cv::Point pt = (final_contours[j])[0];
       cv::rectangle(diff_image, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);

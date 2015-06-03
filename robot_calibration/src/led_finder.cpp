@@ -504,7 +504,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < 5; j++)
+    for( int j = 0 ; j < final_contours.size(); j++)
     {
       cv::Point pt = (final_contours[j])[0];
       cv::rectangle(diff_image, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
@@ -514,6 +514,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   }
 
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
+  debug_img(cloud_pix_weighed, "/tmp/mean/colorimage_",0,0,0);
 }
 
 

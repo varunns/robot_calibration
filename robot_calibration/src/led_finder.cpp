@@ -561,7 +561,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
          (non_nan_pt.y - pt.y)*(non_nan_pt.y - pt.y)+
          (non_nan_pt.z - pt.z)*(non_nan_pt.z - pt.z);
 
-  if( dist > 0.2)
+  if( dist > 0.04)
   {
     return false;
   }

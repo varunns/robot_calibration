@@ -496,7 +496,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   ROS_INFO("no. of possible contours is %d", possible_contours.size());
   ROS_INFO("no. of contours is %d", final_contours.size());
-  int max = -1000;
+  float max = -1000;
   cv::Point max_pt = cv::Point(0,0);
   int index = 0;
   if(final_contours.size() < 1)
@@ -523,10 +523,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       int sums = std::max(sums_tmp, (int)(cv::sum(gray_diff)[0]));*/
 //      std::cout<<sums<<std::endl;
       cv::Scalar scalar_sum = cv::sum(diff_image);
-      int a = scalar_sum.val[0];
-      int b = scalar_sum.val[1];
-      int c = scalar_sum.val[2];
-      int sums = a*a+b*b+c*c;
+      float a = scalar_sum.val[0]/(10000);
+      float b = scalar_sum.val[1]/(10000);
+      float c = scalar_sum.val[2]/(10000);
+      float sums = std::sqrt(a*a+b*b+c*c);
       if(max < sums)
       {
         index = j;

@@ -498,7 +498,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < final_contours.size(); j++)
+    for( int j = 0 ; j < 10; j++)
     {
       cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
       cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());

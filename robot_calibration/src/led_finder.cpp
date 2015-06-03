@@ -477,7 +477,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     float dist;
     cv::minEnclosingCircle(possible_contours[i], center, r);
    
-    if(!calcDistQueue(pt, cloud, prev, center, r, dist))
+    if(!calcDistQueue(pt, cloud_pix_weighed, cloud, prev, center, r, dist))
     {
       continue;
     }
@@ -519,6 +519,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
 
 bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,  
+                                                      cv::Mat color_img,
                                                       std::vector<pcloud_> cloud, 
                                                       std::vector<pcloud_> prev, 
                                                       cv::Point2f center,
@@ -529,21 +530,33 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   cvpt.x = (int)center.x;
   cvpt.y = (int)center.y;
   pcl::PointXYZRGB non_nan_pt;
+
+  //check if the region is on the borders
+  if( center.x < 30 || center.x > 600 || center.y < 30 || center.y > 50)
+  {
+    return false;
+  }
+  
+  //check if more than 40% of the points in the region are black i.e out of pass thru
+  cv::Mat gray;
+  cv::Rect roi = cvRect(cvpt.x - 10, cvpt.y - 10, 20, 20);
+  cv::cvtColor(color_img(roi), gray, CV_BGR2GRAY);
+  if( ((float)cv::countNonZero(gray))/400 < 0.4)
+  {
+    return false;
+  }
+
   // define a small roi 
   for(int i = (cvpt.x - 10); i < (cvpt.x + 10); i++)
   {
     for( int j = (cvpt.y - 10); j < (cvpt.y + 10); j++)
     {
+
       //continue if the point is nan else use the first non nan point to get the distance from led_pt
       int limit = std::min(cloud.size(), prev.size());
       for( int k = 0; k < limit; k++)
       {
        
-        if( i < 0 || i > 639 || j < 0 || j > 389)
-        {
-          continue;
-        }
-
        pcl::PointXYZRGB pt1 = (*(cloud[k]))(i,j);
        pcl::PointXYZRGB pt2 = (*(prev[k]))(i,j); 
 
@@ -588,6 +601,10 @@ void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, st
   float canny_thresh = 60;
   cv::Mat canny_image;
   std::vector<cv::Vec4i> hierarchy;
+  /*cv::Mat gray;
+  cv::cvtColor(diff_img, gray, CV_BGR2GRAY);
+  cv::threshold(gray, gray, 10, 255, CV_THRESH_BINARY);
+  cv::Canny(gray, canny_image, canny_thresh, canny_thresh*2, 3);*/
   cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
 }

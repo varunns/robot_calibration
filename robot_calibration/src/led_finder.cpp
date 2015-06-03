@@ -553,8 +553,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::Point2f center = cv::Point(0,0);
   if(total >0)
     cv::minEnclosingCircle(final_contours[index], center, r);
-    cv::circle(diff_image, center,r,cv::Scalar(0,255,0), 1,8,0);
-    cv::circle(diff_image, cv::Point(std::floor(x/total),std::floor(y/total)),5,cv::Scalar(0,0,255), 2,8,0);
+    cv::circle(diff_image, center,r,cv::Scalar(0,255,0), 1,8);
+    cv::circle(diff_image, cv::Point(std::floor(x/total),std::floor(y/total)),5,cv::Scalar(0,0,255), 2,8);
   //getting the center of LED and searching for the location method 2, using the difference image
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
   debug_img(cloud_pix_weighed, "/tmp/mean/colorimage_",0,0,0);

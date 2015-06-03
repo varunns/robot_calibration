@@ -513,7 +513,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
       cv::Mat gray;
       cv::Rect roi =  cv::Rect(pt.x-5,pt.y-5, 10, 10);
-      int sums = pow((cv::sum(clour_pix_weighed(roi)))[0],2) + pow((cv::sum(clour_pix_weighed(roi)))[1],2) + pow((cv::sum(clour_pix_weighed(roi)))[2],2);
+      int sums = pow((cv::sum(cloud_pix_weighed(roi)))[0],2) + pow((cv::sum(cloud_pix_weighed(roi)))[1],2) + pow((cv::sum(cloud_pix_weighed(roi)))[2],2);
       //std::cout<<sums<<std::endl;
       if(max1 < sums)
       {

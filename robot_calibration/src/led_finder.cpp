@@ -507,6 +507,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   {
     for( int j = 0 ; j < final_contours.size(); j++)
     {
+      cv::Point pt = (final_contours[j])[0];
+
       cv::Mat gray;
       cv::Rect roi =  cv::Rect(pt.x-5,pt.y-5, 10, 10);
       cv::cvtColor(cloud_pix_weighed(roi), gray, CV_BGR2GRAY);

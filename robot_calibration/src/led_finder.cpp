@@ -525,7 +525,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());*/
     }
   }
-  cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
+  cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-5,max_pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
   debug_img(cloud_pix_weighed, "/tmp/mean/colorimage_",0,0,0);
 }

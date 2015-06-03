@@ -532,7 +532,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   pcl::PointXYZRGB non_nan_pt;
 
   //check if the region is on the borders
-  if( center.x < 30 || center.x > 600 || center.y < 30 || center.y > 50)
+  if( center.x < 30 || center.x > 600 || center.y < 30 || center.y > 450)
   {
     return false;
   }

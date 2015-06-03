@@ -522,7 +522,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       /*int sums_tmp = std::max((cv::sum(gray_cloud))[0], (cv::sum(gray_prev))[0]);
       int sums = std::max(sums_tmp, (int)(cv::sum(gray_diff)[0]));*/
 //      std::cout<<sums<<std::endl;
-      int sums = std::pow((cv::sum(diff_image))[0],2)+std::pow((cv::sum(diff_image))[1],2)+std::pow((cv::sum(diff_image))[2],2);
+
+      int sums = std::pow((int)(cv::sum(diff_image))[0],2)+std::pow((int)(cv::sum(diff_image))[1],2)+std::pow((int)(cv::sum(diff_image))[2],2);
       if(max < sums)
       {
         index = j;
@@ -661,7 +662,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
     distance.push_back(dist);
   }
   std::sort(distance.begin(), distance.end());
-  if( distance[0] > 0.01)
+  if( distance[0] > 0.001)
   {
   //  std::cout<<dist<<std::endl;
     return false;

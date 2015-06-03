@@ -537,14 +537,12 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
 
        if(!isnan(pt1.x) && !isnan(pt1.y) && !isnan(pt1.z))
        {
-        std::cout<<"pt1: "<<pt1.x<<" "<<pt1.y<<" "<<pt1.z<<std::endl;
         non_nan_pt = pt1;
         break;
        }
 
        if(!isnan(pt2.x) && !isnan(pt2.y) && !isnan(pt2.z))
        {
-        std::cout<<"pt2: "<<pt2.x<<" "<<pt2.y<<" "<<pt2.z<<std::endl;
         non_nan_pt = pt2;
         break;
        }
@@ -565,9 +563,10 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
 
   if( dist > 0.04)
   {
+    std::cout<<dist<<std::endl;
     return false;
   }
-
+  std::cout<<"dist out"<<dist<<std::endl;
   return true;
 }
 

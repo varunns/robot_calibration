@@ -86,6 +86,7 @@ class LedFinder : public FeatureFinder
 
     //calculating the distance of contours from the led position
     bool calcDistQueue(pcl::PointXYZRGB pt,
+                       cv::Mat color_img,
                        std::vector<pcloud_> cloud, 
                        std::vector<pcloud_> prev, 
                        cv::Point2f center,

@@ -488,6 +488,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       final_contours.push_back(possible_contours[i]);
     }
   }
+  ROS_INFO("no. of contours is %d", final_contours.size());
   if(final_contours.size() < 1)
   {
     ROS_INFO("no contours found");

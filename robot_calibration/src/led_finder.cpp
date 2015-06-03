@@ -540,6 +540,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   cv::Mat gray;
   cv::Rect roi = cvRect(cvpt.x - 10, cvpt.y - 10, 20, 20);
   cv::cvtColor(color_img(roi), gray, CV_BGR2GRAY);
+  cv::threshold(gray, gray, 200, 255, CV_THRESH_BINARY);
   if( ((float)cv::countNonZero(gray))/400 < 0.9)
   {
     return false;
@@ -637,7 +638,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
 /*void LedFinder::CloudDifferenceTracker::planeFit()*/
 
-void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
+void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr, cv::Mat& weight_img)
 {
   sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
   sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);

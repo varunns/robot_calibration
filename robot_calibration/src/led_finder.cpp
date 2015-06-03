@@ -496,10 +496,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   ROS_INFO("no. of possible contours is %d", possible_contours.size());
   ROS_INFO("no. of contours is %d", final_contours.size());
-  int max1 = -1000;
-  int max2 = -1000;
-  cv::Point max1_pt = cv::Point(0,0);
-  cv::Point max2_pt = cv::Point(0,0);
+  int max = -1000;
+  cv::Point max_pt = cv::Point(0,0);
   if(final_contours.size() < 1)
   {
     ROS_INFO("no contours found");
@@ -507,43 +505,31 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < 10; j++)
+    for( int j = 0 ; j < final_contours.size(); j++)
     {
-   /*   cv::Point pt = (final_contours[j])[0];
+      cv::Point pt = (final_contours[j])[0];
 
       cv::Mat gray;
       cv::Rect roi =  cv::Rect(pt.x-5,pt.y-5, 10, 10);
-      int sums = pow((cv::sum(cloud_pix_weighed(roi)))[0],2) + pow((cv::sum(cloud_pix_weighed(roi)))[1],2) + pow((cv::sum(cloud_pix_weighed(roi)))[2],2);
-      //std::cout<<sums<<std::endl;
-      if(max1 < sums)
+      cv::cvtColor(cloud_pix_weighed(roi), gray, CV_BGR2GRAY);
+      int sums = (cv::sum(gray))[0];
+      std::cout<<sums<<std::endl;
+      if(max < sums)
       {
-        max1 = sums;
-        max1_pt = cv::Point(pt.x-5,pt.y-5);
+        max = sums;
+        max_pt = cv::Point(pt.x-5,pt.y-5);
       }
-      cv::Mat lum;
-      std::vector<cv::Mat> channels;
-      
-      cv::cvtColor(cloud_pix_weighed(roi), lum, CV_BGR2Luv);
-      cv::split(lum, channels);
-      sums = pow((cv::sum(channels[0]))[0],2) + pow((cv::sum(channels[0]))[1],2) + pow((cv::sum(channels[0]))[2],2);
-      if(max2 < sums)
-      {
-        max2 = sums;
-        max2_pt = cv::Point(pt.x-5,pt.y-5);
-      }*/
-     cv::Point pt = (final_contours[j])[0];
-     cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
-  /*  cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+      /*cv::Point pt = (final_contours[j])[0];
+      cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
+      *//*cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
       cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());*/
     }
   }
-  //cv::rectangle(cloud_pix_weighed, cv::Rect(max1_pt.x-2,max1_pt.y-2, 10, 10), cv::Scalar(0,0,255), 1, 8);
+  cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-2,max_pt.y-2, 10, 10), cv::Scalar(0,0,255), 1, 8);
 
   //getting the center of LED and searching for the location method 1, using just the led flash
-/*  cv::Rect search_roi = cv::Rect(max1_pt.x -8, max1_pt.y - 8, 20,20);
-  cv::rectangle(cloud_pix_weighed, cv::Rect(max1_pt.x-8,max1_pt.y-8, 20, 20), cv::Scalar(255,100,0), 1, 8);
-  cv::rectangle(cloud_pix_weighed, cv::Rect(max2_pt.x-8,max2_pt.y-8, 20, 20), cv::Scalar(100,255,100), 1, 8);*/
-
+  cv::Rect search_roi = cv::Rect(max_pt.x -8, max_pt.y - 8, 20,20);
+  cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-8,max_pt.y-8, 20, 20), cv::Scalar(255,100,0), 1, 8);
   
   //getting the center of LED and searching for the location method 2, using the difference image
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
@@ -556,7 +542,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
                                                       std::vector<pcloud_> cloud, 
                                                       std::vector<pcloud_> prev, 
                                                       cv::Point2f center,
-                                                      float r,
+                                                      float radius,
                                                       float& dist)
 {
   cv::Point cvpt = cv::Point(0,0);
@@ -580,9 +566,9 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   }
 
   // define a small roi 
-  for(int i = (cvpt.x - r); i < (cvpt.x + r); i++)
+  for(int i = (cvpt.x - 10); i < (cvpt.x + 10); i++)
   {
-    for( int j = (cvpt.y - r); j < (cvpt.y + r); j++)
+    for( int j = (cvpt.y - 10); j < (cvpt.y + 10); j++)
     {
 
       //continue if the point is nan else use the first non nan point to get the distance from led_pt

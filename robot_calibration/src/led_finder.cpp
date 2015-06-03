@@ -507,7 +507,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < 1; j++)
+    for( int j = 0 ; j < 5; j++)
     {
 /*      cv::Point pt = (final_contours[j])[0];
 

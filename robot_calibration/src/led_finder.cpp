@@ -519,9 +519,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       cv::cvtColor(prev_pix_weighed(roi), gray_prev, CV_BGR2GRAY);
       cv::cvtColor(diff_image(roi), gray_diff, CV_BGR2GRAY);
       
-      int sums_tmp = std::max((cv::sum(gray_cloud))[0], (cv::sum(gray_prev))[0]);
-      int sums = std::max(sums_tmp, (int)(cv::sum(gray_diff)[0]));
-      std::cout<<sums<<std::endl;
+      /*int sums_tmp = std::max((cv::sum(gray_cloud))[0], (cv::sum(gray_prev))[0]);
+      int sums = std::max(sums_tmp, (int)(cv::sum(gray_diff)[0]));*/
+//      std::cout<<sums<<std::endl;
+      int sums = std::pow((cv::sum(diff_image))[0],2)+std::pow((cv::sum(diff_image))[1],2)+std::pow((cv::sum(diff_image))[2],2);
       if(max < sums)
       {
         index = j;

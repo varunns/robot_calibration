@@ -228,6 +228,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     geometry_msgs::PointStamped led_pt_cameraframe;
     led_pt_gripperframe.point = trackers_[tracker].point;
     std::cout<<clouds_ptr_[0]->header.frame_id<<" "<<trackers_[tracker].frame_<<std::endl;
+    std::cout<<led_pt_gripperframe.point<<std::endl;
     try
     {
       listener_.transformPoint(clouds_ptr_[0]->header.frame_id, 

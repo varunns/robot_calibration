@@ -524,15 +524,12 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   {
     for( int j = (cvpt.y - 10); j < (cvpt.y + 10); j++)
     {
-      //continue if the point is nan else use the ffirst non nan point to get the distance from led_pt
+      //continue if the point is nan else use the first non nan point to get the distance from led_pt
       int limit = std::min(cloud.size(), prev.size());
       for( int k = 0; k < limit; k++)
       {
 
-       if( (j < 0 || j > 480) && (i < 0 || i > 640) )
-       {
-          continue;
-       }
+       std::cout<<i<<" "<<j<<std::endl;
 
        pcl::PointXYZRGB pt1 = (*(cloud[k]))(j,i);
        pcl::PointXYZRGB pt2 = (*(prev[k]))(j,i); 

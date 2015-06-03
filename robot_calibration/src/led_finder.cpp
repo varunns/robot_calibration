@@ -556,7 +556,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
                                                       std::vector<pcloud_> cloud, 
                                                       std::vector<pcloud_> prev, 
                                                       cv::Point2f center,
-                                                      float radius,
+                                                      float r,
                                                       float& dist)
 {
   cv::Point cvpt = cv::Point(0,0);

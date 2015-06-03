@@ -532,13 +532,13 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-8,max_pt.y-8, 20, 20), cv::Scalar(255,100,0), 1, 8);
   cv::Mat gray;
   cv::cvtColor(diff_image, gray, CV_BGR2GRAY);
-  cv::Point led_center = cv::Point(0,0);
+  cv::Point4f led_center = cv::Point4f(0.0,0.0);
   for(int i = max_pt.x-8; i < max_pt.x+12; i++)
   {
     for( int j = max_pt.y-8; j < max_pt.y+12; j++)
     {
-      led_center.x += (gray.at<int>(j,i)/255)*i;
-      led_center.y += (gray.at<int>(j,i)/255)*j;
+      led_center.x += ((float)gray.at<int>(j,i)/255.0)*i;
+      led_center.y += ((float)gray.at<int>(j,i)/255.0)*j;
     }
   }
   std::cout<<led_center.x<<" "<<led_center.y<<" "<<std::endl;

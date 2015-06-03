@@ -509,24 +509,24 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   {
     for( int j = 0 ; j < 5; j++)
     {
-/*      cv::Point pt = (final_contours[j])[0];
+      cv::Point pt = (final_contours[j])[0];
 
       cv::Mat gray;
       cv::Rect roi =  cv::Rect(pt.x-5,pt.y-5, 10, 10);
       int sums = pow((cv::sum(clour_pix_weighed(roi)))[0],2) + pow((cv::sum(clour_pix_weighed(roi)))[1],2) + pow((cv::sum(clour_pix_weighed(roi)))[2],2);
-      std::cout<<sums<<std::endl;
-      if(max < sums)
+      //std::cout<<sums<<std::endl;
+      if(max1 < sums)
       {
-        max = sums;
-        max_pt = cv::Point(pt.x-5,pt.y-5);
+        max1 = sums;
+        max1_pt = cv::Point(pt.x-5,pt.y-5);
       }
-      cv:Mat lum;
+    /*  cv:Mat lum;
 
-      cv::cvtColor(cloud_pix_weighed(roi), lum, CV_BGR2Luv);
+      cv::cvtColor(cloud_pix_weighed(roi), lum, CV_BGR2Luv);*/
 
-      */
-      cv::Point pt = (final_contours[j])[0];
-      cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 20, 20), cv::Scalar(0,0,255), 1, 8);
+      
+     // cv::Point pt = (final_contours[j])[0];
+//      cv::rectangle(cloud_pix_weighed, cv::Rect(max1_pt.x-5,max1_pt.y-5, 20, 20), cv::Scalar(0,0,255), 1, 8);
 /*    cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
       cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());*/
     }

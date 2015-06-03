@@ -495,16 +495,16 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     ROS_INFO("no contours found");
   }
 
-/*  else
+  else
   {
     for( int j = 0 ; j < final_contours.size(); j++)
     {
       cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
       cv::drawContours(diff_image, final_contours[j], j, color, 1, 8, cv::noArray(), 0, cv::Point());
     }
-  }*/
+  }
 
-  debug_img(diff_image, "/tmp/contourimage_", 0,0,0);
+  debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
 }
 
 

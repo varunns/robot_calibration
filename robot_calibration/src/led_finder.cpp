@@ -227,26 +227,28 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     geometry_msgs::PointStamped led_pt_gripperframe;
     geometry_msgs::PointStamped led_pt_cameraframe;
     led_pt_gripperframe.point = trackers_[tracker].point;
-    led_pt_gripperframe.header.frame_id = clouds_ptr_[0]->header.frame_id;
+    led_pt_gripperframe.header.frame_id = trackers_[tracker].frame_;
     led_pt_gripperframe.header.stamp = ros::Time::now();
     std::cout<<clouds_ptr_[0]->header.stamp<<std::endl;
     std::cout<<clouds_ptr_[0]->header.frame_id<<" "<<trackers_[tracker].frame_<<std::endl;
     std::cout<<led_pt_gripperframe.point<<std::endl;
+
+    tf::StampedTransform transform;
     try
     {
       listener_.transformPoint(clouds_ptr_[0]->header.frame_id, 
-                               ros::Time(0), 
+                               ros::Time(0),
                                led_pt_gripperframe,
                                trackers_[tracker].frame_, 
                                led_pt_cameraframe);
-      std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe<<std::endl;
+      std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
     }
     catch(const tf::TransformException &ex)
     {
-      ROS_ERROR_STREAM("Failed to transform feature to " << trackers_[tracker].frame_);
+      ROS_ERROR_STREAM("Failed to transform feature to " << clouds_ptr_[0]->header.frame_id);
       return false;
     }
-
+   // led_pt_cameraframe = transform * led_pt_gripperframe.point;
     // call to obtain difference cloud and the max cloud
     diff_image_.release();
     std::vector<std::vector<cv::Point> > contours;
@@ -301,8 +303,11 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     // Check that point is close enough to expected pose
     try
     {
-      listener_.transformPoint(trackers_[t].frame_, ros::Time(0), rgbd_pt,
-                               rgbd_pt.header.frame_id, world_pt);
+      listener_.transformPoint(trackers_[t].frame_, 
+                               ros::Time(0), 
+                               rgbd_pt,
+                               rgbd_pt.header.frame_id, 
+                               world_pt);
     }
     catch(const tf::TransformException &ex)
     {

@@ -514,7 +514,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       cv::Mat gray_prev;
       cv::Mat gray_diff;
 
-      cv::Rect roi = cv::Rect(pt.x-10,pt.y-10, 20, 20);
+      cv::Rect roi = cv::Rect(pt.x-10,pt.y-10, 10, 10);
       cv::cvtColor(cloud_pix_weighed(roi), gray_cloud, CV_BGR2GRAY);
       cv::cvtColor(prev_pix_weighed(roi), gray_prev, CV_BGR2GRAY);
       cv::cvtColor(diff_image(roi), gray_diff, CV_BGR2GRAY);

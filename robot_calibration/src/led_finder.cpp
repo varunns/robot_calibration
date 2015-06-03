@@ -665,7 +665,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
     distance.push_back(dist);
   }
   std::sort(distance.begin(), distance.end());
-  if( distance[0] > 0.003)
+  if( distance[0] > 0.005)
   {
   //  std::cout<<dist<<std::endl;
     return false;

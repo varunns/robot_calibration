@@ -495,14 +495,14 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     ROS_INFO("no contours found");
   }
 
-  else
+/*  else
   {
     for( int j = 0 ; j < final_contours.size(); j++)
     {
       cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
       cv::drawContours(diff_image, final_contours[j], j, color, 1, 8, cv::noArray(), 0, cv::Point());
     }
-  }
+  }*/
 
   debug_img(diff_image, "/tmp/contourimage_", 0,0,0);
 }
@@ -573,15 +573,6 @@ void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, st
   std::vector<cv::Vec4i> hierarchy;
   cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
-  if( contours.size()<1)
-  {
-    return;
-  }
-  for( int i = 0; i < contours.size(); i++)
-  {
-      cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-      cv::drawContours(diff_image , contours, i, color, 2, 8, hierarchy, 0, cv::Point() );
-  }
 }
 
 /*

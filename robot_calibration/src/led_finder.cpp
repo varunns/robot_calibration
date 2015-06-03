@@ -531,7 +531,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-2,max_pt.y-2, 10, 10), cv::Scalar(0,0,255), 1, 8);
   std::vector<std::vector<cv::Point> > debug_contour;
-  debug_contour.push_back(final_contours[j]);
+  debug_contour.push_back(final_contours[indexes]]);
   for( int i = 0 ; i < debug_contour.size(); i++)
   {
     cv::drawContours(diff_image, debug_contour, i, cv::Scalar(255,75,50), 1, 8, cv::noArray(), 0, cv::Point());

@@ -534,7 +534,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     }
   }
 
-  if(final_contours.size() == 0)
+/*  if(final_contours.size() == 0)
   {
     for(int i = 0; i < possible_contours.size(); i++)
     {
@@ -542,7 +542,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       cv::drawContours(cloud_pix_weighed, possible_contours, i, color, 2, 8, cv::noArray(), 0, cv::Point() );
     }
   }
-
+*/
   cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-2,max_pt.y-2, 10, 10), cv::Scalar(75,20,255), 1, 8);
   cv::circle(diff_image, cv::Point(max_pt.x,max_pt.y), 2, cv::Scalar(0,0,255), -1,8);
   //getting the center of LED and searching for the location method 1, using just the led flash

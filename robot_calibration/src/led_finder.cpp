@@ -514,7 +514,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       cv::Mat gray_prev;
       cv::Mat gray_diff;
 
-      cv::Rect roi = cv::Rect(pt.x-5,pt.y-5, 10, 10);
+      cv::Rect roi = cv::Rect(pt.x-10,pt.y-10, 20, 20);
       cv::cvtColor(cloud_pix_weighed(roi), gray_cloud, CV_BGR2GRAY);
       cv::cvtColor(prev_pix_weighed(roi), gray_prev, CV_BGR2GRAY);
       cv::cvtColor(diff_image(roi), gray_diff, CV_BGR2GRAY);
@@ -522,10 +522,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       /*int sums_tmp = std::max((cv::sum(gray_cloud))[0], (cv::sum(gray_prev))[0]);
       int sums = std::max(sums_tmp, (int)(cv::sum(gray_diff)[0]));*/
 //      std::cout<<sums<<std::endl;
-      cv::Scalar scalar_sum = cv::sum(diff_image);
-      double a = scalar_sum.val[0]/(10000);
-      double b = scalar_sum.val[1]/(10000);
-      double c = scalar_sum.val[2]/(10000);
+      cv::Scalar scalar_sum = cv::mean(diff_image(roi));
+      double a = scalar_sum.val[0];
+      double b = scalar_sum.val[1];
+      double c = scalar_sum.val[2];
       double sums = std::sqrt(a*a+b*b+c*c);
       if(max < sums)
       {

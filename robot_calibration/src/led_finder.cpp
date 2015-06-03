@@ -483,14 +483,15 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     }
     else
     {
-      ContourDistPtr tmp(new ContourDist(possible_contours[i], dist) );
-      contour_dist_queue.push(tmp);
+      ContourDistPtr dist_tmp(new ContourDist(possible_contours[i], dist) );
+      contour_dist_queue.push(dist_tmp);
     }
   }
-  cv::Mat drawing = cv::Mat::zeros( diff_image.size(), CV_8UC3 );
+
   while(!contour_dist_queue.empty())
   {
     final_contours.push_back(contour_dist_queue.top()->contour);
+    std::cout<<contour_dist_queue.top()->dist<<std::endl;
     contour_dist_queue.pop();
   }
 

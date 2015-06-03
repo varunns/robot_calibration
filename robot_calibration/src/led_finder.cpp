@@ -655,7 +655,7 @@ void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, st
   cv::Mat canny_image;
   std::vector<cv::Vec4i> hierarchy;
   cv::Mat gray;
-  cv::cvtColor(diff_img, gray, CV_BGR2GRAY);
+  cv::cvtColor(diff_image, gray, CV_BGR2GRAY);
   /*cv::threshold(gray, gray, 10, 255, CV_THRESH_BINARY);
   cv::Canny(gray, canny_image, canny_thresh, canny_thresh*2, 3);
   */

@@ -496,8 +496,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   ROS_INFO("no. of possible contours is %d", possible_contours.size());
   ROS_INFO("no. of contours is %d", final_contours.size());
-  int max = -1000;
-  cv::Point max_pt = cv::Point(0,0);
+  int max1 = -1000;
+  int max2 = -1000;
+  cv::Point max1_pt = cv::Point(0,0);
+  cv::Point max2_pt = cv::Point(0,0);
   if(final_contours.size() < 1)
   {
     ROS_INFO("no contours found");
@@ -505,27 +507,38 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < final_contours.size(); j++)
+    for( int j = 0 ; j < 1; j++)
     {
-      cv::Point pt = (final_contours[j])[0];
+/*      cv::Point pt = (final_contours[j])[0];
 
       cv::Mat gray;
       cv::Rect roi =  cv::Rect(pt.x-5,pt.y-5, 10, 10);
-      cv::cvtColor(cloud_pix_weighed(roi), gray, CV_BGR2GRAY);
-      int sums = (cv::sum(gray))[0];
+      int sums = pow((cv::sum(clour_pix_weighed(roi)))[0],2) + pow((cv::sum(clour_pix_weighed(roi)))[1],2) + pow((cv::sum(clour_pix_weighed(roi)))[2],2);
       std::cout<<sums<<std::endl;
       if(max < sums)
       {
         max = sums;
         max_pt = cv::Point(pt.x-5,pt.y-5);
       }
-      /*cv::Point pt = (final_contours[j])[0];
-      cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
-      *//*cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+      cv:Mat lum;
+
+      cv::cvtColor(cloud_pix_weighed(roi), lum, CV_BGR2Luv);
+
+      */
+      cv::Point pt = (final_contours[j])[0];
+      cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 20, 20), cv::Scalar(0,0,255), 1, 8);
+/*    cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
       cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());*/
     }
   }
   cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-2,max_pt.y-2, 10, 10), cv::Scalar(0,0,255), 1, 8);
+
+  //getting the center of LED and searching for the location method 1, using just the led flash
+  cv::Rect search_roi = cv::Rect(max_pt.x -8, max_pt.y - 8, 20,20);
+  cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt1.x-8,max1_pt.y-8, 20, 20), cv::Scalar(255,100,0), 1, 8);
+
+  
+  //getting the center of LED and searching for the location method 2, using the difference image
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
   debug_img(cloud_pix_weighed, "/tmp/mean/colorimage_",0,0,0);
 }

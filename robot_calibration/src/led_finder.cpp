@@ -520,11 +520,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
         max1 = sums;
         max1_pt = cv::Point(pt.x-5,pt.y-5);
       }
-      cv:Mat lum;
+      cv::Mat lum;
       std::vector<cv::Mat> channels;
       cv::split(lum, channels);
       cv::cvtColor(cloud_pix_weighed(roi), lum, CV_BGR2Luv);
-      sums = pow((cv::sum(channels[0])[0],2) + pow((cv::sum(channels[0])[1],2) + pow((cv::sum(channels[0])[2],2);
+      sums = pow((cv::sum(channels[0]))[0],2) + pow((cv::sum(channels[0]))[1],2) + pow((cv::sum(channels[0]))[2],2);
       if(max2 < sums)
       {
         max2 = sums;

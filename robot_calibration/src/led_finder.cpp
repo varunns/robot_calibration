@@ -665,7 +665,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
     distance.push_back(dist);
   }
   std::sort(distance.begin(), distance.end());
-  if( distance[0] > 0.001)
+  if( distance[0] > 0.08)
   {
   //  std::cout<<dist<<std::endl;
     return false;
@@ -681,7 +681,7 @@ void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, st
   std::vector<cv::Vec4i> hierarchy;
   cv::Mat gray;
   cv::cvtColor(diff_image, gray, CV_BGR2GRAY);
-  cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);
+  cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 1);
   cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
 }
 

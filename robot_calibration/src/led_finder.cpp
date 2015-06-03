@@ -506,11 +506,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < 5; j++)
+    for( int j = 0 ; j < final_contours.size(); j++)
     {
-     // cv::Point pt = (final_contours[j])[0];
+/*      cv::Point pt = (final_contours[j])[0];
 
-    /*  cv::Mat gray;
+      cv::Mat gray;
       cv::Rect roi =  cv::Rect(pt.x-5,pt.y-5, 10, 10);
       cv::cvtColor(cloud_pix_weighed(roi), gray, CV_BGR2GRAY);
       int sums = (cv::sum(gray))[0];
@@ -524,7 +524,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       cv::Point pt = (final_contours[j])[0];
       cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
       /*cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-      cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());
+      cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());*/
     }
   }
 

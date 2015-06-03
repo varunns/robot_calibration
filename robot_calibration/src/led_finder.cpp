@@ -534,6 +534,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   cv::cvtColor(diff_image, gray, CV_BGR2GRAY);
   float x= 0;
   float y = 0;
+  float total = 0;
   for(int i = max_pt.x-8; i < max_pt.x+12; i++)
   {
     for( int j = max_pt.y-8; j < max_pt.y+12; j++)
@@ -542,9 +543,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       float w = a*1.0;
       x += w/255.0*i;
       y += w/255.0*j;
+      total += w/255;
     }
   }
-  std::cout<<x<<" "<<y<<" "<<std::endl;
+  std::cout<<x/total<<" "<<y/total<<" "<<std::endl;
   cv::circle(diff_image, cv::Point(std::floor(x),std::floor(y)),3,cv::Scalar(0,0,255), 2,8,0);
   //getting the center of LED and searching for the location method 2, using the difference image
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);

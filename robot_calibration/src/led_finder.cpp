@@ -507,7 +507,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < final_contours.size(); j++)
+    for( int j = 0 ; j < 10; j++)
     {
    /*   cv::Point pt = (final_contours[j])[0];
 
@@ -580,9 +580,9 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   }
 
   // define a small roi 
-  for(int i = (cvpt.x - 10); i < (cvpt.x + 10); i++)
+  for(int i = (cvpt.x - r); i < (cvpt.x + r); i++)
   {
-    for( int j = (cvpt.y - 10); j < (cvpt.y + 10); j++)
+    for( int j = (cvpt.y - r); j < (cvpt.y + r); j++)
     {
 
       //continue if the point is nan else use the first non nan point to get the distance from led_pt

@@ -508,19 +508,25 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   {
     for( int j = 0 ; j < final_contours.size(); j++)
     {
-/*      cv::Point pt = (final_contours[j])[0];
+    //  cv::Point pt = (final_contours[j])[0];
 
-      cv::Mat gray10
-      cv::Rect roi =  cv::Rect(pt.x-5,pt.y-5, 10, 10);
-      cv::cvtColor(cloud_pix_weighed(roi), gray, CV_BGR2GRAY);
-      int sums = (cv::sum(gray))[0];
+      cv::Mat gray_cloud;
+      cv::Mat gray_prev;
+      cv::Mat gray_diff;
+      cv::Rect roi = cv::Rect(pt.x-5,pt.y-5, 10, 10);
+      cv::cvtColor(cloud_pix_weighed(roi), gray_cloud, CV_BGR2GRAY);
+      cv::cvtColor(prev_pix_weighed(roi), gray_prev, CV_BGR2GRAY);
+      cv::cvtColor(diff_image(roi), gray_diff, CV_BGR2GRAY);
+      
+      int sums_tmp = std::max((cv::sum(gray_cloud))[0], (cv::sum(gray_prev))[0]);
+      int sums = std::max(sums_tmp, (int)(cv::sum(gray_diff)[0]));
       std::cout<<sums<<std::endl;
       if(max < sums)
       {
         index = j;
         max = sums;
         max_pt = cv::Point(pt.x-5,pt.y-5);
-      }*/
+      }
       cv::Point pt = (final_contours[j])[0];
       cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
       /*cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
@@ -537,10 +543,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     }
   }
 
-/*  cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-2,max_pt.y-2, 10, 10), cv::Scalar(0,0,255), 1, 8);
+  cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-2,max_pt.y-2, 10, 10), cv::Scalar(75,20,255), 1, 8);
   cv::circle(diff_image, cv::Point(max_pt.x,max_pt.y), 2, cv::Scalar(0,0,255), -1,8);
   //getting the center of LED and searching for the location method 1, using just the led flash
-  cv::Rect search_roi = cv::Rect(max_pt.x -8, max_pt.y - 8, 20,20);
+/*  cv::Rect search_roi = cv::Rect(max_pt.x -8, max_pt.y - 8, 20,20);
   cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-8,max_pt.y-8, 20, 20), cv::Scalar(255,100,0), 1, 8);
   cv::Mat gray;
   cv::cvtColor(diff_image, gray, CV_BGR2GRAY);

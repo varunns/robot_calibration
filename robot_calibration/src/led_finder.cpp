@@ -541,7 +541,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       led_center.y += (gray.at<int>(j,i)/255)*j;
     }
   }
-
+  std::cout<<led_center.x<<" "<<led_center.y<<" "<<std::endl;
   cv::circle(diff_image, cv::Point(led_center.x,led_center.y),3,cv::Scalar(0,0,255), 2,8,0);
   //getting the center of LED and searching for the location method 2, using the difference image
   debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);

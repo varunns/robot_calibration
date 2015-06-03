@@ -583,7 +583,7 @@ void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, st
   float canny_thresh = 60;
   cv::Mat canny_image;
   std::vector<cv::Vec4i> hierarchy;
-  cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 1);
+  cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
 }
 

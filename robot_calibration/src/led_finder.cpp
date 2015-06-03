@@ -135,7 +135,7 @@ bool LedFinder::waitForCloud()
 {
   ros::Time ref_time = ros::Time::now();
   waiting_ = true;
-  int count = 40;
+  int count = 20;
   while (--count)
   {
     if (!waiting_)
@@ -704,9 +704,9 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
   std::vector<cv::Mat> channels(3);
 
-  for(int i = 9; i < 30; i++)
+  for(int i = 10; i < 11; i++)
   {
-    cv::add(tmp_weight,0.05*(images[i]->image), result);
+    cv::add(tmp_weight,1*(images[i]->image), result);
     tmp_weight = result;
   }
 

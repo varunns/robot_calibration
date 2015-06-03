@@ -526,6 +526,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
       std::cout<<"clooud_size : "<<cloud.size()<<std::endl;
       std::cout<<"clooud_size : "<<prev.size()<<std::endl;
       int limit = std::min(cloud.size(), prev.size());
+      std::cout<<"clooud_size : "<<limit<<std::endl;
       for( int k = 0; k < limit; k++)
       {
        pcl::PointXYZRGB pt1 = (*(cloud[i]))(j,i);

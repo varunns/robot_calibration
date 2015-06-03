@@ -551,7 +551,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
   std::cout<<x/total<<" "<<y/total<<" "<<std::endl;
   float r;
   cv::Point2f center = cv::Point(0,0);
-  if(total >0)
+  if(total >0 && final_contours.size() > 0)
     cv::minEnclosingCircle(final_contours[index], center, r);
     cv::circle(diff_image, center,r,cv::Scalar(0,255,0), 1,8);
     cv::circle(diff_image, cv::Point(std::floor(x/total),std::floor(y/total)),5,cv::Scalar(0,0,255), 2,8);

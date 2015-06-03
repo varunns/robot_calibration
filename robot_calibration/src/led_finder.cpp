@@ -540,7 +540,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   cv::Mat gray;
   cv::Rect roi = cvRect(cvpt.x - 10, cvpt.y - 10, 20, 20);
   cv::cvtColor(color_img(roi), gray, CV_BGR2GRAY);
-  cv::threshold(gray, gray, 200, 255, CV_THRESH_BINARY);
+  cv::threshold(gray, gray, 175, 255, CV_THRESH_BINARY);
   if( ((float)cv::countNonZero(gray))/400 < 0.9)
   {
     return false;

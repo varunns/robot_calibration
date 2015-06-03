@@ -498,8 +498,12 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-      cv::Scalar color = cv::Scalar( 0,0,255 );
-      cv::drawContours(diff_image, final_contours[0], 0, color, 1, 8, cv::noArray(), 0, cv::Point());
+      for( int i = 0; i < final_contours[0].size(); i++)
+      {
+        std::cout<<(final_contours[0])[i]<<std::endl;
+      }
+      /*cv::Scalar color = cv::Scalar( 0,0,255 );
+      cv::drawContours(diff_image, final_contours[0], 0, color, 1, 8, cv::noArray(), 0, cv::Point());*/
  /*   for( int j = 0 ; j < final_contours.size(); j++)
     {
       cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
@@ -566,7 +570,7 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
 
   if( dist > 0.04)
   {
-    std::cout<<dist<<std::endl;
+  //  std::cout<<dist<<std::endl;
     return false;
   }
   std::cout<<"dist out"<<dist<<std::endl;

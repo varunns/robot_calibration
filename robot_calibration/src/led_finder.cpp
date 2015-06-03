@@ -659,7 +659,7 @@ void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, st
   /*cv::threshold(gray, gray, 10, 255, CV_THRESH_BINARY);
   cv::Canny(gray, canny_image, canny_thresh, canny_thresh*2, 3);
   */
-  cv::blur( gray, src_gray, Size(3,3) );
+  cv::blur( gray, gray, cv::Size(3,3) );
   cv::Canny(gray, canny_image, canny_thresh, canny_thresh*2, 3);
   //cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );

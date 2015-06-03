@@ -488,6 +488,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
       final_contours.push_back(possible_contours[i]);
     }
   }
+  cv::Mat drawing = cv::Mat::zeros( diff_image.size(), CV_8UC3 );
   ROS_INFO("no. of possible contours is %d", possible_contours.size());
   ROS_INFO("no. of contours is %d", final_contours.size());
   if(final_contours.size() < 1)

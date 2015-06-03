@@ -577,13 +577,14 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
                                                       std::vector<pcloud_> prev, 
                                                       cv::Point2f center,
                                                       float radius,
-                                                      float& dist)
+                                                      float& dist_cand)
 {
   cv::Point cvpt = cv::Point(0,0);
   cvpt.x = (int)center.x;
   cvpt.y = (int)center.y;
   pcl::PointXYZRGB non_nan_pt;
-
+   //adding a distance vector and considering all the 3D points possible in all the point clouds
+       std::vector<pcl::PointXYZRGB> p3vec;
   //check if the region is on the borders
   if( center.x < 30 || center.x > 600 || center.y < 30 || center.y > 450)
   {
@@ -613,17 +614,16 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
        pcl::PointXYZRGB pt1 = (*(cloud[k]))(i,j);
        pcl::PointXYZRGB pt2 = (*(prev[k]))(i,j); 
 
-
        if(!isnan(pt1.x) && !isnan(pt1.y) && !isnan(pt1.z))
        {
         non_nan_pt = pt1;
-        break;
+        p3vec.push_back(pt1);
        }
 
        if(!isnan(pt2.x) && !isnan(pt2.y) && !isnan(pt2.z))
        {
         non_nan_pt = pt2;
-        break;
+        p3vec.push_back(pt2);
        }
 
        else
@@ -635,17 +635,21 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
 
     }
   }
-
-  dist = (non_nan_pt.x - pt.x)*(non_nan_pt.x - pt.x)+
-         (non_nan_pt.y - pt.y)*(non_nan_pt.y - pt.y)+
-         (non_nan_pt.z - pt.z)*(non_nan_pt.z - pt.z);
-
-  if( dist > 0.01)
+  std::vector<float> distance;
+  if(p3vec.size() > 0)
+  {
+    float dist = (non_nan_pt.x - pt.x)*(non_nan_pt.x - pt.x)+
+           (non_nan_pt.y - pt.y)*(non_nan_pt.y - pt.y)+
+           (non_nan_pt.z - pt.z)*(non_nan_pt.z - pt.z);
+    distance.push_back(dist);
+  }
+  std::sort(distance.begin(), distance.end());
+  if( distance[0] > 0.01)
   {
   //  std::cout<<dist<<std::endl;
     return false;
   }
-  //std::cout<<"dist out"<<dist<<std::endl;
+  dist_cand = distance[0];
   return true;
 }
 

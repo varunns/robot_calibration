@@ -91,7 +91,7 @@ class LedFinder : public FeatureFinder
                        std::vector<pcloud_> prev, 
                        cv::Point2f center,
                        float r,
-                       float& dist);
+                       float& dist_cand);
 
 
     // Calculate the weighted sum of the images

@@ -506,7 +506,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
     for( int j = 0 ; j < 5; j++)
     {
       cv::Point pt = (final_contours[j])[0];
-      cv::rectangle(diff_image, cv::Rect(pt.x-5,pt.y-5, 20, 20), cv::Scalar(0,0,255), 1, 8);
+      cv::rectangle(diff_image, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
       /*cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
       cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());*/
     }
@@ -583,7 +583,7 @@ void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, st
   float canny_thresh = 60;
   cv::Mat canny_image;
   std::vector<cv::Vec4i> hierarchy;
-  cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);
+  cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 1);
   cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
 }
 

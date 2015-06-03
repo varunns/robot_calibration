@@ -503,10 +503,12 @@ bool LedFinder::CloudDifferenceTracker::oprocess(
 
   else
   {
-    for( int j = 0 ; j < 10; j++)
+    for( int j = 0 ; j < 1; j++)
     {
-      cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-      cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());
+      cv::Point pt = (final_contours[j])[0];
+      cv::rectangle(diff_image, cv::Rect(pt.x,pt.y, 10, 10), cv::Scalar(0,0,255), 2, 8);
+      /*cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+      cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());*/
     }
   }
 

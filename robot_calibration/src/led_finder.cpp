@@ -403,7 +403,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
 void LedFinder::calcLedCenter(CloudDifferenceTracker::TrackContoursPtr tracker_in, cv::Mat img, pcl::PointXYZRGB& p3 )
 {
-  for( int i = 0; i < )
+
 }
 
 

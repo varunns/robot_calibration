@@ -402,7 +402,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     for(vec_iter it2 = iter_begin + 1; it2 != iter_end; it2++)
     {
-      std::cout<<cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0)<<std::endl;
+      std::cout<<"Score of matching: "<<cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0)<<std::endl;
     }
   }
 

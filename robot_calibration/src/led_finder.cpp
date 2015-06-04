@@ -449,7 +449,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     cv::drawContours((tracker_in->rgb_image)[0], matched_contours, i, color, 1, 8, cv::noArray(), 1, cv::Point());
   }
 
-  localDebugImage((tracker_in->diff_images)[0], "/tmp/mean/diff_");
+
+  localDebugImage((tracker_in->rgb_images)[0], "/tmp/mean/diff_");
 }
 
 bool LedFinder::findInMatchedContours(std::vector<cv::Point> contour, std::vector<std::vector<cv::Point> >  matched_contours)

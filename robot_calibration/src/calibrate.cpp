@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     pose_bag_name = argv[1];
 
   // All ROS callbacks are processed in a separate thread
-  ros::AsyncSpinner spinner(2);
+  ros::AsyncSpinner spinner(1);
   spinner.start();
 
   if (pose_bag_name.compare("--from-bag") != 0)

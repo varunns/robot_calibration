@@ -207,7 +207,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     // time to keep leds on.... keep sending goal for 2s
       client_->sendGoal(command);
       client_->waitForResult(ros::Duration(10.0));
-      std::cout<<"cycles: "<<cycles<<std:endl;
+     
     // Get a point cloud
     if (!waitForCloud())
     {

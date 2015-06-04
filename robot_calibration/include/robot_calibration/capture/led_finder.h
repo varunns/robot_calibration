@@ -59,7 +59,7 @@ class LedFinder : public FeatureFinder
       pcl::PointXYZRGB pt3d;
 
       //to be filled in process
-      std::vector<std::vector<std::vector<cv::Point> > > contours;
+      std::vector<std::vector<cv::Point> > all_contours;
       std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> pclouds;
       std::vector<cv::Mat> diff_images;
       std::vector<cv::Mat> rgb_image;
@@ -206,6 +206,11 @@ public:
   }
 
 private:
+  struct ContourAndCountCheckAcross
+  {
+    std::vector<std::vector<cv::Point> > contours;
+    int count;
+  };
   void cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
   bool waitForCloud();
 

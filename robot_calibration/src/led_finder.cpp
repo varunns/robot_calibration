@@ -290,10 +290,14 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
   //-------------------------------------------------------------------------------------------Strart Using the populated vector of sharedPtr : led_respective_contours
   std::vector<pcl::PointXYZRGB> led_pts;
+  //Should be replaced by a bost pointer
+  std::vector<std::vector<cv::Point> > probable_contours;
+  std::vector<cv::Point> most_probable_contour;
   for( int i = 0 ; i < led_respective_contours.size(); i++)
   {
     pcl::PointXYZRGB temp_led;
-    getCandidateRoi(led_respective_contours[i], temp_led);
+    getCandidateRoi(led_respective_contours[i], probable_contours);
+    //checkMostProbableCandidate(led_respective_contours[i], probable_contours, most_probable_contour);
     led_pts.push_back(temp_led);
   }
 
@@ -390,24 +394,28 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   return true;
 }
 
+/*void LedFinder::checkMostProbableCandidate(CloudDifferenceTracker::TrackContoursPtr tracker_in, 
+                                           std::vector<std::vector<cv::Point> > probable_contours, 
+                                           std::vector<cv::Point> most_probable_contour)
+{
 
+}*/
 
-void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& pt)
+void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, 
+                                std::vector<std::vector<cv::Point> >& candidate_roi)
 {
   if((tracker_in->all_contours).size() < 2)
   {
     return;
   }
 
-/*  for(int i = 0; i < (tracker_in->rgb_image).size(); i++)
+  for(int i = 0; i < (tracker_in->rgb_image).size(); i++)
   {
-    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
+//    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
     localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
-  }*/
+  }
 
   //Vector of contours that have matches TODO should be made a boost::share_ptr
-
-  std::vector<std::vector<cv::Point> > matched_contours;
 
   typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;
 
@@ -419,9 +427,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
 
     //If matched contours is not emplty check for the presense of contour, if present need not excute the nested loop 
-    if( !matched_contours.empty() )
+    if( !candidate_roi.empty() )
     {
-      if( findInMatchedContours((*it1), matched_contours) )
+      if( findInMatchedContours((*it1), candidate_roi) )
       {
         continue;
       }
@@ -436,21 +444,22 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
         continue;
       }  
 
-      matched_contours.push_back( (*it1) );
+      candidate_roi.push_back( (*it1) );
 
     }
   }
 
-
+  for( int i = 0; )
   //debug
-  for( int i = 0; i < matched_contours.size(); i++)
+  for( int i = 0; i < candidate_roi.size(); i++)
   {
     cv::Scalar color = cv::Scalar(200,100,100);
-    cv::drawContours((tracker_in->rgb_image)[0], matched_contours, i, color, 1, 8, cv::noArray(), 1, cv::Point());
+    cv::drawContours((tracker_in->rgb_image)[0], candidate_roi, i, color, 1, 8, cv::noArray(), 1, cv::Point());
   }
 
 
   localDebugImage((tracker_in->rgb_image)[0], "/tmp/mean/diff_");
+
 }
 
 bool LedFinder::findInMatchedContours(std::vector<cv::Point> contour, std::vector<std::vector<cv::Point> >  matched_contours)
@@ -824,7 +833,7 @@ void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, st
   cv::Mat gray;
   cv::cvtColor(diff_image, gray, CV_BGR2GRAY);
   cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);
-  cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
+  cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
 }
 
 /*

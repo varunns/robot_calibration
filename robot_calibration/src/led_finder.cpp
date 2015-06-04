@@ -476,7 +476,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
                                                 )
 {
   std::cout<<"tracker --------------------------->"<<tracker_id<<std::endl;
-  if((track_contours[tracker_id])->pt3d.x == 0 && (track_contours[tracker_id])->pt3d.y == 0 && (track_contours[tracker_id])->pt3d.z == 0 )
+  if(track_contours[tracker_id]->pclouds.empty())
   {
 
    TrackContoursPtr tmp_track_contour(new TrackContours(true, pt));  

@@ -403,7 +403,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   for(int i = 0; i < (tracker_in->rgb_image).size(); i++)
   {
     localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
-    localDebugImage((tracker_in->diff_image)[i], "/tmp/mean/diff_");
+    localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
   }
 
   typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;

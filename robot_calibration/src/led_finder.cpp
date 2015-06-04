@@ -401,6 +401,13 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
 }*/
 
+void LedFinder::calcLedCenter(CloudDifferenceTracker::TrackContoursPtr tracker_in, cv::Mat img, pcl::PointXYZRGB& p3 )
+{
+  for( int i = 0; i < )
+}
+
+
+
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, 
                                 std::vector<std::vector<cv::Point> >& candidate_roi)
 {
@@ -411,13 +418,13 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   cv::Mat graytmp;
   cv::Mat tmp = (tracker_in->diff_images)[1];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
-  cv::threshold(graytmp, graytmp, 10, 255, CV_THRESH_BINARY);
+  cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
   cv::Mat dst;
   for(int i = 2; i < (tracker_in->diff_images).size(); i++)
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 10, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 5, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
 //    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
@@ -432,6 +439,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   }
   localDebugImage(dst,"/tmp/mean/bitwise_");
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
+
+  //Using just the depth imaghes and then finding contours
 
 
   //Vector of contours that have matches TODO should be made a boost::share_ptr
@@ -663,102 +672,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   (track_contours[tracker_id])->rgb_image.push_back(cloud_pix_weighed);
 
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
-
-/*  ROS_INFO("no. of possible contours is %d", possible_contours.size());
-  ROS_INFO("no. of contours is %d", final_contours.size());
-  double max = -1000;
-  cv::Point max_pt = cv::Point(0,0);
-  int index = 0;
-  if(final_contours.size() < 1)
-  {
-    ROS_INFO("no contours found");
-  }
-
-  else
-  {
-    for( int j = 0 ; j < final_contours.size(); j++)
-    {
-      cv::Point pt = (final_contours[j])[0];
-
-      cv::Mat gray_cloud;
-      cv::Mat gray_prev;
-      cv::Mat gray_diff;
-
-      cv::Rect roi = cv::Rect(pt.x-10,pt.y-10, 10, 10);
-      cv::cvtColor(cloud_pix_weighed(roi), gray_cloud, CV_BGR2GRAY);
-      cv::cvtColor(prev_pix_weighed(roi), gray_prev, CV_BGR2GRAY);
-      cv::cvtColor(diff_image(roi), gray_diff, CV_BGR2GRAY);
-      
-      int sums_tmp = std::max((cv::sum(gray_cloud))[0], (cv::sum(gray_prev))[0]);
-      int sums = std::max(sums_tmp, (int)(cv::sum(gray_diff)[0]));
-//      std::cout<<sums<<std::endl;
-      cv::Scalar scalar_sum = cv::mean(diff_image(roi));
-      double a = scalar_sum.val[0];
-      double b = scalar_sum.val[1];
-      double c = scalar_sum.val[2];
-      double sums = std::sqrt(a*a+b*b+c*c);
-      if(max < sums)
-      {
-        index = j;
-        max = sums;
-        max_pt = cv::Point(pt.x-5,pt.y-5);
-      }
-     // cv::Point pt = (final_contours[j])[0];
-      cv::rectangle(cloud_pix_weighed, cv::Rect(pt.x-5,pt.y-5, 10, 10), cv::Scalar(0,0,255), 1, 8);
-      cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-      cv::drawContours(diff_image, final_contours, j, color, 1, 8, cv::noArray(), 0, cv::Point());
-    }
-  }*/
-//Use the following lines to debug the contours ----------------------------------------------------------------------------------------------------->debug contours
-/*  if(final_contours.size() == 0)
-  {
-    for(int i = 0; i < possible_contours.size(); i++)
-    {
-      cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-      cv::drawContours(cloud_pix_weighed, possible_contours, i, color, 2, 8, cv::noArray(), 0, cv::Point() );
-    }
-  }
-*/
-/*  std::cout<<max<<std::endl;
-  cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-2,max_pt.y-2, 10, 10), cv::Scalar(75,255,0), 1, 8);
-  cv::circle(diff_image, cv::Point(max_pt.x,max_pt.y), 2, cv::Scalar(0,0,255), -1,8);*/
-  //getting the center of LED and searching for the location method 1, using just the led flash
-/*  cv::Rect search_roi = cv::Rect(max_pt.x -8, max_pt.y - 8, 20,20);
-  cv::rectangle(cloud_pix_weighed, cv::Rect(max_pt.x-8,max_pt.y-8, 20, 20), cv::Scalar(255,100,0), 1, 8);
-  cv::Mat gray;
-  cv::cvtColor(diff_image, gray, CV_BGR2GRAY);
-  float x= 0;
-  float y = 0;
-  float total = 0;
-  for(int i = max_pt.x-8; i < max_pt.x+12; i++)
-  {
-    for( int j = max_pt.y-8; j < max_pt.y+12; j++)
-    {
-      int a = gray.at<int>(j,i);
-      float w = a*1.0;
-      x += w/255.0*i;
-      y += w/255.0*j;
-      total += w/255;
-    }
-  }
-  std::cout<<x/total<<" "<<y/total<<" "<<std::endl;
-  float r;
-  std::vector<std::vector<cv::Point> > debug_contour;
-  cv::Point2f center = cv::Point(0,0);
-  if(total >0 && final_contours.size() > 0)
-  {
-    debug_contour.push_back(final_contours[index]);
-    for( int i = 0 ; i < debug_contour.size(); i++)
-    {
-      cv::drawContours(diff_image, debug_contour, i, cv::Scalar(255,75,50), 1, 8, cv::noArray(), 0, cv::Point());
-    }
-    cv::minEnclosingCircle(final_contours[index], center, r);
-    cv::circle(diff_image, center,r,cv::Scalar(0,255,0), 1,8);
-    cv::circle(diff_image, cv::Point(std::floor(x/total),std::floor(y/total)),5,cv::Scalar(0,0,255), 2,8);
-  }*/
-  //getting the center of LED and searching for the location method 2, using the difference image
-/*  debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
-  debug_img(cloud_pix_weighed, "/tmp/mean/colorimage_",0,0,0);*/
 }
 
 

@@ -484,6 +484,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
    std::cout<<"I am here"<<std::endl;
    TrackContoursPtr tmp_track_contour(new TrackContours(true, pt));  
    track_contours.push_back(tmp_track_contour);
+   return false;
   }
   //cv_bridge image pointers
   std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;

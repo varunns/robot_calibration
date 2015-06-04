@@ -168,6 +168,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
   //------------------------------------------------------------------------------------------------------------------->defining the shared_ptr for struct to hold all the info
   std::vector< CloudDifferenceTracker::TrackContoursPtr > led_respective_contours;
+  led_respective_contours.resize(trackers_.size());
   std::vector<int> index_check;
   index_check.resize(4);
   // Get initial cloud

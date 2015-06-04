@@ -248,7 +248,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
                                led_pt_gripperframe,
                                trackers_[tracker].frame_, 
                                led_pt_cameraframe);
-      std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
+ //    std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
     }
     catch(const tf::TransformException &ex)
     {
@@ -286,6 +286,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   std::vector<pcl::PointXYZRGB> led_pts;
   for( int i = 0 ; i < led_respective_contours.size(); i++)
   {
+    std::cout<<"in the loop"<<std::endl;
     pcl::PointXYZRGB temp_led;
     getCandidateRoi(led_respective_contours[0], temp_led);
     led_pts.push_back(temp_led);
@@ -391,6 +392,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     return;
   }
+
+  std::cout<<"in getCandidateRoi"<<std::endl;
   std::vector<ContourAndCountCheckAcross> repeating_contours;
 
   typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;
@@ -402,6 +405,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     for(vec_iter it2 = iter_begin + 1; it2 != iter_end; it2++)
     {
+      std::cout<<"In the loop"<<std::endl;
       std::cout<<"Score of matching: "<<cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0)<<std::endl;
     }
   }

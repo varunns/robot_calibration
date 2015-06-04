@@ -449,7 +449,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     }
   }
 
-  for( int i = 0; )
+  //for( int i = 0; )
   //debug
   for( int i = 0; i < candidate_roi.size(); i++)
   {

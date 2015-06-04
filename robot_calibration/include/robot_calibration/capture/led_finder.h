@@ -106,7 +106,8 @@ class LedFinder : public FeatureFinder
                   int tracker_id,
                   std::vector<pcloud_> cloud,
                   std::vector<pcloud_> prev,
-                  std::vector<TrackContoursPtr>& trackContourPtr);
+                  std::vector<TrackContoursPtr>& trackContourPtr,
+                  std::vector<int>& index_check);
 
     // function to determine possible contours
     void possibleContours(cv::Mat& diff_image, 

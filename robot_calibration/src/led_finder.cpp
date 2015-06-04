@@ -168,7 +168,8 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
   //------------------------------------------------------------------------------------------------------------------->defining the shared_ptr for struct to hold all the info
   std::vector< CloudDifferenceTracker::TrackContoursPtr > led_respective_contours;
-
+  std::vector<int> index_check;
+  index_check.resize(4);
   // Get initial cloud
   if (!waitForCloud())
   {
@@ -262,7 +263,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
-    trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours);
+    trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours, index_check);
 
 
     if (++cycles > max_iterations_)
@@ -476,9 +477,10 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
                                                 )
 {
   std::cout<<"tracker --------------------------->"<<tracker_id<<std::endl;
-  if(track_contours[tracker_id]->pclouds.empty())
+  index_check[tracker_id] = tracker_id;
+  if( index_check[tracker_id] ! = tracker_id )
   {
-
+   std::cout<<"I am here"<<std::endl;
    TrackContoursPtr tmp_track_contour(new TrackContours(true, pt));  
    track_contours.push_back(tmp_track_contour);
   }

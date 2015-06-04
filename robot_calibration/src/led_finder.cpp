@@ -412,12 +412,13 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   cv::Mat dst;
   for(int i = 1; i < (tracker_in->diff_images).size(); i++)
   {
-    bitwise_and((tracker_in->diff_images)[i], tmp, dst);
+    cv::bitwise_and((tracker_in->diff_images)[i], tmp, dst);
     tmp = dst;
 //    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
     localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
   }
   localDebugImage(dst,"tmp/mean/bitwise_");
+
 
   //Vector of contours that have matches TODO should be made a boost::share_ptr
 

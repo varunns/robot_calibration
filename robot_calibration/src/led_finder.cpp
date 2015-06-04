@@ -380,16 +380,25 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& pt)
 {
-  if((tracker_in->contours).size() < 2)
+  if((tracker_in->all_contours).size() < 2)
   {
     return;
   }
-  std::vector<std::vector<cv::Point> > repeating_contours;
+  std::vector<ContourAndCountCheckAcross> repeating_contours;
+
+  typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;
+  vec_iter iter_begin = (tracker_in->all_contours).begin();
+  vec_iter iter_end = (tracker_in->all_contours).end();
+  vec_iter iter_curr;
   
-  for(int i = 1; i < (tracker_in->contours).size(); i++)
+  for(vec_iter it1 = iter_begin; it1 != iter_end - 1; it1++)
   {
-    
+    for(vec_iter it2 = iter_begin + 1; it2 != iter_end; it2++)
+    {
+      std::cout<<cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0)<<std::endl;
+    }
   }
+
 }
 
 LedFinder::CloudDifferenceTracker::CloudDifferenceTracker(
@@ -533,7 +542,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
   if(final_contours.size() > 0)                                     
   {
-    (track_contours[tracker_id])->contours.push_back(final_contours);
+    for( int i = 0; i < final_contours.size(); i ++)
+    {
+      (track_contours[tracker_id])->all_contours.push_back(final_contours[i]);  
+    }
+    
   }
 
   //Pointclouds push_back

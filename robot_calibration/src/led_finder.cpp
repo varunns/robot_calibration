@@ -484,7 +484,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
    std::cout<<"I am here"<<std::endl;
    TrackContoursPtr tmp_track_contour(new TrackContours(true, pt));  
    track_contours.push_back(tmp_track_contour);
-   return false;
   }
   //cv_bridge image pointers
   std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;
@@ -545,6 +544,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
 
   //Adding the final_contours to respective tracker  pointer and filling the other members {std::vec<contours>, std::vec<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>, diff_img, rgb_img}
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
+  std::cout<<"checking size: "<<final_contours.size()<<std::endl;
   if(final_contours.size() > 0)                                     
   {
     for( int i = 0; i < final_contours.size(); i ++)

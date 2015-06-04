@@ -272,10 +272,10 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours);
 
 
-    if (++cycles > max_iterations_)
+    /*if (++cycles > max_iterations_)
     {
       return false;
-    }
+    }*/
     /* previous clouds*/
     *prev_cloud = *cloud_ptr_;
     prev_clouds = clouds_ptr_;
@@ -484,7 +484,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
 {
   if( (track_contours[tracker_id]->first_time) == false )
   {
-   std::cout<<"I am here"<<std::endl;
    (track_contours[tracker_id])->first_time = true;
    (track_contours[tracker_id])->pt3d = pt;
   }
@@ -547,7 +546,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
 
   //Adding the final_contours to respective tracker  pointer and filling the other members {std::vec<contours>, std::vec<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>, diff_img, rgb_img}
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
-  std::cout<<"checking size: "<<final_contours.size()<<std::endl;
+
   if(final_contours.size() != 0)                                     
   {
     for( int i = 0; i < final_contours.size(); i ++)

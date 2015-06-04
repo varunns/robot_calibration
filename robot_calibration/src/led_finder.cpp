@@ -473,12 +473,13 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
                                                   int tracker_id,
                                                   std::vector<pcloud_> cloud,
                                                   std::vector<pcloud_> prev,
-                                                  std::vector<CloudDifferenceTracker::TrackContoursPtr>& track_contours
+                                                  std::vector<CloudDifferenceTracker::TrackContoursPtr>& track_contours,
+                                                  std::vector<int>& index_check
                                                 )
 {
   std::cout<<"tracker --------------------------->"<<tracker_id<<std::endl;
   index_check[tracker_id] = tracker_id;
-  if( index_check[tracker_id] ! = tracker_id )
+  if( index_check[tracker_id] != tracker_id )
   {
    std::cout<<"I am here"<<std::endl;
    TrackContoursPtr tmp_track_contour(new TrackContours(true, pt));  

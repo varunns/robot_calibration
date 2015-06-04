@@ -545,7 +545,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   //Adding the final_contours to respective tracker  pointer and filling the other members {std::vec<contours>, std::vec<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>, diff_img, rgb_img}
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
   std::cout<<"checking size: "<<final_contours.size()<<std::endl;
-  if(final_contours.size() > 0)                                     
+  if(final_contours.size() != 0)                                     
   {
     for( int i = 0; i < final_contours.size(); i ++)
     {

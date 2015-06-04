@@ -289,7 +289,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   //-------------------------------------------------------------------------------------------Strart Using the populated vector of sharedPtr : led_respective_contours
   std::vector<pcl::PointXYZRGB> led_pts;
   //for( int i = 0 ; i < led_respective_contours.size(); i++)
-  for( int i = 1 ; i < 2; i++)
+  for( int i = 2 ; i < 3; i++)
   {
     std::cout<<"in the loop"<<std::endl;
     pcl::PointXYZRGB temp_led;

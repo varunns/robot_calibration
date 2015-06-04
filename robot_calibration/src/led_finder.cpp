@@ -271,11 +271,11 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
     trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours);
 
+
     /*if (++cycles > max_iterations_)
     {
       return false;
     }*/
-
     /* previous clouds*/
     *prev_cloud = *cloud_ptr_;
     prev_clouds = clouds_ptr_;
@@ -405,7 +405,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     for(vec_iter it2 = iter_begin + 1; it2 != iter_end; it2++)
     {
-      std::cout<<"In the loop"<<std::endl;
       std::cout<<"Score of matching: "<<cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0)<<std::endl;
     }
   }

@@ -66,7 +66,7 @@ class LedFinder : public FeatureFinder
 
       TrackContours()
       {
-
+        first_time = false;
       }
       TrackContours(bool flag, pcl::PointXYZRGB pt)
       {

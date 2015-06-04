@@ -293,7 +293,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   {
     std::cout<<"in the loop"<<std::endl;
     pcl::PointXYZRGB temp_led;
-    getCandidateRoi(led_respective_contours[1], temp_led);
+    getCandidateRoi(led_respective_contours[2], temp_led);
     led_pts.push_back(temp_led);
   }
 

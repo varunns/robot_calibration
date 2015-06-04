@@ -248,7 +248,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
                                led_pt_gripperframe,
                                trackers_[tracker].frame_, 
                                led_pt_cameraframe);
- //    std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
+      //std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
     }
     catch(const tf::TransformException &ex)
     {
@@ -271,11 +271,11 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
     trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours);
 
-
     /*if (++cycles > max_iterations_)
     {
       return false;
     }*/
+
     /* previous clouds*/
     *prev_cloud = *cloud_ptr_;
     prev_clouds = clouds_ptr_;
@@ -501,7 +501,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   //function call for initial processing to convert to cv::Mat
   convert2CvImagePtr(cloud, cloud_image_ptr);
   convert2CvImagePtr(prev, prev_image_ptr);
-  ROS_INFO("%d",cloud_image_ptr[0]->image.rows);
+  //ROS_INFO("%d",cloud_image_ptr[0]->image.rows);
 
   cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
   cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));

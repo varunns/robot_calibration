@@ -41,6 +41,8 @@
 #include <algorithm>
 #include <queue>
 #include <sstream>
+#include <boost/make_shared.hpp>
+
 cv::RNG rng(12345);
 typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
 namespace robot_calibration
@@ -391,6 +393,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 }
 
 
+
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& pt)
 {
   if((tracker_in->all_contours).size() < 2)
@@ -398,32 +401,69 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     return;
   }
 
-  std::cout<<"in getCandidateRoi"<<std::endl;
-  std::vector<ContourAndCountCheckAcross> repeating_contours;
-  for(int i = 0; i < (tracker_in->rgb_image).size(); i++)
+/*  for(int i = 0; i < (tracker_in->rgb_image).size(); i++)
   {
     localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
     localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
-  }
+  }*/
+
+  //Vector of contours that have matches TODO should be made a boost::share_ptr
+
+  std::vector<std::vector<cv::Point> > matched_contours;
 
   typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;
+
   vec_iter iter_begin = (tracker_in->all_contours).begin();
   vec_iter iter_end = (tracker_in->all_contours).end();
-  vec_iter iter_curr;
+
+  //comparing contours and filling them in  matched contours TODO : use may be std::for_eachor boost::for_each
   for(vec_iter it1 = iter_begin; it1 != iter_end - 1; it1++)
   {
-    for(vec_iter it2 = iter_begin + 1; it2 != iter_end; it2++)
+
+    //If matched contours is not emplty check for the presense of contour, if present need not excute the nested loop 
+    if( !matched_contours.empty() )
+    {
+      if( findInMatchedContours((*it1), matched_contours) )
+      {
+        continue;
+      }
+    }
+    
+    //the second loop can be avoided TODO may be for ver 2
+    for(vec_iter it2 = it1 + 1; it2 != iter_end; it2++)
     {
   
-      if(cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0) == 0)
+      if( cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0) != 0 )
       { 
-        cv::Point pt = (*it1)[0];
-        std::cout<<pt.x<<" "<<pt.y<<std::endl;
-        //cv::rectangle( (trackers_in->rgb_image)[0], cv::Rect(pt.x, ) 
-      }
+        continue;
+      }  
+
+      matched_contours.push_back( (*it1) );
+
     }
   }
 
+  //debug
+  for( int i = 0; i < matched_contours.size(); i++)
+  {
+    cv::Scalar color = cv::Scalar(0,0,255);
+    cv::drawContours((tracker_in->diff_images)[0], matched_contours[i], i, color, 1, 8, cv::noArray(), 1, cv::Point());
+  }
+
+  localDebugImage((tracker_in->diff_images)[0], "/tmp/mean/diff_");
+}
+
+bool LedFinder::findInMatchedContours(std::vector<cv::Point> contour, std::vector<std::vector<cv::Point> >  matched_contours)
+{
+  for( int i = 0; i < matched_contours.size(); i++)
+  {
+    if( cv::matchShapes(contour, matched_contours[i], CV_CONTOURS_MATCH_I1, 0) == 0 )
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)
@@ -762,8 +802,8 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   if(p3vec.size() > 0)
   {
     float dist = (non_nan_pt.x - pt.x)*(non_nan_pt.x - pt.x)+
-           (non_nan_pt.y - pt.y)*(non_nan_pt.y - pt.y)+
-           (non_nan_pt.z - pt.z)*(non_nan_pt.z - pt.z);
+                 (non_nan_pt.y - pt.y)*(non_nan_pt.y - pt.y)+
+                 (non_nan_pt.z - pt.z)*(non_nan_pt.z - pt.z);
     distance.push_back(dist);
   }
   std::sort(distance.begin(), distance.end());

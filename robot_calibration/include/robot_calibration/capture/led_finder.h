@@ -195,6 +195,8 @@ public:
    
   //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
   void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& pt);
+
+  bool findInMatchedContours(std::vector<cv::Point> contour,  std::vector<std::vector<cv::Point> >  matched_contours);
   
   static bool getDebug()
   {
@@ -209,11 +211,7 @@ public:
   void localDebugImage(cv::Mat img, std::string str);
 
 private:
-  struct ContourAndCountCheckAcross
-  {
-    std::vector<std::vector<cv::Point> > contours;
-    int count;
-  };
+
   void cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
   bool waitForCloud();
 

@@ -408,12 +408,18 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     return;
   }
+  cv::Mat graytmp;
   cv::Mat tmp = (tracker_in->diff_images)[0];
+  cv::cvtColor((tracker_in->diff_images)[0], graytmp, CV_BGR2GRAY);
+  cv::threshold(graytmp, graytmp, 10, 255, CV_THRESH_BINARY);
   cv::Mat dst;
   for(int i = 1; i < (tracker_in->diff_images).size(); i++)
   {
-    cv::bitwise_and((tracker_in->diff_images)[i], tmp, dst);
-    tmp = dst;
+    cv::Mat gray;
+    cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
+    cv::threshold(gray, gray, 10, 255, CV_THRESH_BINARY);
+    cv::bitwise_and(gray, graytmp, dst);
+    graytmp = dst;
 //    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
     localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
   }

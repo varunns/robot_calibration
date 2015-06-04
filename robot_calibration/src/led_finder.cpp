@@ -143,7 +143,7 @@ bool LedFinder::waitForCloud()
       // success
       return true;
     }
-    ros::Duration(0.2).sleep();
+    ros::Duration(0.1).sleep();
   }
   ROS_ERROR("Failed to get cloud");
   return !waiting_;
@@ -271,8 +271,12 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
     trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours);
 
-
-    /*if (++cycles > max_iterations_)
+    if (++cycles > max_iterations_)
+    {
+      break;
+    }
+/*
+    if (++cycles > max_iterations_)
     {
       return false;
     }*/

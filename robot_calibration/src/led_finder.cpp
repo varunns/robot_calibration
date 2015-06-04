@@ -207,7 +207,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     // time to keep leds on.... keep sending goal for 2s
       client_->sendGoal(command);
       client_->waitForResult(ros::Duration(10.0));
-
+      std::cout<<"cycles: "<<cycles<<std:endl;
     // Get a point cloud
     if (!waitForCloud())
     {
@@ -409,7 +409,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     for(vec_iter it2 = iter_begin + 1; it2 != iter_end; it2++)
     {
-      std::cout<<"Score of matching: "<<cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0)<<std::endl;
+      if(cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0) == 0)
+      { 
+        cv::Point pt = (*it1)[0];
+        std::cout<<pt.x<<" "<<pt.y<<std::endl;
+        //cv::rectangle( (trackers_in->rgb_image)[0], cv::Rect(pt.x, ) 
+      }
     }
   }
 

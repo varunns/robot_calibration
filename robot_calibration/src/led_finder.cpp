@@ -400,16 +400,20 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 
   std::cout<<"in getCandidateRoi"<<std::endl;
   std::vector<ContourAndCountCheckAcross> repeating_contours;
+  for(int i = 0; i < (tracker_in->rgb_image).size(); i++)
+  {
+    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
+  }
 
   typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;
   vec_iter iter_begin = (tracker_in->all_contours).begin();
   vec_iter iter_end = (tracker_in->all_contours).end();
   vec_iter iter_curr;
-  
   for(vec_iter it1 = iter_begin; it1 != iter_end - 1; it1++)
   {
     for(vec_iter it2 = iter_begin + 1; it2 != iter_end; it2++)
     {
+  
       if(cv::matchShapes(*it1, *it2, CV_CONTOURS_MATCH_I1, 0) == 0)
       { 
         cv::Point pt = (*it1)[0];
@@ -419,6 +423,14 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     }
   }
 
+}
+
+void LedFinder::localDebugImage(cv::Mat img, std::string str)
+{
+  ros::Time n = ros::Time::now();
+  std::stringstream ss(std::stringstream::in | std::stringstream::out);
+  ss<<str<<n<<".jpg";
+  cv::imwrite(ss.str(), img);
 }
 
 LedFinder::CloudDifferenceTracker::CloudDifferenceTracker(
@@ -676,8 +688,8 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
     cv::circle(diff_image, cv::Point(std::floor(x/total),std::floor(y/total)),5,cv::Scalar(0,0,255), 2,8);
   }*/
   //getting the center of LED and searching for the location method 2, using the difference image
-  debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
-  debug_img(cloud_pix_weighed, "/tmp/mean/colorimage_",0,0,0);
+/*  debug_img(diff_image, "/tmp/mean/contourimage_", 0,0,0);
+  debug_img(cloud_pix_weighed, "/tmp/mean/colorimage_",0,0,0);*/
 }
 
 

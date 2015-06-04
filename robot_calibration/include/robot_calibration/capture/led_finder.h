@@ -206,6 +206,8 @@ public:
     debug_flag_ = flag;
   }
 
+  void localDebugImage(cv::Mat img, std::string str);
+
 private:
   struct ContourAndCountCheckAcross
   {

@@ -412,11 +412,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     return;
   }
   cv::Mat graytmp;
-  cv::Mat tmp = (tracker_in->diff_images)[1];
+  cv::Mat tmp = (tracker_in->diff_images)[5];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
   cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
   cv::Mat dst;
-  for(int i = 2; i < (tracker_in->diff_images).size(); i++)
+  for(int i = 6; i < (tracker_in->diff_images).size()-5; i++)
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
@@ -458,7 +458,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<cv::Point> max_contour;
   for( int i = 0; i < contours_candidate.size(); i++)
   {
-    float sum = 0;
+    if((contours_candidate[i]).size() > max_sum)
+    {
+      max_contour = contours_candidate[i];
+    }
+    /*float sum = 0;
     for( int j = 0; j < contours_candidate[i].size(); j++)
     {
       cv::Point pt = (contours_candidate[i])[j];
@@ -470,7 +474,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     {
       max_sum = sum;
       max_contour = contours_candidate[i];
-    }
+    }*/
   }
 
   std::vector<std::vector<cv::Point> > test_conts;
@@ -483,22 +487,25 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 
   localDebugImage((tracker_in->diff_images)[1], "/tmp/mean/test_");
   std::vector<pcl::PointXYZRGB> pt3ds;
-  for(int i = 0; i < max_contour.size(); i++)
-  {
-    cv::Point pt = max_contour[i];
-    std::cout<<pt<<std::endl;
-    for( int j = 0; j < (tracker_in->pclouds).size(); j++)
-    {
-      pcl::PointXYZRGB pt3d = (*(tracker_in->pclouds)[j])(pt.y,pt.x);
-      if(!isnan(pt3d.x) && !isnan(pt3d.y) && !isnan(pt3d.z))
-      {
-        continue;
-      }
 
-      pt3ds.push_back(pt3d);
+  //while(pt3ds.empty() || pt3ds.size() > 10)
+  {
+    for(int i = 0; i < max_contour.size(); i++)
+    {
+      cv::Point pt = max_contour[i];
+      std::cout<<pt<<std::endl;
+      for( int j = 0; j < (tracker_in->pclouds).size(); j++)
+      {
+        pcl::PointXYZRGB pt3d = (*(tracker_in->pclouds)[j])(pt.y,pt.x);
+        if(!isnan(pt3d.x) && !isnan(pt3d.y) && !isnan(pt3d.z))
+        {
+          continue;
+        }
+
+        pt3ds.push_back(pt3d);
+      }
     }
   }
-
   std::cout<<pt3ds.size()<<std::endl;
   pcl::PointXYZRGB pt3;
   for( int i = 0; i < pt3ds.size(); i++)

@@ -436,7 +436,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   localDebugImage(dst,"/tmp/mean/bitwise_");
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
 
-//Using just the diff imaghes and then finding contours
+//Using just the diff images and then finding contours
 cv::Mat diff_gray;
 cv::cvtColor( (tracker_in->diff_images)[5], diff_gray, CV_BGR2GRAY );
 int highest_intensity = -1000;
@@ -451,11 +451,12 @@ for( int i = 0; i < locations.size(); i++)
   }
 }
 
+std::cout<<"highest_intensity_pt : "<<highest_intensity_pt<<std::endl;
 cv::Rect led_approx_region = cv::Rect(highest_intensity_pt.x-10, highest_intensity_pt.y-10, 20, 20);
 cv::Mat led_roi = diff_gray(led_approx_region);
   
 cv::Mat canny_led_roi;
-int canny_thresh = 60; //experimenting, this threshold suited to gind all the contours, including the small regions
+int canny_thresh = 60; //experimenting, this threshold worked for finding all the contours, including the small regions
 cv::Canny(led_roi, canny_led_roi, canny_thresh, canny_thresh*2, 3);
 std::vector<std::vector<cv::Point> > contours_roi;
 std::vector<cv::Vec4i> contours_heirarchy;
@@ -489,7 +490,7 @@ for( int i = 0; i < contours_roi[max_contour_index].size(); i++)
   cv::Point pt;
   pt.x = led_approx_region.x + ((contours_roi[max_contour_index])[0]).x;
   pt.y = led_approx_region.x + ((contours_roi[max_contour_index])[0]).y;
-
+  std::cout<<"pt : "<<pt<<std::endl;
   for( int j = 0; j < (tracker_in->pclouds).size(); j++)
   {    
     pcl::PointXYZRGB pt3 = (*(tracker_in->pclouds)[j])(pt.x,pt.y);

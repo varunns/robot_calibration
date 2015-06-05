@@ -437,13 +437,14 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
 
 //Using just the diff images and then finding contours
-cv::Mat diff_gray;
+cv::Mat diff_gray, color_gray;
 cv::cvtColor( (tracker_in->diff_images)[5], diff_gray, CV_BGR2GRAY );
+cv::cvtColor( (tracker_in->rgb_image)[5], color_gray, CV_BGR2GRAY);
 cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
 for( int i = 0; i < locations.size(); i++)
 {
-  non_zero.at<int>((locations[i]).y,(locations[i]).x) = diff_gray.at<int>((locations[i]).y,(locations[i]).x);
-  std::cout<<non_zero.at<int>((locations[i]).y,(locations[i]).x)<<std::endl;
+  non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = diff_gray.at<uchar>((locations[i]).y,(locations[i]).x);
+  std::cout<<(int)non_zero.at<uchar>((locations[i]).y,(locations[i]).x)<<std::endl;
 }
 
 cv::Mat canny_image;
@@ -461,9 +462,9 @@ for( int i = 0; i < contours_candidate.size(); i++)
   for( int j = 0; j < contours_candidate[i].size(); j++)
   {
     cv::Point pt = (contours_candidate[i])[j];
-    sum +=  non_zero.at<int>(pt.y, pt.x);
+    sum +=  (int)color_gray.at<uchar>(pt.y, pt.x);
   }
-
+  std::cout<<"sum: "<<sum<<std::endl;
   if(sum > max_sum)
   {
     max_sum = sum;

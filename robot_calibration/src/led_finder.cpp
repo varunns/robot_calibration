@@ -514,7 +514,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::cout<<"max_rect:----------------------------------------------------------------------->"<<max_rect<<std::endl;
   for(int i = 0; i < max_contour.size(); i++)
   {
-    std::cout<<"*****************************CHECKING POINT CLOUD PTS***********************"<<std::endl;
     pcl::PointXYZRGB pt3;
     cv::Point pt = max_contour[i];
     for( int j = 0; j < (tracker_in->pclouds).size(); j++ )

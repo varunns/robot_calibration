@@ -506,7 +506,7 @@ for( int i = 0; i < contours_roi[max_contour_index].size(); i++)
   }
 }
 
-std::cout<<pt3ds.size()<<std:endl;
+std::cout<<pt3ds.size()<<std::endl;
 std::cout<<" "<<(pt3ds[0]).x<<" "<<(pt3ds[0]).y<<" "<<(pt3ds[0]).z<<std::endl;
 //Vector of contours that have matches TODO should be made a boost::share_ptr
 

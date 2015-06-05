@@ -251,7 +251,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
                                led_pt_gripperframe,
                                trackers_[tracker].frame_, 
                                led_pt_cameraframe);
-   //   std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
+      std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
     }
     catch(const tf::TransformException &ex)
     {
@@ -333,6 +333,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     if (!trackers_[t].getRefinedCentroid(cloud_ptr_, rgbd_pt))
     {
+
       ROS_ERROR_STREAM("No centroid for feature " << t);
       return false;
     }

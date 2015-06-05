@@ -491,8 +491,8 @@ std::vector<pcl::PointXYZRGB> pt3ds;
 for( int i = 0; i < contours_roi[max_contour_index].size(); i++)
 {
   cv::Point pt;
-  pt.x = led_approx_region.x + ((contours_roi[max_contour_index])[0]).x;
-  pt.y = led_approx_region.x + ((contours_roi[max_contour_index])[0]).y;
+  pt.x = led_approx_region.x + ((contours_roi[max_contour_index])[i]).x;
+  pt.y = led_approx_region.y + ((contours_roi[max_contour_index])[i]).y;
   std::cout<<"pt : "<<pt<<std::endl;
   for( int j = 0; j < (tracker_in->pclouds).size(); j++)
   {    
@@ -506,7 +506,8 @@ for( int i = 0; i < contours_roi[max_contour_index].size(); i++)
   }
 }
 
-std::cout<<pt3ds.size()<<std::endl;
+std::cout<<pt3ds.size()<<std:endl;
+std::cout<<" "<<(pt3ds[0]).x<<" "<<(pt3ds[0]).y<<" "<<(pt3ds[0]).z<<std::endl;
 //Vector of contours that have matches TODO should be made a boost::share_ptr
 
 /*  typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;

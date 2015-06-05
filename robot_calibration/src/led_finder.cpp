@@ -272,7 +272,10 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
-    trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours, check_first_time);
+    if(cycles > 3)
+    {
+      trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours, check_first_time);
+    }
 
     if (++cycles > max_iterations_)
     {
@@ -497,7 +500,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     cv::drawContours((tracker_in->diff_images)[10],test_conts,  i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
-  localDebugImage((tracker_in->diff_images)[1], "/tmp/mean/test_");
+  localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour

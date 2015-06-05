@@ -428,7 +428,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 5, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 2, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
 //    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
@@ -537,6 +537,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     sum_pt.z += pt3ds[i].z;
   }
 
+  ROS_INFO("AT A DISTANCE OF %f :: %f ::", tracker_in->pt3d.z, (sum_pt.y/(pt3ds.size())));
   std::cout<<std::sqrt(pow((sum_pt.x/(pt3ds.size())-tracker_in->pt3d.x),2)+pow((sum_pt.y/(pt3ds.size())-tracker_in->pt3d.y),2)+pow((sum_pt.z/(pt3ds.size())-tracker_in->pt3d.z),2))<<std::endl;
   
 

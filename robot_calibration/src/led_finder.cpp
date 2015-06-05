@@ -501,7 +501,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour
-  cv::Rect max_rect = cv::boundingRect(max_contour);
+  //cv::Rect max_rect = cv::boundingRect(max_contour);
   //cv::Rect mean_rect = cv::Rect(max_rect.x
   //obtaining the 3d points pertaining to LED
   //while(pt3ds.empty() || pt3ds.size() > 10)

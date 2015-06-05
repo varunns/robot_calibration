@@ -411,14 +411,14 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 {
 
   cv::Mat graytmp;
-  cv::Mat tmp = (tracker_in->diff_images)[5];
+  cv::Mat tmp = (tracker_in->diff_images)[3];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
   cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
   cv::Mat dst;
 
   //Using a bitwise-AND on all the depth images to determine the most existent pixesl
   //Also using only the images in middle, again to avoid any noisy diff images
-  for(int i = 6; i < (tracker_in->diff_images).size()-5; i++)
+  for(int i = 4; i < (tracker_in->diff_images).size(); i++)
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);

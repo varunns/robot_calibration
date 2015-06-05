@@ -486,7 +486,7 @@ for( int i = 0; i < just_for_draw.size(); i++)
 { 
   cv::drawContours((tracker_in->rgb_image)[0], just_for_draw, 0, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());
 }
-
+localDebugImage((tracker_in->rgb_image)[0],"/tmp/mean/test__");
 std::vector<pcl::PointXYZRGB> pt3ds;
 for( int i = 0; i < contours_roi[max_contour_index].size(); i++)
 {

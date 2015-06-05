@@ -815,17 +815,10 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
   cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
 
-  //Calculating the weight in a different loop as the we need the overall weight to normalize, 
-  //if everything is done int he same loop the image saturates
-  //TODO is to just use the cv::Array instead of cv::Mat and 
-  //non-opencv options for multiplication and division  
-
-  std::vector<cv::Mat> channels(3);
-
   //considering the images in the middle so that more noisy initial images are avoided
   for(int i = 10; i < 20; i++)
   {
-    cv::add(tmp_weight,0.05*(images[i]->image), result);
+    cv::add(tmp_weight,0.1*(images[i]->image), result);
     tmp_weight = result;
   }
 

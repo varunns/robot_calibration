@@ -296,7 +296,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   for( int i = 1 ; i < led_respective_contours.size(); i++)
   {
     pcl::PointXYZRGB temp_led;
-    getCandidateRoi(led_respective_contours[i], probable_contours);
+    getCandidateRoi(led_respective_contours[i], temp_led);
     //checkMostProbableCandidate(led_respective_contours[i], probable_contours, most_probable_contour);
     led_pts.push_back(temp_led);
   }
@@ -405,7 +405,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
 
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, 
-                                std::vector<std::vector<cv::Point> >& candidate_roi)
+                                pcl::PointXYZRGB& pt_cand)
 {
   if((tracker_in->all_contours).size() < 2)
   {
@@ -439,76 +439,50 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 //Using just the diff images and then finding contours
 cv::Mat diff_gray;
 cv::cvtColor( (tracker_in->diff_images)[5], diff_gray, CV_BGR2GRAY );
-int highest_intensity = -1000;
-cv::Point highest_intensity_pt;
+cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
 for( int i = 0; i < locations.size(); i++)
 {
-  int intensity = (int)diff_gray.at<uchar>(locations[i].y, locations[i].x);
-  if( intensity > highest_intensity)
+  non_zero.at<int>((locations[i]).y,(locations[i]).x) = diff_gray.at<int>((locations[i]).y,(locations[i]).x);
+}
+
+cv::Mat canny_image;
+int canny_thresh = 60;
+std::vector<cv::Vec4i> hierarchy;
+std::vector<std::vector<cv::Point> > contours_candidate;
+cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
+cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
+
+int max_sum = -1000;
+std::vector<cv::Point> max_contour;
+for( int i = 0; i < contours_candidate.size(); i++)
+{
+  int sum = 0;
+  for( int j = 0; j < contours_candidate[i].size(); j++)
   {
-    highest_intensity = intensity;
-    highest_intensity_pt = locations[i];
+    cv::Point pt = (contours_candidate[i])[j];
+    sum +=  non_zero.at<int>(pt.y, pt.x);
+  }
+
+  if(sum > max_sum)
+  {
+    max_sum = sum;
+    max_contour = contours_candidate[i];
   }
 }
 
-std::cout<<"highest_intensity_pt : "<<highest_intensity_pt<<std::endl;
-cv::Rect led_approx_region = cv::Rect(highest_intensity_pt.x-10, highest_intensity_pt.y-10, 20, 20);
-cv::Mat led_roi = diff_gray(led_approx_region);
-  
-cv::Mat canny_led_roi;
-int canny_thresh = 60; //experimenting, this threshold worked for finding all the contours, including the small regions
-cv::Canny(led_roi, canny_led_roi, canny_thresh, canny_thresh*2, 3);
-std::vector<std::vector<cv::Point> > contours_roi;
-std::vector<cv::Vec4i> contours_heirarchy;
-cv::findContours(canny_led_roi, contours_roi, contours_heirarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0,0));
-
-//debug
-for(int i = 0; i < contours_roi.size(); i++)
-{
-
-}
-
-int max_contour_index; 
-float mean_max = -1000.0;
-for(int i = 0; i < contours_roi.size(); i++)
-{
-  cv::Scalar mean_scalar = cv::mean(contours_roi[i]);
-  float mean = (mean_scalar.val[0]*mean_scalar.val[0]) + 
-               (mean_scalar.val[1]*mean_scalar.val[1]) +
-               (mean_scalar.val[2]*mean_scalar.val[2]); 
-
-  if(mean > mean_max)
-  {
-    mean_max = mean;
-    max_contour_index = i;
-  }
-}
-
-//debugging 
-//if(debug_)
-std::vector<std::vector<cv::Point> > just_for_draw;
-just_for_draw.push_back(contours_roi[max_contour_index]);
-for( int i = 0; i < just_for_draw.size(); i++)
-{ 
-  cv::drawContours((tracker_in->rgb_image)[0], just_for_draw, 0, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());
-}
-localDebugImage((tracker_in->rgb_image)[0],"/tmp/mean/test__");
 std::vector<pcl::PointXYZRGB> pt3ds;
-for( int i = 0; i < contours_roi[max_contour_index].size(); i++)
+for(int i = 0; i < max_contour.size(); i++)
 {
-  cv::Point pt;
-  pt.x = led_approx_region.x + ((contours_roi[max_contour_index])[i]).x;
-  pt.y = led_approx_region.y + ((contours_roi[max_contour_index])[i]).y;
-  std::cout<<"pt : "<<pt<<std::endl;
+  cv::Point pt = max_contour[i];
   for( int j = 0; j < (tracker_in->pclouds).size(); j++)
-  {    
-    pcl::PointXYZRGB pt3 = (*(tracker_in->pclouds)[j])(pt.x,pt.y);
-
-    if(!isnan(pt3.x) && !isnan(pt3.y) && !isnan(pt3.z))
+  {
+    pcl::PointXYZRGB pt3d = (*(tracker_in->pclouds)[j])(pt.y,pt.x);
+    if(!isnan(pt3d.x) && !isnan(pt3d.y) && !isnan(pt3d.z))
     {
-      pt3ds.push_back(pt3);
+      continue;
     }
 
+    pt3ds.push_back(pt3d);
   }
 }
 

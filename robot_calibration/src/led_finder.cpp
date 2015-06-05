@@ -470,6 +470,14 @@ for( int i = 0; i < contours_candidate.size(); i++)
   }
 }
 
+std::vector<std::vector<cv::Point> > test_conts;
+test_conts.push_back(max_contour);
+for( int i = 0; i < test_conts.size(); i++)
+{
+  cv::drawContours((tracker_in->diff_images)[1],test_conts,  i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());  
+}
+
+localDebugImage((tracker_in->diff_images)[1], "/tmp/mean/test_");
 std::vector<pcl::PointXYZRGB> pt3ds;
 for(int i = 0; i < max_contour.size(); i++)
 {

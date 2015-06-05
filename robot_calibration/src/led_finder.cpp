@@ -436,12 +436,76 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   localDebugImage(dst,"/tmp/mean/bitwise_");
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
 
-  //Using just the depth imaghes and then finding contours
+//Using just the diff imaghes and then finding contours
+cv::Mat diff_gray;
+cv::cvtColor( (tracker_in->diff_images)[5], diff_gray, CV_BGR2GRAY );
+int highest_intensity = -1000;
+cv::Point highest_intensity_pt;
+for( int i = 0; i < locations.size(); i++)
+{
+  int intensity = (int)diff_gray.at<uchar>(locations[i].y, locations[i].x);
+  if( intensity > highest_intensity)
+  {
+    highest_intensity = intensity;
+    highest_intensity_pt = locations[i];
+  }
+}
 
+cv::Rect led_approx_region = cv::Rect(highest_intensity_pt.x-10, highest_intensity_pt.y-10, 20, 20);
+cv::Mat led_roi = diff_gray(led_approx_region);
+  
+cv::Mat canny_led_roi;
+int canny_thresh = 60; //experimenting, this threshold suited to gind all the contours, including the small regions
+cv::Canny(led_roi, canny_led_roi, canny_thresh, canny_thresh*2, 3);
+std::vector<std::vector<cv::Point> > contours_roi;
+std::vector<cv::Vec4i> contours_heirarchy;
+cv::findContours(canny_led_roi, contours_roi, contours_heirarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0,0));
 
-  //Vector of contours that have matches TODO should be made a boost::share_ptr
+int max_contour_index; 
+float mean_max = -1000.0;
+for(int i = 0; i < contours_roi.size(); i++)
+{
+  cv::Scalar mean_scalar = cv::mean(contours_roi[i]);
+  float mean = (mean_scalar.val[0]*mean_scalar.val[0]) + 
+               (mean_scalar.val[1]*mean_scalar.val[1]) +
+               (mean_scalar.val[2]*mean_scalar.val[2]); 
 
-  typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;
+  if(mean > mean_max)
+  {
+    mean_max = mean;
+    max_contour_index = i;
+  }
+}
+
+//debugging 
+//if(debug_)
+std::vector<std::vector<cv::Point> > just_for_draw;
+just_for_draw.push_back(contours_roi[max_contour_index]);
+cv::drawContours((tracker_in->rgb_image)[0], contours_roi[max_contour_index], 0, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());
+
+std::vector<pcl::PointXYZRGB> pt3ds;
+for( int i = 0; i < contours_roi[max_contour_index].size(); i++)
+{
+  cv::Point pt;
+  pt.x = led_approx_region.x + ((contours_roi[max_contour_index])[0]).x;
+  pt.y = led_approx_region.x + ((contours_roi[max_contour_index])[0]).y;
+
+  for( int j = 0; j < (tracker_in->pclouds).size(); j++)
+  {    
+    pcl::PointXYZRGB pt3 = (*(tracker_in->pclouds)[j])(pt.x,pt.y);
+
+    if(!isnan(pt3.x) && !isnan(pt3.y) && !isnan(pt3.z))
+    {
+      pt3ds.push_back(pt3);
+    }
+
+  }
+}
+
+std::cout<<pt3ds.size()<<std::endl;
+//Vector of contours that have matches TODO should be made a boost::share_ptr
+
+/*  typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;
 
   vec_iter iter_begin = (tracker_in->all_contours).begin();
   vec_iter iter_end = (tracker_in->all_contours).end();
@@ -483,7 +547,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 
 
   localDebugImage((tracker_in->rgb_image)[0], "/tmp/mean/diff_");
-
+*/
 }
 
 bool LedFinder::findInMatchedContours(std::vector<cv::Point> contour, std::vector<std::vector<cv::Point> >  matched_contours)

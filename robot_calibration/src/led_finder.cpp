@@ -455,7 +455,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   for( int i = 0; i < locations.size(); i++)
   {
     non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = diff_gray.at<uchar>((locations[i]).y,(locations[i]).x);
-    std::cout<<(int)non_zero.at<uchar>((locations[i]).y,(locations[i]).x)<<std::endl;
+    //std::cout<<(int)non_zero.at<uchar>((locations[i]).y,(locations[i]).x)<<std::endl;
   }
 
   //finding contours in the non_zero image
@@ -483,7 +483,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
       sum +=  (int)color_gray.at<uchar>(pt.y, pt.x);
     }
     sum = sum/contours_candidate[i].size();
-    std::cout<<"sum: "<<sum<<std::endl;
+  //  std::cout<<"sum: "<<sum<<std::endl;
     if(sum > max_sum)
     {
       max_sum = sum;
@@ -527,7 +527,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
       pt3ds.push_back(pt3);
     }
   }
-  std::cout<<pt3ds.size()<<std::endl;
+  std::cout<<"POINTCLOUDSIZE : --------------> : ----- :"<<pt3ds.size()<<std::endl;
 
 }
 

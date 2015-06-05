@@ -137,7 +137,7 @@ bool LedFinder::waitForCloud()
 {
   ros::Time ref_time = ros::Time::now();
   waiting_ = true;
-  int count = 20;
+  int count = 40;
   while (--count)
   {
     if (!waiting_)
@@ -190,6 +190,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
   prev_clouds.resize(clouds_ptr_.size());
   prev_clouds = clouds_ptr_;
+  bool check_first_time = false;
   //pcloud_ clouds_ptr_ = clouds_ptr_[0];
   
   // Initialize difference trackers
@@ -271,7 +272,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
-    trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours);
+    trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours, check_first_time);
 
     if (++cycles > max_iterations_)
     {
@@ -286,6 +287,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     *prev_cloud = *cloud_ptr_;
     prev_clouds = clouds_ptr_;
     clouds_ptr_.resize(0);
+    check_first_time = true;
   }
 
   //-------------------------------------------------------------------------------------------Strart Using the populated vector of sharedPtr : led_respective_contours
@@ -293,7 +295,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   //Should be replaced by a bost pointer
   std::vector<std::vector<cv::Point> > probable_contours;
   std::vector<cv::Point> most_probable_contour;
-  for( int i = 1 ; i < led_respective_contours.size(); i++)
+  for( int i = 0 ; i < led_respective_contours.size(); i++)
   {
     pcl::PointXYZRGB temp_led;
     getCandidateRoi(led_respective_contours[i], temp_led);
@@ -407,15 +409,15 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, 
                                 pcl::PointXYZRGB& pt_cand)
 {
-  if((tracker_in->all_contours).size() < 2)
-  {
-    return;
-  }
+
   cv::Mat graytmp;
   cv::Mat tmp = (tracker_in->diff_images)[5];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
   cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
   cv::Mat dst;
+
+  //Using a bitwise-AND on all the depth images to determine the most existent pixesl
+  //Also using only the images in middle, again to avoid any noisy diff images
   for(int i = 6; i < (tracker_in->diff_images).size()-5; i++)
   {
     cv::Mat gray;
@@ -428,18 +430,21 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   }
   std::vector<cv::Point2i> locations;
 
+  //using all the non zero pixels , for getting the locations
   if(cv::countNonZero(dst) > 0)
   {
     cv::findNonZero(dst,locations);
     cv::rectangle((tracker_in->rgb_image)[1], cv::Rect((locations[0]).x, (locations[0]).y, 4, 4), cv::Scalar(0,0,255), 3, 8);
   }
+
+  //debug
   localDebugImage(dst,"/tmp/mean/bitwise_");
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
 
-  //Using just the diff images and then finding contours
+  //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;
-  cv::cvtColor( (tracker_in->diff_images)[5], diff_gray, CV_BGR2GRAY );
-  cv::cvtColor( (tracker_in->rgb_image)[5], color_gray, CV_BGR2GRAY);
+  cv::cvtColor( (tracker_in->diff_images)[10], diff_gray, CV_BGR2GRAY );
+  cv::cvtColor( (tracker_in->rgb_image)[10], color_gray, CV_BGR2GRAY);
   cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
   for( int i = 0; i < locations.size(); i++)
   {
@@ -447,6 +452,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     std::cout<<(int)non_zero.at<uchar>((locations[i]).y,(locations[i]).x)<<std::endl;
   }
 
+  //finding contours in the non_zero image
   cv::Mat canny_image;
   int canny_thresh = 60;
   std::vector<cv::Vec4i> hierarchy;
@@ -454,19 +460,16 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
 
+  //getting the contour with max mean, as the mean should be highest for the position of led
   int max_sum = -1000;
   std::vector<cv::Point> max_contour;
   for( int i = 0; i < contours_candidate.size(); i++)
-  {
-    if((contours_candidate[i]).size() > max_sum)
-    {
-      max_contour = contours_candidate[i];
-    }
-    /*float sum = 0;
+  {   
+    float sum = 0;
     for( int j = 0; j < contours_candidate[i].size(); j++)
     {
       cv::Point pt = (contours_candidate[i])[j];
-      sum +=  (int)color_gray.at<uchar>(pt.y, pt.x);
+      sum +=  (int)diff_gray.at<uchar>(pt.y, pt.x);
     }
     sum = sum/contours_candidate[i].size();
     std::cout<<"sum: "<<sum<<std::endl;
@@ -474,9 +477,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     {
       max_sum = sum;
       max_contour = contours_candidate[i];
-    }*/
+    }
   }
 
+  //debugging to find the contours
   std::vector<std::vector<cv::Point> > test_conts;
   test_conts.push_back(max_contour);
 
@@ -488,6 +492,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   localDebugImage((tracker_in->diff_images)[1], "/tmp/mean/test_");
   std::vector<pcl::PointXYZRGB> pt3ds;
 
+  //obtaining the 3d points pertaining to LED
   //while(pt3ds.empty() || pt3ds.size() > 10)
   {
     for(int i = 0; i < max_contour.size(); i++)
@@ -610,10 +615,11 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
                                                   int tracker_id,
                                                   std::vector<pcloud_> cloud,
                                                   std::vector<pcloud_> prev,
-                                                  std::vector<CloudDifferenceTracker::TrackContoursPtr>& track_contours
+                                                  std::vector<CloudDifferenceTracker::TrackContoursPtr>& track_contours,
+                                                  bool check_first_time
                                                 )
 {
-  if( (track_contours[tracker_id]->first_time) == false )
+  if( (track_contours[tracker_id]->first_time) == false && check_first_time)
   {
    (track_contours[tracker_id])->first_time = true;
    (track_contours[tracker_id])->pt3d = pt;
@@ -715,8 +721,9 @@ bool LedFinder::CloudDifferenceTracker::calcDistQueue(pcl::PointXYZRGB pt,
   cvpt.x = (int)center.x;
   cvpt.y = (int)center.y;
   pcl::PointXYZRGB non_nan_pt;
-   //adding a distance vector and considering all the 3D points possible in all the point clouds
-       std::vector<pcl::PointXYZRGB> p3vec;
+  //adding a distance vector and considering all the 3D points possible in all the point clouds
+  std::vector<pcl::PointXYZRGB> p3vec;
+  
   //check if the region is on the borders
   if( center.x < 30 || center.x > 600 || center.y < 30 || center.y > 450)
   {
@@ -815,15 +822,15 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
 
   std::vector<cv::Mat> channels(3);
 
-  for(int i = 10; i < 11; i++)
+  //considering the images in the middle so that more noisy initial images are avoided
+  for(int i = 10; i < 20; i++)
   {
-    cv::add(tmp_weight,1*(images[i]->image), result);
+    cv::add(tmp_weight,0.05*(images[i]->image), result);
     tmp_weight = result;
   }
 
 }
 
-/*void LedFinder::CloudDifferenceTracker::planeFit()*/
 
 void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
 {

@@ -462,6 +462,12 @@ std::vector<std::vector<cv::Point> > contours_roi;
 std::vector<cv::Vec4i> contours_heirarchy;
 cv::findContours(canny_led_roi, contours_roi, contours_heirarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0,0));
 
+//debug
+for(int i = 0; i < contours_roi.size(); i++)
+{
+
+}
+
 int max_contour_index; 
 float mean_max = -1000.0;
 for(int i = 0; i < contours_roi.size(); i++)
@@ -507,7 +513,15 @@ for( int i = 0; i < contours_roi[max_contour_index].size(); i++)
 }
 
 std::cout<<pt3ds.size()<<std::endl;
-std::cout<<" "<<(pt3ds[0]).x<<" "<<(pt3ds[0]).y<<" "<<(pt3ds[0]).z<<std::endl;
+pcl::PointXYZRGB pt3;
+for( int i = 0; i < pt3ds.size(); i++)
+{
+  pt3.x += pt3ds[i].x;
+  pt3.y += pt3ds[i].y;
+  pt3.z += pt3ds[i].z; 
+}
+
+std::cout<<" "<<pt3.x/pt3ds.size()<<" "<<pt3.y/pt3ds.size()<<" "<<pt3.z/pt3ds.size()<<std::endl;
 //Vector of contours that have matches TODO should be made a boost::share_ptr
 
 /*  typedef std::vector<std::vector<cv::Point> >::iterator vec_iter;

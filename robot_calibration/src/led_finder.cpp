@@ -536,7 +536,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     sum_pt.y += pt3ds[i].y;
     sum_pt.z += pt3ds[i].z;
   }
-  std::cout<< sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
+  std::cout<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
+  std::cout<<pt3d.x<<" "<<pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   
 
 }

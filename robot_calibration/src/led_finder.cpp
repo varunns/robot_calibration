@@ -504,10 +504,25 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour
-  //cv::Rect max_rect = cv::boundingRect(max_contour);
-  //cv::Rect mean_rect = cv::Rect(max_rect.x
-  //obtaining the 3d points pertaining to LED
-  //while(pt3ds.empty() || pt3ds.size() > 10)
+  bool flag = true;
+  cv::Rect max_rect;
+  if( max_contour.size() > 0 && flag)
+  {
+    max_rect = cv::boundingRect(max_contour);
+  }
+
+  std::cout<<"max_rect:----------------------------------------------------------------------->"<<max_rect<<std::endl;
+  for(int i = 0; i < max_contour.size(); i++)
+  {
+    std::cout<<"*****************************CHECKING POINT CLOUD PTS***********************"<<std::endl;
+    pcl::PointXYZRGB pt3;
+    cv::Point pt = max_contour[i];
+    for( int j = 0; j < (tracker_in->pclouds).size(); j++ )
+    {
+      pt3 = (*tracker_in->pclouds[j])(pt.y, pt.x);
+      std::cout<<pt3.x<<" "<<pt3.y<<" "<<pt3.z<<std::endl;
+    }
+  }
 
 }
 
@@ -683,7 +698,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
 
   //Pointclouds push_back
   int size = std::min(cloud.size(), prev.size());
-  for( int i = 6; i < size; i++)
+  for( int i = 0; i < size; i++)
   {
     (track_contours[tracker_id])->pclouds.push_back(cloud[i]);
     (track_contours[tracker_id])->pclouds.push_back(prev[i]); 

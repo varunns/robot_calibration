@@ -511,7 +511,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     max_rect = cv::boundingRect(max_contour);
   }
 
-  std::cout<<"max_rect:----------------------------------------------------------------------->"<<max_rect<<std::endl;
+ // std::cout<<"max_rect:----------------------------------------------------------------------->"<<max_rect<<std::endl;
   for(int i = 0; i < max_contour.size(); i++)
   {
     pcl::PointXYZRGB pt3;
@@ -536,8 +536,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     sum_pt.y += pt3ds[i].y;
     sum_pt.z += pt3ds[i].z;
   }
-  std::cout<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
-  std::cout<<pow((sum_pt.x/(pt3ds.size())-tracker_in->pt3d.x),2)<<" "<<pow((sum_pt.y/(pt3ds.size())-tracker_in->pt3d.y),2)<<" "<<pow((sum_pt.z/(pt3ds.size())-tracker_in->pt3d.z),2)<<std::endl;
+
+  std::cout<<std::sqrt(pow((sum_pt.x/(pt3ds.size())-tracker_in->pt3d.x),2)+pow((sum_pt.y/(pt3ds.size())-tracker_in->pt3d.y),2)+pow((sum_pt.z/(pt3ds.size())-tracker_in->pt3d.z),2))<<std::endl;
   
 
 }

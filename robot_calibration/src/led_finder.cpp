@@ -293,7 +293,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   //Should be replaced by a bost pointer
   std::vector<std::vector<cv::Point> > probable_contours;
   std::vector<cv::Point> most_probable_contour;
-  for( int i = 0 ; i < led_respective_contours.size(); i++)
+  for( int i = 1 ; i < led_respective_contours.size(); i++)
   {
     pcl::PointXYZRGB temp_led;
     getCandidateRoi(led_respective_contours[i], probable_contours);

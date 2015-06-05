@@ -469,7 +469,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     for( int j = 0; j < contours_candidate[i].size(); j++)
     {
       cv::Point pt = (contours_candidate[i])[j];
-      sum +=  (int)diff_gray.at<uchar>(pt.y, pt.x);
+      sum +=  (int)color_gray.at<uchar>(pt.y, pt.x);
     }
     sum = sum/contours_candidate[i].size();
     std::cout<<"sum: "<<sum<<std::endl;
@@ -816,9 +816,9 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
 
   //considering the images in the middle so that more noisy initial images are avoided
-  for(int i = 10; i < 20; i++)
+  for(int i = 10; i < 11; i++)
   {
-    cv::add(tmp_weight,0.1*(images[i]->image), result);
+    cv::add(tmp_weight,1*(images[i]->image), result);
     tmp_weight = result;
   }
 

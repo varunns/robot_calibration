@@ -459,6 +459,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<std::vector<cv::Point> > contours_candidate;
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
+  //debug
+  for( int i = 0; i < contours_candidate.size(); i++)
+  {
+    cv::drawContours((tracker_in->diff_images)[1],contours_candidate,  i, cv::Scalar(50*i,100+25*i,0), 1, 8, cv::noArray(), 1, cv::Point());  
+  }
 
   //getting the contour with max mean, as the mean should be highest for the position of led
   int max_sum = -1000;
@@ -816,7 +821,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
 
   //considering the images in the middle so that more noisy initial images are avoided
-  for(int i = 10; i < 11; i++)
+  for(int i = 10; i < 11  ; i++)
   {
     cv::add(tmp_weight,1*(images[i]->image), result);
     tmp_weight = result;

@@ -443,6 +443,7 @@ cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
 for( int i = 0; i < locations.size(); i++)
 {
   non_zero.at<int>((locations[i]).y,(locations[i]).x) = diff_gray.at<int>((locations[i]).y,(locations[i]).x);
+  std::cout<<non_zero.at<int>((locations[i]).y,(locations[i]).x)<<std::endl;
 }
 
 cv::Mat canny_image;

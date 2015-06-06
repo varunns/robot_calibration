@@ -840,7 +840,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   //considering the images in the middle so that more noisy initial images are avoided
   for(int i = 15; i < 16  ; i++)
   {
-    cv::add(tmp_weight,1*(images[i]->image), result);
+    cv::add(tmp_weight,(images[i]->image), result);
     tmp_weight = result;
   }
 

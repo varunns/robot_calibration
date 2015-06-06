@@ -465,7 +465,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   for( int i = 0; i < locations.size(); i++)
   {
     non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = diff_gray.at<uchar>((locations[i]).y,(locations[i]).x);
-    //std::cout<<(int)non_zero.at<uchar>((locations[i]).y,(locations[i]).x)<<std::endl;
   }
 
   //finding contours in the non_zero image
@@ -475,57 +474,23 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<std::vector<cv::Point> > contours_candidate;
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-  //debug
-  /*for( int i = 0; i < contours_candidate.size(); i++)
-  {
-    cv::drawContours((tracker_in->diff_images)[1],contours_candidate,  i, cv::Scalar(50*i,100+25*i,0), 1, 8, cv::noArray(), 1, cv::Point());  
-  }
-*/
-  //getting the contour with max mean, as the mean should be highest for the position of led
- /* int max_sum = -1000;
-  std::vector<cv::Point> max_contour;
-  for( int i = 0; i < contours_candidate.size(); i++)
-  {   
-    float sum = 0;
-    for( int j = 0; j < contours_candidate[i].size(); j++)
-    {
-      cv::Point pt = (contours_candidate[i])[j];
-      sum +=  (int)color_gray.at<uchar>(pt.y, pt.x);
-    }
-    sum = sum/contours_candidate[i].size();
-  //  std::cout<<"sum: "<<sum<<std::endl;
-    if(sum > max_sum)
-    {
-      max_sum = sum;
-      max_contour = contours_candidate[i];
-    }
-  }*/
- cv::rectangle((tracker_in->rgb_image)[1], cv::Rect(debug_pixel.x,debug_pixel.y,5,5),cv::Scalar(0,0,255),1,8);
-// cv::rectangle((tracker_in->rgb_image)[1], cv::Rect(max_contour[0].x,max_contour[0].y,5,5),cv::Scalar(0,255,0),1,8);
-
+  cv::rectangle((tracker_in->rgb_image)[1], cv::Rect(debug_pixel.x,debug_pixel.y,5,5),cv::Scalar(0,0,255),1,8); 
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwised_");
   //debugging to find the contours
   std::vector<std::vector<cv::Point> > test_conts;
-//  test_conts.push_back(max_contour);
+  //test_conts.push_back(max_contour);
 
   for( int i = 0; i < contours_candidate.size(); i++)
   {
     cv::drawContours((tracker_in->diff_images)[10],contours_candidate,  i, cv::Scalar(255,0,0), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
- std::vector<pcl::PointXYZRGB> pt3ds;
+std::vector<pcl::PointXYZRGB> pt3ds;
  
-  //calculate mid point of a contour
-  bool flag = true;
-  cv::Rect max_rect;
-  /*if( max_contour.size() > 0 && flag)
-  {
-    max_rect = cv::boundingRect(max_contour);
-  }*/
-  
+//calculate mid point of a contour
+bool flag = true;
+cv::Rect max_rect;
 
-  
-// std::cout<<"max_rect:----------------------------------------------------------------------->"<<max_rect<<std::endl;
 //for all the conooutrs obtained calculate the debug points, center
 for(int j = 0; j < contours_candidate.size(); j++)
 {
@@ -533,6 +498,7 @@ for(int j = 0; j < contours_candidate.size(); j++)
   std::vector<cv::Point>	max_contour = contours_candidate[j];
   bool debug_flag = true;
   std::vector<pcl::PointXYZRGB> pt3ds_temp;
+
   for(int i = 0; i < max_contour.size(); i++)
   {   
     pcl::PointXYZRGB pt3;
@@ -545,7 +511,6 @@ for(int j = 0; j < contours_candidate.size(); j++)
       {
          pt3ds_temp.push_back(pt3);
       }
-
     }
 
   }
@@ -560,10 +525,10 @@ for(int j = 0; j < contours_candidate.size(); j++)
     sum_pt.y += pt3ds_temp[k].y;
     sum_pt.z += pt3ds_temp[k].z;
   }
-  sum_pt.x = sum_pt.x/(pt3ds.size());
-  sum_pt.y = sum_pt.y/(pt3ds.size());
-  sum_pt.z = sum_pt.z/(pt3ds.size());
-  std::cout<<" "<<"predicted"     <<" : "<<sum_pt.x/(pt3ds_temp.size())<<" "<<sum_pt.y/(pt3ds_temp.size())<<" "<<sum_pt.z/(pt3ds_temp.size())<<std::endl;
+  sum_pt.x = sum_pt.x/(pt3ds_temp.size());
+  sum_pt.y = sum_pt.y/(pt3ds_temp.size());
+  sum_pt.z = sum_pt.z/(pt3ds_temp.size());
+  std::cout<<" "<<"predicted"     <<" : "<<sum_pt.x<<" "<<sum_pt.y<<" "<<sum_pt.z<<std::endl;
 
   pt3ds.push_back(sum_pt);
   pt3ds_temp.clear();

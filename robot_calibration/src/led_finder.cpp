@@ -198,7 +198,13 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   {
     trackers_[i].reset(cloud_ptr_->size());
   }
-
+  //ading manually image points for checking the location of led in 3d
+  std::vector<cv::Point>  debug_image_manual;
+  debug_image_manual.resize(trackers_.size());
+  debug_image_manual[0] = cv::Point(0,0);
+  debug_image_manual[1] = cv::Point(0,0);
+  debug_image_manual[2] = cv::Point(0,0);
+  debug_image_manual[3] = cv::Point(0,0);
   int cycles = 0;
   while (true)
   {
@@ -251,7 +257,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
                                led_pt_gripperframe,
                                trackers_[tracker].frame_, 
                                led_pt_cameraframe);
-      std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
+      //std::cout<<led_pt_gripperframe.point<<" "<<led_pt_cameraframe.point<<std::endl;
     }
     catch(const tf::TransformException &ex)
     {
@@ -303,7 +309,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   for( int i = 0 ; i < led_respective_contours.size(); i++)
   {
     cv::Rect bounding_box;
-    getCandidateRoi(led_respective_contours[i], bounding_box);
+    getCandidateRoi(led_respective_contours[i], bounding_box, debug_image_manual[i]);
     //checkMostProbableCandidate(led_respective_contours[i], probable_contours, most_probable_contour);
     bounding_rect_leds.push_back(bounding_box);
   }
@@ -414,7 +420,8 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
 
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, 
-                                cv::Rect& rect)
+                                cv::Rect& rect,
+                                cv::Point debug_pixel)
 {
 
   cv::Mat graytmp;
@@ -429,7 +436,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 2, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 5, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
 //    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
@@ -445,8 +452,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   }
 
   //debug
-  localDebugImage(dst,"/tmp/mean/bitwise_");
-  localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
+  //localDebugImage(dst,"/tmp/mean/bitwise_");
+  //localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
 
   //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;
@@ -501,7 +508,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     cv::drawContours((tracker_in->diff_images)[10],test_conts,  i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
-  localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour
@@ -511,18 +517,24 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     max_rect = cv::boundingRect(max_contour);
   }
-
+  pcl::PointXYZRGB deb_pt3;
  // std::cout<<"max_rect:----------------------------------------------------------------------->"<<max_rect<<std::endl;
   for(int i = 0; i < max_contour.size(); i++)
   {
     pcl::PointXYZRGB pt3;
+    pcl::PointXYZRGB debug_pt3;
     cv::Point pt = max_contour[i];
     for( int j = 0; j < (tracker_in->pclouds).size(); j++ )
     {
       pt3 = (*tracker_in->pclouds[j])(pt.x, pt.y);
+      debug_pt3 =((*tracker_in->pclouds[j]))(debug_pixel.x, debug_pixel.y);
       if( isnan(pt3.x) && isnan(pt3.y) && isnan(pt3.z) )
       {
         continue;
+      }
+      if( !isnan(debug_pt3.x) && !isnan(debug_pt3.y) && !isnan(debug_pt3.z) )
+      {
+        deb_pt3 = debug_pt3;
       }
       pt3ds.push_back(pt3);
     }
@@ -538,9 +550,13 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     sum_pt.z += pt3ds[i].z;
   }
 
+  
  // ROS_INFO("AT A DISTANCE OF %f :: %f ::", tracker_in->pt3d.z, (sum_pt.y/(pt3ds.size())));
-  std::cout<<" "<<"predicted"<<" : "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<std::endl;
- // std::cout<<std::sqrt(pow((sum_pt.x/(pt3ds.size())-tracker_in->pt3d.x),2)+pow((sum_pt.y/(pt3ds.size())-tracker_in->pt3d.y),2)+pow((sum_pt.z/(pt3ds.size())-tracker_in->pt3d.z),2))<<std::endl;
+  std::cout<<" "<<"predicted"     <<" : "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
+  std::cout<<" "<<"Debugged "     <<" : "<<deb_pt3.x<<" "<<deb_pt3.y<<" "<<deb_pt3.z<<std::endl;
+  std::cout<<" "<<"FromTransform "<<" : "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
+  std::cout<<std::sqrt(pow((sum_pt.x/(pt3ds.size())-deb_pt3.x),2)+pow((sum_pt.y/(pt3ds.size())-deb_pt3.y),2)+pow((sum_pt.z/(pt3ds.size())-deb_pt3.z),2))<<std::endl;
+  std::cout<<std::sqrt(pow((sum_pt.x/(pt3ds.size())-tracker_in->pt3d.x),2)+pow((sum_pt.y/(pt3ds.size())-tracker_in->pt3d.y),2)+pow((sum_pt.z/(pt3ds.size())-tracker_in->pt3d.z),2))<<std::endl;
   
 
 }

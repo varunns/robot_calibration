@@ -20,11 +20,33 @@
 #include <math.h>
 #include <robot_calibration/capture/led_finder.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
 
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/photo/photo.hpp>
+
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/point_types.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl_conversions/pcl_conversions.h>
+
+#include <algorithm>
+#include <queue>
+#include <sstream>
+
+typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
 namespace robot_calibration
 {
 
-double distancePoints(
+  double distancePoints(
   const geometry_msgs::Point p1,
   const geometry_msgs::Point p2)
 {
@@ -66,7 +88,9 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
   nh.param<int>("max_iterations", max_iterations_, 50);
 
   // Should we output debug image/cloud
-  nh.param<bool>("debug", output_debug_, false);
+  nh.param<bool>("debug", output_debug_, true);
+
+  // durtation to keep led on.. for so many secs keep sending the goal
 
   // Parameters for LEDs themselves
   std::string gripper_led_frame;
@@ -86,20 +110,30 @@ LedFinder::LedFinder(ros::NodeHandle & n) :
     z = static_cast<double>(led_poses[i]["z"]);
     trackers_.push_back(CloudDifferenceTracker(gripper_led_frame, x, y, z));
   }
+  //duration to keep the led on.... it now keeps sending goal continuosly for 2s
+  led_duration_ = 5;
 }
+
+bool LedFinder::debug_flag_ = true;
 
 void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
+  
   if (waiting_)
-  {
+  { 
     cloud_ptr_ = cloud;
-    waiting_ = false;
+    clouds_ptr_.push_back(cloud);
+    if(clouds_ptr_.size() > 19)
+    {
+      waiting_ = false;
+    }
   }
 }
 
 // Returns true if we got a message, false if we timeout.
 bool LedFinder::waitForCloud()
 {
+  ros::Time ref_time = ros::Time::now();
   waiting_ = true;
   int count = 20;
   while (--count)
@@ -114,28 +148,38 @@ bool LedFinder::waitForCloud()
   ROS_ERROR("Failed to get cloud");
   return !waiting_;
 }
-
+ 
 bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 {
   uint8_t code_idx = -1;
 
   std::vector<geometry_msgs::PointStamped> rgbd;
   std::vector<geometry_msgs::PointStamped> world;
+  std::vector<geometry_msgs::PointStamped> world_hough_pt;
 
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+  std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> prev_clouds;
 
   robot_calibration_msgs::GripperLedCommandGoal command;
   command.led_code = 0;
   client_->sendGoal(command);
   client_->waitForResult(ros::Duration(10.0));
+  ros::Duration(0.5).sleep();
 
   // Get initial cloud
   if (!waitForCloud())
   {
+    ROS_INFO("waiting for initial cloud");
     return false;
   }
+
+  /* previous clouds*/
   *prev_cloud = *cloud_ptr_;
 
+  prev_clouds.resize(clouds_ptr_.size());
+  prev_clouds = clouds_ptr_;
+  //pcloud_ clouds_ptr_ = clouds_ptr_[0];
+  
   // Initialize difference trackers
   for (size_t i = 0; i < trackers_.size(); ++i)
   {
@@ -148,8 +192,11 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     // Toggle LED to next state
     code_idx = (code_idx + 1) % 8;
     command.led_code = codes_[code_idx];
-    client_->sendGoal(command);
-    client_->waitForResult(ros::Duration(10.0));
+    ros::Time ref_time = ros::Time::now();
+
+    // time to keep leds on.... keep sending goal for 2s
+      client_->sendGoal(command);
+      client_->waitForResult(ros::Duration(10.0));
 
     // Get a point cloud
     if (!waitForCloud())
@@ -162,26 +209,35 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     // Even indexes are turning on, Odd are turning off
     double weight = (code_idx%2 == 0) ? 1: -1;
 
+
     // Has each point converged?
     bool done = true;
     for (size_t t = 0; t < trackers_.size(); ++t)
     {
       done &= trackers_[t].isFound(cloud_ptr_, threshold_);
+      //done &= trackers_[t].oisFound(clouds_ptr_, threshold_);
     }
     // We want to break only if the LED is off, so that pixel is not washed out
     if (done && (weight == -1))
     {
       break;
     }
-
+  
+    //call to obtain difference cloud and the max cloud
+    diff_image_.release();
+    trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
+    trackers_[tracker].oprocess(clouds_ptr_, prev_clouds, weight);
+
 
     if (++cycles > max_iterations_)
     {
       return false;
     }
-
+    /* previous clouds*/
     *prev_cloud = *cloud_ptr_;
+    prev_clouds = clouds_ptr_;
+    clouds_ptr_.resize(0);
   }
 
   // Create PointCloud2 to publish
@@ -203,14 +259,36 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   {
     geometry_msgs::PointStamped rgbd_pt;
     geometry_msgs::PointStamped world_pt;
+    geometry_msgs::PointStamped hough_pt;
+    
 
-    // Get point
+    /* code added for hough transform*/
+    if (!trackers_[t].getContourCircle(diff_image_, hough_pt))
+    {
+      ROS_ERROR_STREAM("No centroid for feature " << t);
+      return false;
+    }    
+    // the transformed point
+    try
+    {
+      listener_.transformPoint(trackers_[t].frame_, ros::Time(0), hough_pt,
+                               hough_pt.header.frame_id, hough_pt);
+    }
+    catch(const tf::TransformException &ex)
+    {
+      ROS_ERROR_STREAM("Failed to transform hough feature to " << trackers_[t].frame_);
+      return false;
+    }
+
+    /* code added for hough transform*/
+
+
+
     if (!trackers_[t].getRefinedCentroid(cloud_ptr_, rgbd_pt))
     {
       ROS_ERROR_STREAM("No centroid for feature " << t);
       return false;
     }
-
     // Check that point is close enough to expected pose
     try
     {
@@ -262,7 +340,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     return false;
   }
 
-  // Add debug cloud to message
+    // Add debug cloud to message
   if (output_debug_)
   {
     pcl::toROSMsg(*cloud_ptr_, msg->observations[0].cloud);
@@ -306,6 +384,7 @@ bool LedFinder::CloudDifferenceTracker::process(
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
   double weight)
 {
+
   if (cloud->size() != diff_.size())
   {
     std::cerr << "Cloud size has changed." << std::endl;
@@ -325,18 +404,257 @@ bool LedFinder::CloudDifferenceTracker::process(
   return true;
 }
 
-bool LedFinder::CloudDifferenceTracker::isFound(
-  const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+/*functions by varun*/
+/*
+ *@brief the function processes n number of pointclouds that come before and after
+ *       finds the weighted sum of respective vectors, and then the difference
+ *@param vector of clouds before
+ *@param vector of clouds after
+ *@param weight assigned whether on or off
+ *
+ *@note weighted some is done to avoid the noise originating from 
+ *      external illumination(can further be invested)
+ *      there is little repetetion, the code can still be modified
+ */
+bool LedFinder::CloudDifferenceTracker::oprocess(
+  std::vector<pcloud_> cloud,
+  std::vector<pcloud_> prev,
+  double weight)
+{
+  //cv_bridge image pointers
+  std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;
+  std::vector<cv_bridge::CvImagePtr> prev_image_ptr;
+
+  cv::Mat cloud_bits;
+  cv::Mat prev_bits;
+
+  //function call for initial processing to convert to cv::Mat
+  convert2CvImagePtr(cloud, cloud_image_ptr);
+  convert2CvImagePtr(prev, prev_image_ptr);
+
+  //perform a bitwise AND
+/*  bitwiseAND(cloud_image_ptr, cloud_bits);
+  bitwiseAND(prev_image_ptr, prev_bits);*/
+
+  /*debug_img(cloud_bits, "/tmp/mean/cloud_", 0,0,0);
+  debug_img(prev_bits, "/tmp/mean/prev_", 0,0,0);*/
+
+  cv::Mat cloud_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat prev_pix_weighed(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  
+  weightedSum(cloud_image_ptr, cloud_pix_weighed);
+  weightedSum(prev_image_ptr, prev_pix_weighed);
+  debug_img(cloud_pix_weighed,"/tmp/mean/cloud_", 0, 0, 0);  
+  debug_img(prev_pix_weighed,"/tmp/mean/prev_", 0, 0, 0);  
+  cv::Mat diff_pix ;
+  cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_pix);
+
+/*  double *minVal = new double();
+  double *maxVal = new double();
+  cv::Point *minLoc = new cv::Point(); 
+  cv::Point *maxLoc = new cv::Point();
+
+  cv::Mat thresh; 
+  cv::cvtColor(diff_pix_max, thresh, CV_BGR2GRAY);
+  cv::threshold(thresh, thresh, 150, 255, CV_THRESH_BINARY);
+
+  cv::minMaxLoc(thresh, minVal, maxVal, minLoc, maxLoc);
+  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,0), 1, 8);
+  //split channels
+  std::vector<cv::Mat> channels(3);
+  cv::split(diff_pix_max, channels);
+  cv::minMaxLoc(channels[0], minVal, maxVal, minLoc, maxLoc);
+  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,0,255), 1, 8);
+  cv::minMaxLoc(channels[1], minVal, maxVal, minLoc, maxLoc);
+  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(0,255,0), 1, 8);
+  cv::minMaxLoc(channels[2], minVal, maxVal, minLoc, maxLoc);
+  cv::circle(cloud_image_ptr[0]->image, *maxLoc, 10, cv::Scalar(255,0,0), 1, 8);
+*/
+  debug_img(diff_pix,"/tmp/mean/diff_", 0, 0, 0);
+/*  debug_img(thresh, "/tmp/mean/thresh_", 0, 0, 0);
+  debug_img(cloud_image_ptr[0]->image, "/tmp/mean/image_", 0, 0, 0);*/
+}
+
+void LedFinder::CloudDifferenceTracker::bitwiseAND(std::vector<cv_bridge::CvImagePtr> images, cv::Mat& bit_img)
+{
+  cv::Mat tmp;
+  cv::Mat gray; 
+  std::vector<cv::Mat> bits(images.size());
+
+  for(int i = 1; i < images.size(); i++)
+  {
+    if(i == 1)
+    {
+      cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
+      cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);    
+      bits[0] = gray;
+    }
+    cv::cvtColor(images[i]->image, gray, CV_BGR2GRAY);
+    cv::threshold(gray, gray, 100, 255, CV_THRESH_BINARY);
+    cv::bitwise_and(gray, bits[i-1], bits[i]);  
+  }
+
+  bit_img = bits[((int)images.size()-1)];
+}
+
+
+/*
+ * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 
+ *        use per element operations in opencv to calculate a 
+ *        weighted image
+ * @param array of image pointers
+ * @param weighed image
+ */
+void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvImagePtr>& images, cv::Mat& result)
+{
+
+  std::vector<cv::Mat> weights(images.size());
+  cv::Mat weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0, 0, 0));
+  cv::Mat norm_weight(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
+  cv::Mat weighted_image(images[0]->image.rows, images[0]->image.cols, CV_64F, cv::Scalar(0));
+  cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+
+  //Calculating the weight in a different loop as the we need the overall weight to normalize, 
+  //if everything is done int he same loop the image saturates
+  //TODO is to just use the cv::Array instead of cv::Mat and 
+  //non-opencv options for multiplication and division  
+
+  std::vector<cv::Mat> channels(3);
+
+  for(int i = 0; i < images.size(); i++)
+  {
+    cv::add(tmp_weight,0.05*(images[i]->image), result);
+    tmp_weight = result;
+  }
+//  cv::fastNlMeansDenoisingColoredMulti(img, result, 5, 5, 10, 10, 7, 21);
+
+}
+
+/*void LedFinder::CloudDifferenceTracker::planeFit()*/
+
+void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, std::vector<cv_bridge::CvImagePtr>& cv_ptr)
+{
+  sensor_msgs::Image::Ptr ros_image(new sensor_msgs::Image);
+  sensor_msgs::PointCloud2::Ptr ros_cloud(new sensor_msgs::PointCloud2);
+
+/*  std::vector<cv_bridge::CvImagePtr> cv_ptr;
+  cv.resize(pcl_cloud.size());*/
+  cv_ptr.resize(pcl_cloud.size());
+  for(size_t i = 0; i < pcl_cloud.size(); i++)
+  {
+    cv_ptr[i].reset(new cv_bridge::CvImage);
+      // Create the filtering object
+    std::vector<int> index_in;
+    pcl::IndicesConstPtr index_rem;
+    pcl::PassThrough<pcl::PointXYZRGB> pass (true);
+    pass.setInputCloud(pcl_cloud[i]);
+    pass.setFilterFieldName("z");
+    pass.setFilterLimits(0.0, 1.0);
+    pass.filter(index_in);
+    index_rem = pass.getRemovedIndices();
+
+    // Set all filtered out points to white
+    for(uint j = 0; j < index_rem->size(); j++)
+    {
+      pcl_cloud[i]->points[index_rem->at(j)].x = NAN;
+      pcl_cloud[i]->points[index_rem->at(j)].y = NAN;
+      pcl_cloud[i]->points[index_rem->at(j)].z = NAN;
+      pcl_cloud[i]->points[index_rem->at(j)].r = 0;
+      pcl_cloud[i]->points[index_rem->at(j)].g = 0;
+      pcl_cloud[i]->points[index_rem->at(j)].b = 0;
+    }
+
+    pcl::toROSMsg(*(pcl_cloud[i]),*ros_cloud);
+    pcl::toROSMsg(*ros_cloud, *ros_image);
+    try
+    {
+      cv_ptr[i] = cv_bridge::toCvCopy(*ros_image, sensor_msgs::image_encodings::BGR8);
+    }
+    catch(cv_bridge::Exception& e)
+    {
+      ROS_ERROR("cloud_rosimage is sorry: %s ", e.what());
+      std::abort();
+    }
+    cv::Mat lab_image;
+    cv::cvtColor(cv_ptr[i]->image, lab_image, CV_BGR2Lab);
+
+    std::vector<cv::Mat> lab_channels(3);
+    cv::split(lab_image, lab_channels);
+    //apply clahe
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
+    clahe->setClipLimit(4);
+    cv::Mat dst;
+    clahe->apply(lab_channels[0], dst);
+
+    //merge
+    dst.copyTo(lab_channels[0]);
+    cv::merge(lab_channels, lab_image);
+
+    //convert back to rgb
+    cv::cvtColor(lab_image, cv_ptr[i]->image, CV_Lab2BGR);
+    //cv:Mat
+/*    cv::Mat image = cv::Mat::zeros(cv_ptr[i]->image.rows, cv_ptr[i]->image.cols, CV_8UC3);
+    cv::Mat gray_roi;
+    if ((cv_ptr[i]->image.rows < 15) || (cv_ptr[i]->image.cols < 15))
+    {
+      fprintf(stderr, "small image\n");
+      std::abort();
+    }
+    for(uint j = 5; j < cv_ptr[i]->image.rows-15; j++)
+    {
+      for(uint k = 5; k < cv_ptr[i]->image.cols-15; k++)
+      {      
+        fprintf(stderr, "i : %d ; j : %d ; k : %d",i,j,k);
+        cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
+        cv::Mat roi = (cv_ptr[i]->image)(rect);
+         fprintf(stderr, "I am here after rect\n");
+        cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
+        fprintf(stderr, "I am here after cvtColor\n");
+        if(cv::countNonZero(gray_roi) > 75)
+        {
+          fprintf(stderr, "I am here in if\n");
+          image.at<cv::Vec3b>(k,j) = (cv_ptr[i]->image).at<cv::Vec3b>(k, j);
+
+        }
+        else
+        {
+          fprintf(stderr, "I am here in else\n");
+          cv::Vec3b color(0,0,0);
+          image.at<cv::Vec3b>(k,j) = color;
+        }
+       // roi.release();
+        fprintf(stderr, "after else I am here\n");
+      }
+
+    }
+    cv[i]->image =image;*/
+    
+  }
+
+}
+
+
+ void LedFinder::CloudDifferenceTracker::debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
+ {
+
+  ros::Time n = ros::Time::now();
+  std::stringstream ss(std::stringstream::in | std::stringstream::out);
+  ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
+  imwrite(ss.str(), image);
+ }
+
+/*/*bool LedFinder::CloudDifferenceTracker::oisFound(
+  const pcloud_ cloud,
   double threshold)
 {
   // Returns true only if the max exceeds threshold
   if (max_ < threshold)
   {
     return false;
-  }
+  }*/
 
   // AND the current index is a valid point in the cloud.
-  if (isnan(cloud->points[max_idx_].x) ||
+/*  if (isnan(cloud->points[max_idx_].x) ||
       isnan(cloud->points[max_idx_].x) ||
       isnan(cloud->points[max_idx_].x))
   {
@@ -344,12 +662,86 @@ bool LedFinder::CloudDifferenceTracker::isFound(
   }
 
   return true;
+}*/
+
+/*overloaded function added by varun*/
+bool LedFinder::CloudDifferenceTracker::isFound(
+  const pcloud_ clouds,
+  double threshold)
+{
+/*  for(size_t i = 0; i < clouds.size(); i++)
+  {
+    if(max_ < threshold)
+  }*/
 }
+
+/*added by varun*/
+/*bool LedFinder::CloudDifferenceTracker::getHoughCirclesCentroid(
+  const pcl::PointCloud<pcl::PointXYZRGB> cloud,
+  geometry_msgs::PointStamped& hough_pt)
+{
+  ROS_INFO("in HOUGH here");
+  sensor_msgs::PointCloud2 ros_cloud;
+  sensor_msgs::Image image;
+  ROS_INFO("after image");
+  pcl::toROSMsg(cloud, ros_cloud);
+  pcl::toROSMsg(ros_cloud, image);
+  cv_bridge::CvImagePtr cv_ptr;
+  try
+  {
+    cv_ptr = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::BGR8);
+  }
+  catch(cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cv_bridge is acting funny: %s", e.what());
+    return false;
+  }
+  ROS_INFO("after conversion");
+  ros::Time n = ros::Time::now();
+  std::stringstream ss(std::stringstream::in | std::stringstream::out);
+  ss<<"/tmp/image_"<<n<<".jpg";
+  imwrite(ss.str(), cv_ptr->image);
+  std::vector<cv::Vec3f> circles;
+
+  cv::Mat gray_image, norm_image;
+  cv::cvtColor( cv_ptr->image, gray_image, CV_BGR2GRAY );
+  cv::normalize(gray_image, norm_image, 0 , 255, 32,  -1); //enum for NORM_MINMAX is 32 namespace cv is not declared
+  cv::threshold(gray_image, gray_image, 200, 255, CV_THRESH_BINARY);
+  cv::HoughCircles(norm_image, circles, CV_HOUGH_GRADIENT, 1, 1, 6, 8, 0, 0);
+
+  if(circles.size() < 0)
+  {
+    return false;
+  }
+
+ 
+  for(size_t i = 0; i < circles.size(); i++)
+  {
+    cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+    int radius = cvRound(circles[i][2]);
+    ROS_INFO("RADIUS OF THE CIRCLE : %d", radius);
+    // circle center
+    cv::circle(cv_ptr->image, center, 1, cv::Scalar(0,255,0), -1, 8, 0 );
+    // circle outline
+    cv::circle(cv_ptr->image, center, radius, cv::Scalar(0,0,255), 1, 8, 0 ); 
+  }
+  pcl::PointXYZRGB pt = (cloud)(cvRound(circles[0][0]),cvRound(circles[0][1]));
+  hough_pt.point.x = pt.x; hough_pt.point.y = pt.y; hough_pt.point.z = pt.z;
+
+  n = ros::Time::now();
+  ss.str(" ");
+  ss<<"tmp/image_"<<n<<".jpg";
+  imwrite(ss.str(), cv_ptr->image);
+
+  return true;
+
+}*/
 
 bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
   const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
   geometry_msgs::PointStamped& point)
 {
+  ROS_INFO("In centroid");
   // Get initial centroid
   geometry_msgs::PointStamped p;
   point.point.x = cloud->points[max_idx_].x;
@@ -410,5 +802,79 @@ bool LedFinder::CloudDifferenceTracker::getRefinedCentroid(
 
   return true;
 }
+
+  bool LedFinder::CloudDifferenceTracker::getDifferenceCloud(
+    const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+    const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
+    cv::Mat& diff_image_,
+    double weight)
+  {
+   
+    std::vector< pcl::PointCloud<pcl::PointXYZRGB> > pcl_cloud;
+    pcl_cloud.push_back(*cloud);
+    pcl_cloud.push_back(*prev);
+    std::vector<sensor_msgs::Image> image;
+    std::vector<sensor_msgs::PointCloud2> ros_cloud;
+    std::vector<cv_bridge::CvImagePtr> cv_ptr;
+    std::vector<cv::Mat> cvimage;
+    cvimage.resize(2);
+    image.resize(2);
+    ros_cloud.resize(2);
+    cv_ptr.resize(2);
+    
+    for(int j = 0; j < 2; j++)
+    {
+     pcl::toROSMsg(pcl_cloud[j], ros_cloud[j]);
+     pcl::toROSMsg(ros_cloud[j], image[j]);
+     try
+     {
+        cv_ptr[j] = cv_bridge::toCvCopy(image[j], sensor_msgs::image_encodings::BGR8);
+     }
+     catch(cv_bridge::Exception& e)
+     {
+       ROS_ERROR("failed to convert: %s", e.what()); 
+     }
+    }
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ros::Time n = ros::Time::now();
+    ss<<"/tmp/color/image_"<<n<<".jpg";
+    imwrite(ss.str(),cv_ptr[0]->image); 
+
+    diff_image_ = cv_ptr[0]->image - cv_ptr[1]->image;
+
+ /*   cv::Mat gray;
+    cv::cvtColor(diff_image_, gray, CV_BGR2GRAY);
+    cv::threshold(gray, gray, 40, 255, CV_THRESH_BINARY);
+    ss.str(" ");   
+    ss<<"/tmp/diff/image_"<<n<<".jpg";
+    imwrite(ss.str(), gray);*/
+    return true;
+  }
+
+  bool LedFinder::CloudDifferenceTracker::getContourCircle(cv::Mat&  image,
+                                                           geometry_msgs::PointStamped& point)
+  {
+/*   cv::Mat gray_image, norm_image, canny_image;
+
+   cv::cvtColor(image, gray_image, CV_BGR2GRAY);
+   cv::normalize(image, norm_image, 0, 255, 32, -1);
+   std::stringstream ss( std::stringstream::in | std::stringstream::out)
+   ros::Time now = ros::Time::now();
+   ss<<"/tmp/imagebef_"<<now<<".jpg";
+   imwrite(ss.str(),nowm_image);
+   cv::threshold(norm_image, norm_image, 190,255, CV_THRESH_BINARY);
+   cv::Canny(norm_image, canny_image, 10, 30, 3);
+
+   std::vector< std::vector<cv::Point> > contours;
+   std::vector<cv::Vec4i> hierarchy;
+   cv::findContours(canny_image, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+
+   
+   for(size_t i = 0; i < contours.size(); i++)
+   {
+    cv::Scalar color =  cv::Scalar(0,0,255);
+    cv::drawContours(image, contours, i, color, 2, 8, hierarchy, 0 , cv::Point());
+   }  */
+  }
 
 }  // namespace robot_calibration

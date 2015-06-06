@@ -1,0 +1,410 @@
+#include <math.h>
+#include <robot_calibration/capture/led_finder.h>
+#include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
+#include <geometry_msgs/Point.h>
+
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core/core.hpp>
+
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/point_types.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl_conversions/pcl_conversions.h>
+
+#include <algorithm>
+#include <queue>
+#include <sstream>
+
+class TestImages
+{
+private:
+  ros::NodeHandle nh_;
+  ros::Subscriber sub_;
+  ros::Publisher pub_;
+  cv::Mat prev_image_;
+  bool flag_;
+  int i;
+  std::vector<cv::Mat> images_;
+  typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
+  //cv::Mat image_;
+public:
+  TestImages()
+  {
+    sub_ = nh_.subscribe("/camera/depth_registered/points", 1, &TestImages::pcCB, this);
+    pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/color_diff", 10);
+    flag_ = true;
+    i = 0;
+    
+
+  }
+
+  void convert2ros(const sensor_msgs::PointCloud2ConstPtr& points)
+  {
+
+    cv_bridge::CvImagePtr cv_ptr;
+    sensor_msgs::Image::Ptr ros_img(new sensor_msgs::Image);
+    pcl::toROSMsg(*points, *ros_img);
+    try
+    {
+      cv_ptr = cv_bridge::toCvCopy(ros_img, sensor_msgs::image_encodings::BGR8);
+    }
+    catch(cv_bridge::Exception& e)
+    {
+      ROS_ERROR("sorry state : %s", e.what());
+    }
+     images_.push_back(cv_ptr->image);
+  }
+
+  void pcCB(const sensor_msgs::PointCloud2ConstPtr& points)
+  { 
+    convert2ros(points);
+    if(images_.size() > 1)
+    {
+      // /process(images_);
+      cv::Scalar color(0,0,0);
+      cv::Mat fuse_image = cv::Mat(480, 2*640, CV_8UC3, color);
+      
+      for(int i = 0; i < 160; i++)
+      {
+        
+        if(i%2 == 1)
+        {
+          cv::Mat roi0 = images_[0](cv::Rect(8*(i/2), 0, 8, 480) );
+          roi0.copyTo(fuse_image(cv::Rect(8*i, 0, 8, 480)));
+        }
+
+        if(i%2 == 0)
+        {
+          cv::Mat roi1 = images_[1](cv::Rect(8*(i/2), 0, 8, 480) );
+          roi1.copyTo(fuse_image(cv::Rect(8*i, 0, 8, 480)));
+        }
+      }
+
+/*      cv::Rect rect1 = cv::Rect(0,0, 640, 480);
+      images_[0].copyTo(fuse_image(rect1));
+      cv::Rect rect2 = cv::Rect(640, 0, 640, 480);
+      images_[1].copyTo(fuse_image(rect2) );*/
+      cv::Mat clahe_image;
+      clahe_func(fuse_image, clahe_image);
+
+
+      std::vector<cv::Mat> img(2);
+      img[0] = cv::Mat(480, 640, CV_8UC3, color);
+      img[1] = cv::Mat(480, 640, CV_8UC3, color);
+      for(int i = 0; i < 160; i++)
+      {
+        
+        if(i%2 == 1)
+        {
+
+          cv::Mat roi2 = clahe_image(cv::Rect(8*i, 0, 8, 480));
+          roi2.copyTo((img[0])(cv::Rect(8*(i/2), 0, 8, 480) ) ) ;
+          
+        }
+
+        if(i%2 == 0)
+        {
+          cv::Mat roi3 = clahe_image(cv::Rect(8*i, 0, 8, 480) );
+          roi3.copyTo((img[1])(cv::Rect(8*(i/2), 0, 8, 480) ) ) ;
+    
+        }
+      }
+      debug_img(img[0],"/tmp/mean/img0_", 0, 0, 0);
+      debug_img(img[1],"/tmp/mean/img1_", 0, 0, 0);
+      
+      cv::Mat diff_image;
+      cv::absdiff(img[0],img[1], diff_image);
+      debug_img(diff_image,"/tmp/mean/diff_img_", 0, 0, 0);
+      images_.clear();
+    }
+  }
+
+  void clahe_func(cv::Mat bgr_image, cv::Mat& clahe_image)
+  {
+    cv::Mat lab_image;
+    cv::cvtColor(bgr_image, lab_image, CV_BGR2Lab);
+
+    // Extract the L channel
+    std::vector<cv::Mat> lab_planes(3);
+    cv::split(lab_image, lab_planes);  // now we have the L image in lab_planes[0]
+
+    // apply the CLAHE algorithm to the L channel
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
+    clahe->setClipLimit(16);
+    cv::Mat dst;
+    clahe->apply(lab_planes[0], dst);
+
+    // Merge the the color planes back into an Lab image
+    dst.copyTo(lab_planes[0]);
+    cv::merge(lab_planes, lab_image);
+
+   // convert back to RGB
+   
+   cv::cvtColor(lab_image, clahe_image, CV_Lab2BGR);
+  }
+
+  void debug_img(cv::Mat image, std::string string_in, int k, int l, float diff)
+  {
+
+    ros::Time n = ros::Time::now();
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
+    imwrite(ss.str(), image);
+  }
+
+/*    pcloud_ pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcloud_ pass_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::fromROSMsg(*points, *pcl_cloud);
+
+    // Create the filtering object
+    std::vector<int> index_in;
+    pcl::IndicesConstPtr index_rem;
+    pcl::PassThrough<pcl::PointXYZRGB> pass (true);
+    pass.setInputCloud(pcl_cloud);
+    pass.setFilterFieldName("z");
+    pass.setFilterLimits(0.0, 1.0);
+    pass.filter(index_in);
+    index_rem = pass.getRemovedIndices();
+    //std::cout<<"former: "<<index_rem->size()<<std::endl;
+    // Set all filtered out points to white
+    for(int i = 0; i < index_rem->size(); i++)
+    {
+      pcl_cloud->points[index_rem->at(i)].x = NAN;
+      pcl_cloud->points[index_rem->at(i)].y = NAN;
+      pcl_cloud->points[index_rem->at(i)].z = NAN;
+      pcl_cloud->points[index_rem->at(i)].r = 255;
+      pcl_cloud->points[index_rem->at(i)].g = 255;
+      pcl_cloud->points[index_rem->at(i)].b = 255;
+    }
+    
+  /*plane fitting*/
+/*    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+    pcl::SACSegmentation<pcl::PointXYZRGB> seg;
+    seg.setOptimizeCoefficients (false);
+    seg.setModelType (pcl::SACMODEL_PLANE);
+    seg.setMethodType (pcl::SAC_RANSAC);
+    seg.setDistanceThreshold (0.001);
+    seg.setInputCloud (pcl_cloud);
+    seg.segment (*inliers, *coefficients);
+     //extract indices\
+    
+    //std::vector<int>* index_out(new std::vector<int>);
+    pcl::ExtractIndices<pcl::PointXYZRGB> extract_filter(true);
+    extract_filter.setInputCloud(pcl_cloud);
+    extract_filter.setIndices (inliers);
+    extract_filter.setNegative(true);
+
+    std::vector<int> index_in1;
+    pcl::IndicesConstPtr index_rem1;
+    extract_filter.filter(index_in1);
+    index_rem1 = extract_filter.getRemovedIndices();
+    for(int i = 0; i < index_rem1->size(); i++)
+    {
+      pcl_cloud->points[index_rem1->at(i)].x = NAN;
+      pcl_cloud->points[index_rem1->at(i)].y = NAN;
+      pcl_cloud->points[index_rem1->at(i)].z = NAN;
+      pcl_cloud->points[index_rem1->at(i)].r = 255;
+      pcl_cloud->points[index_rem1->at(i)].g = 255;
+      pcl_cloud->points[index_rem1->at(i)].b = 255;
+    }=*/
+
+/*
+    sensor_msgs::PointCloud2 ros_cloud;
+    pcl::toROSMsg(*pcl_cloud,ros_cloud);
+    ros_cloud.header.frame_id = "base_link";
+    pub_.publish(ros_cloud);
+    sensor_msgs::ImagePtr img(new sensor_msgs::Image);
+    pcl::toROSMsg(ros_cloud, *img);
+
+    cv_bridge::CvImagePtr cv_ptr;
+    try
+    {
+      cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
+    }
+    catch(cv_bridge::Exception& e)
+    {
+      ROS_ERROR("sorry state : %s", e.what());
+    }
+     cv::Mat image = cv::Mat::zeros(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC3);
+    cv::Mat gray_roi;
+    if ((cv_ptr->image.rows < 15) || (cv_ptr->image.cols < 15))
+    {
+      fprintf(stderr, "small image\n");
+      std::abort();
+    }
+    for(uint j = 5; j < cv_ptr->image.rows-15; j++)
+    {
+      for(uint k = 5; k < cv_ptr->image.cols-15; k++)
+      {      
+        fprintf(stderr, "i : %d ; j : %d ; k : %d",i,j,k);
+        cv::Rect rect = cv::Rect(k-5, j-5, 10, 10);
+        cv::Mat roi = (cv_ptr->image)(rect);
+         fprintf(stderr, "I am here after rect\n");
+        cv::cvtColor(roi, gray_roi, CV_BGR2GRAY);
+        fprintf(stderr, "I am here after cvtColor\n");
+        if(cv::countNonZero(gray_roi) > 75)
+        {
+          fprintf(stderr, "I am here in if\n");
+          image.at<cv::Vec3b>(k,j) = (cv_ptr->image).at<cv::Vec3b>(k, j);
+
+        }
+        else
+        {
+          fprintf(stderr, "I am here in else\n");
+          cv::Vec3b color(0,0,0);
+          image.at<cv::Vec3b>(k,j) = color;
+        }
+       // roi.release();
+        fprintf(stderr, "after else I am here\n");
+      }
+
+    }*/
+// /    cv_ptr->image.release();
+/*    cv_bridge::CvImagePtr cv(new cv_bridge::CvImage);
+    cv->image = image;   
+
+    debug_img(cv_ptr->image, "/tmp/mean/img_",0,0,0);
+*/
+//  }
+
+/*
+  void testAgain(  std::vector<cv::Mat>  images)
+  {
+    std::vector<cv::Mat> diss(images.size());
+    cv::Mat all;
+    for(int i = 1; i < images.size(); i++)
+    {
+      for(int j = 0; j < (images[i].rows/2); j++)
+      {
+        cv::Mat tmp1 = images[i](cv::Rect(0, 2*j, 640, 2));
+        cv::normalize(tmp1, tmp1, 0, 1, 32);
+        cv::Mat tmp2 = images[i-1](cv::Rect(0, 2*j, 640, 2));
+        cv::normalize(tmp2, tmp2, 0, 1, 32);
+        cv::Mat diff = tmp1 - tmp2;
+        std::cout<<cv::mean(diff)<<std::endl;
+      }
+      std::cout<<"*88888888888888888888888888888888888888888888888888888888888888"<<std::endl;
+      cv::Mat diff = images[i] - images[i-1];
+      diss.push_back(diff);
+   
+    }
+   // eliminate_wedges(diss, all);
+
+      
+  }*/
+
+/*
+  void diffCalc(cv::Vec3b* p1, cv::Vec3b* p2)
+  {
+    for(int i = 0; i < 3; i++)
+    {
+      if( ((*p1)[i] - (*p2)[i]) > 0 )
+      {
+        (*p1)[i] = (*p1)[i] + (*p1)[i] - (*p2)[i];
+      }
+      else
+      {
+        (*p1)[i] = (*p2)[i]; 
+      }
+    }
+  }*/
+
+
+
+/*  void process(std::vector<cv::Mat> images)
+  {
+    std::vector<cv::MatND> hist_base;
+    std::vector<cv::Mat> hsv(images.size());
+    
+    for(int i = 0; i < images.size(); i++)
+    {
+      cv::MatND tmp_hist;
+      //cv::cvtColor(images[i], hsv[i], CV_BGR2HSV);
+      constHist(images[i], tmp_hist);
+      hist_base.push_back(tmp_hist);
+    }
+
+    for(int i = 1; i < images.size(); i++)
+    {
+      double diff = cv::compareHist(hist_base[i], hist_base[i-1], CV_COMP_CORREL);
+      std::cout<<diff<<std::endl;
+    }
+
+  }
+
+  void constHist(cv::Mat image, cv::MatND& hist)
+  {
+
+    //drawing the histogram
+    //int h_bins = 50; int s_bins = 60; 
+    int r_bins = 64; int g_bins = 64; int b_bins =  64;
+    //int histSize[] = { h_bins, s_bins };
+    int histSize[] = { r_bins, g_bins, b_bins };
+    //int hist_size[] = {h_bins, s_bins};
+    //float h_ranges[] = {0,180};
+    //float s_ranges[] = {0,256};
+    float r_ranges[] = {0,255};
+    float g_ranges[] = {0,255};
+    float b_ranges[] = {0,255};
+
+
+    //const float* ranges[] = {h_ranges, s_ranges};
+    const float* ranges[] = {r_ranges, g_ranges, b_ranges};
+    int channels[] = {0,1,2};
+
+    cv::calcHist(&image, 1, channels, cv::Mat(), hist, 2, histSize, ranges, true, false);
+    cv::normalize(hist, hist, 0, 1, 32, -1, cv::Mat());
+  }
+
+
+
+  void diffHist(cv::Mat image)
+  {
+    int histSize = 16;
+    float range[] = {0, 256};
+    const float* histRange = { range };
+    cv::Mat diff_hist;
+    bool uniform = true; bool accumulate = false;
+    cv::calcHist(&image, 1, 0, cv::Mat(), diff_hist, 1, &histSize, &histRange, uniform, accumulate);
+
+    int hist_w = 512; int hist_h = 400;
+    int bin_w = cvRound( (double) hist_w/histSize );
+    cv::Mat histImage( hist_h, hist_w, CV_8UC3, cv::Scalar(0, 0, 0) );
+    cv::normalize(diff_hist, diff_hist, 0, histImage.rows, 32, -1, cv::Mat() );
+    for( int i = 1; i < histSize; i++ )
+    {
+      line( histImage, cv::Point( bin_w*(i-1), hist_h - cvRound(diff_hist.at<float>(i-1)) ) ,
+                       cv::Point( bin_w*(i), hist_h - cvRound(diff_hist.at<float>(i)) ),
+                       cv::Scalar( 255, 0, 0), 2, 8, 0  );
+    }
+    //double diff = cv::compareHist
+    debug_pic(histImage,"/tmp/test/hist_image_", 0, 0, 0);
+  }
+
+  void debug_pic(cv::Mat image, std::string string_in, int k, int l, float diff)
+  {
+    ros::Time n = ros::Time::now();
+    std::stringstream ss(std::stringstream::in | std::stringstream::out);
+    ss<<string_in<<n<<"_"<<k<<l<<"_"<<diff<<".jpg";
+    imwrite(ss.str(), image);
+  }
+*/
+};
+
+int main(int argc, char** argv)
+{
+  ros::init(argc, argv, "test_images");
+  TestImages obj;
+  ros::spin();
+  return 0;
+}

@@ -72,7 +72,7 @@ class LedFinder : public FeatureFinder
       {
         first_time = flag;
         pt3d = pt;
-	tracker_id = id;
+  tracker_id = id;
       }
     };
 
@@ -98,9 +98,9 @@ class LedFinder : public FeatureFinder
 
     // Looking at clouds to Obtain max_cloud and diff cloud
     bool getDifferenceCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-		                        const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
+                            const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
                             cv::Mat& image,
-		                        double weight);
+                            double weight);
 
     /* Overloaded/un-overloaded left functions added by varun*/
     bool oprocess(pcl::PointXYZRGB pt,
@@ -135,7 +135,7 @@ class LedFinder : public FeatureFinder
 
     // trying out looking for contours
     bool getContourCircle(cv::Mat& cloud,
-			                    geometry_msgs::PointStamped& point);
+                          geometry_msgs::PointStamped& point);
 
     /*for debuggin*/
     void debug_img(cv::Mat image, 
@@ -196,7 +196,7 @@ public:
   bool find(robot_calibration_msgs::CalibrationData * msg);
    
   //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
-  void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& tmp_pt3, cv::Point debug_pixel);
+  void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& tmp_pt3);
 
   bool findInMatchedContours(std::vector<cv::Point> contour,  std::vector<std::vector<cv::Point> >  matched_contours);
 
@@ -256,4 +256,4 @@ private:
 
 }  // namespace robot_calibration
 
-#endif  // ROBOT_CALIBRATION_CAPTURE_LED_FINDER_H
+#endif  // ROBOT_CALIBRATION_CAPTURE_LED_FINDER_H 

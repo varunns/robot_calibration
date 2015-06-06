@@ -310,7 +310,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   {
     cv::Rect bounding_box;
     pcl::PointXYZRGB tmp_pt3;
-    getCandidateRoi(led_respective_contours[i],tmp_pt3, debug_image_manual[i]);
+    getCandidateRoi(led_respective_contours[i],tmp_pt3);
     led_pts.push_back(tmp_pt3);
   }
 
@@ -420,8 +420,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
 
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, 
-                                pcl::PointXYZRGB& tmp_pt3,
-                                cv::Point debug_pixel)
+                                pcl::PointXYZRGB& tmp_pt3)
 {
 
   cv::Mat graytmp;
@@ -472,7 +471,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<std::vector<cv::Point> > contours_candidate;
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-  cv::rectangle((tracker_in->rgb_image)[1], cv::Rect(debug_pixel.x,debug_pixel.y,5,5),cv::Scalar(0,255,0),1,8);
+  
 
   localDebugImage(non_zero,"/tmp/mean/non_zero_");
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwised_");
@@ -528,23 +527,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     contour.clear();
   }
 
-  std::cout<<"debug_pixel:"<<debug_pixel<<std::endl;
-  pcl::PointXYZRGB deb_pt3; 
-  for( int k = 0; k < (tracker_in->pclouds).size(); k++ )
-  {
-    pcl::PointXYZRGB pt = (*tracker_in->pclouds[k])(debug_pixel.x,debug_pixel.y);
-
-    if(isnan(pt.x) && isnan(pt.y) && isnan(pt.z) )
-    {
-      continue;
-    }
-
-    deb_pt3 = pt;
-    break;
-  }
-
   std::cout<<"tracker_id : "<<tracker_in->tracker_id<<std::endl;
-  std::cout<<"Debugged  : "<<deb_pt3.x<<" "<<deb_pt3.y<<" "<<deb_pt3.z<<std::endl;
   std::cout<<"FromTransform : "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
 
   std::vector<double> distance_estimate;
@@ -554,23 +537,15 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   pcl::PointXYZRGB candidate_pt3;
   for( int i = 0; i < pt3ds.size(); i++)
   {
-    std::cout<<" "<<"predicted : "<<pt3ds[i].x<<" "<<pt3ds[i].y<<" "<<pt3ds[i].z<<std::endl;
-    float tmp_dist_estimate = std::sqrt( pow((pt3ds[i].x-deb_pt3.x),2)+pow((pt3ds[i].y-deb_pt3.y),2)+pow((pt3ds[i].z-deb_pt3.z),2) );
+    std::cout<<" "<<"predicted : "<<pt3ds[i].x<<" "<<pt3ds[i].y<<" "<<pt3ds[i].z<<std::endl;    
     float tmp_dist_tf = std::sqrt( pow((pt3ds[i].x-tracker_in->pt3d.x),2)+pow((pt3ds[i].y-tracker_in->pt3d.y),2)+pow((pt3ds[i].z-tracker_in->pt3d.z),2) );
-    distance_estimate.push_back(tmp_dist_estimate);
     distance_tf.push_back(tmp_dist_tf);
-
-    if(tmp_dist_estimate < min_dist)
-    {
-      min_dist = tmp_dist_estimate;
-      candidate_pt3 = pt3ds[i];
-    }
   }
-  tmp_pt3 = candidate_pt3;
-  std::sort(distance_estimate.begin(), distance_estimate.end());
-  std::sort(distance_tf.begin(), distance_tf.end());
 
-  std::cout<<"distance_estimate :"<<distance_estimate[0]<<" || ";
+  
+
+  tmp_pt3 = candidate_pt3;
+  std::sort(distance_tf.begin(), distance_tf.end());
   std::cout<<"distacne_tf :"<<distance_tf[0]<<std::endl;
   
 

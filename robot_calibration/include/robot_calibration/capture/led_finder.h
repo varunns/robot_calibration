@@ -196,7 +196,7 @@ public:
   bool find(robot_calibration_msgs::CalibrationData * msg);
    
   //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
-  void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, cv::Rect& rect, cv::Point debug_pixel);
+  void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& tmp_pt3, cv::Point debug_pixel);
 
   bool findInMatchedContours(std::vector<cv::Point> contour,  std::vector<std::vector<cv::Point> >  matched_contours);
 

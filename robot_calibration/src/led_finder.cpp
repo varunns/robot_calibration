@@ -321,10 +321,11 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
       if( min < distance )
       {
         min = distance;
-        index = i;
+        index = j;
       }
     }
     std::cout<<"with min:"<<min<<" "<<tmp_pt3.x<<" "<< tmp_pt3.y<<" "<<tmp_pt3.z<<" : "<<"the point corresponds to :"<<index<<std::endl;
+    std::cout<<(led_respective_contours[index]->pt3d).x + (led_respective_contours[index]->pt3d).y + (led_respective_contours[index]->pt3d).z<<std::endl;
     led_pts.push_back(tmp_pt3);
   }
 

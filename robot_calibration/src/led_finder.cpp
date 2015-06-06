@@ -539,6 +539,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   }
 
   ROS_INFO("AT A DISTANCE OF %f :: %f ::", tracker_in->pt3d.z, (sum_pt.y/(pt3ds.size())));
+  std::cout<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<std::endl;
   std::cout<<std::sqrt(pow((sum_pt.x/(pt3ds.size())-tracker_in->pt3d.x),2)+pow((sum_pt.y/(pt3ds.size())-tracker_in->pt3d.y),2)+pow((sum_pt.z/(pt3ds.size())-tracker_in->pt3d.z),2))<<std::endl;
   
 

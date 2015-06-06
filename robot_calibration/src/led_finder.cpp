@@ -465,7 +465,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
   for( int i = 0; i < locations.size(); i++)
   {
-    non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = dst.at<uchar>((locations[i]).y,(locations[i]).x);
+    non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = diff_gray.at<uchar>((locations[i]).y,(locations[i]).x);
   }
 
   //finding contours in the non_zero image
@@ -484,7 +484,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 
   for( int i = 0; i < contours_candidate.size(); i++)
   {
-    cv::drawContours((tracker_in->diff_images)[10],contours_candidate,  i, cv::Scalar(255,0,0), 1, 8, cv::noArray(), 1, cv::Point());  
+    cv::drawContours((tracker_in->diff_images)[10],contours_candidate,  i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
   

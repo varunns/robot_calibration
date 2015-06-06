@@ -485,16 +485,32 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     cv::drawContours((tracker_in->diff_images)[10],contours_candidate,  i, cv::Scalar(255,0,0), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
-std::vector<pcl::PointXYZRGB> pt3ds;
- 
-//calculate mid point of a contour
-bool flag = true;
-cv::Rect max_rect;
+  std::vector<pcl::PointXYZRGB> pt3ds;
 
-//for all the conooutrs obtained calculate the debug points, center
-for(int j = 0; j < contours_candidate.size(); j++)
-{
+  //calculate mid point of a contour
+  bool flag = true;
+  cv::Rect max_rect;
+  std::cout<<contours_candidate.size()<<std::endl;
+  std::cout<<"debug_pixel:"<<debug_pixel<<std::endl;
   
+  pcl::PointXYZRGB deb_pt3; 
+  for( int k = 0; k < (tracker_in->pclouds).size(); k++ )
+  {
+  pcl::PointXYZRGB pt = (*tracker_in->pclouds[k])(debug_pixel.x,debug_pixel.y);
+
+  if(isnan(pt.x) && isnan(pt.y) && isnan(pt.z) )
+  {
+    continue;
+  }
+
+  deb_pt3 = pt;
+  break;
+  }
+
+  /*//for all the conooutrs obtained calculate the debug points, center
+  for(int j = 0; j < contours_candidate.size(); j++)
+  {
+
   std::vector<cv::Point>	max_contour = contours_candidate[j];
   bool debug_flag = true;
   std::vector<pcl::PointXYZRGB> pt3ds_temp;
@@ -519,6 +535,7 @@ for(int j = 0; j < contours_candidate.size(); j++)
   sum_pt.x = 0;
   sum_pt.y = 0;
   sum_pt.z = 0;
+
   for( int k = 0; k < pt3ds_temp.size(); k++)
   {
     sum_pt.x += pt3ds_temp[k].x;
@@ -528,35 +545,36 @@ for(int j = 0; j < contours_candidate.size(); j++)
   sum_pt.x = sum_pt.x/(pt3ds_temp.size());
   sum_pt.y = sum_pt.y/(pt3ds_temp.size());
   sum_pt.z = sum_pt.z/(pt3ds_temp.size());
-  std::cout<<" "<<"predicted"     <<" : "<<sum_pt.x<<" "<<sum_pt.y<<" "<<sum_pt.z<<std::endl;
+  std::cout<<" "<<"predicted : "<<sum_pt.x<<" "<<sum_pt.y<<" "<<sum_pt.z<<std::endl;
 
   pt3ds.push_back(sum_pt);
   pt3ds_temp.clear();
   max_contour.clear();
-}
- 
-pcl::PointXYZRGB deb_pt3; 
-for( int k = 0; k < (tracker_in->pclouds).size(); k++ )
-{
+  }
+
+  pcl::PointXYZRGB deb_pt3; 
+  for( int k = 0; k < (tracker_in->pclouds).size(); k++ )
+  {
   pcl::PointXYZRGB pt = (*tracker_in->pclouds[k])(debug_pixel.x,debug_pixel.y);
 
   if(isnan(pt.x) && isnan(pt.y) && isnan(pt.z) )
   {
     continue;
   }
-deb_pt3 = pt;
 
-}
-// ROS_INFO("AT A DISTANCE OF %f :: %f ::", tracker_in->pt3d.z, (sum_pt.y/(pt3ds.size())));
-std::cout<<"tracker_id"<<" : "<<tracker_in->tracker_id<<std::endl;
-std::cout<<" "<<"Debugged "     <<" : "<<deb_pt3.x<<" "<<deb_pt3.y<<" "<<deb_pt3.z<<std::endl;
-std::cout<<" "<<"FromTransform "<<" : "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
-for( int i = 0; i < pt3ds.size(); i++)
-{
+  deb_pt3 = pt;
+  break;
+  }
+
+  std::cout<<"tracker_id : "<<tracker_in->tracker_id<<std::endl;
+  std::cout<<"Debugged  : "<<deb_pt3.x<<" "<<deb_pt3.y<<" "<<deb_pt3.z<<std::endl;
+  std::cout<<"FromTransform : "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
+  for( int i = 0; i < pt3ds.size(); i++)
+  {
   std::cout<<" "<<"Debug_diff:   "<< i <<std::sqrt(pow((pt3ds[i].x-deb_pt3.x),2)+pow((pt3ds[i].y-deb_pt3.y),2)+pow((pt3ds[i].z-deb_pt3.z),2))<<std::endl;
   std::cout<<" "<<"Finder_diff:   "<< i <<std::sqrt(pow((pt3ds[i].x-tracker_in->pt3d.x),2)+pow((pt3ds[i].y-tracker_in->pt3d.y),2)+pow((pt3ds[i].z-tracker_in->pt3d.z),2))<<std::endl;
-}
-  
+  }
+  */
 
 }
 

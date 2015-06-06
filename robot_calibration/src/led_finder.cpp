@@ -564,8 +564,9 @@ for(int j = 0; j < contours_candidate.size(); j++)
 	sum_pt.y = sum_pt.y/(pt3ds.size());
 	sum_pt.z = sum_pt.z/(pt3ds.size());
 	std::cout<<" "<<"predicted"     <<" : "<<sum_pt.x/(pt3ds_temp.size())<<" "<<sum_pt.y/(pt3ds_temp.size())<<" "<<sum_pt.z/(pt3ds_temp.size())<<std::endl;
-  pt3ds_temp.clear();
+
  	pt3ds.push_back(sum_pt);
+    pt3ds_temp.clear();
 }
   
  // ROS_INFO("AT A DISTANCE OF %f :: %f ::", tracker_in->pt3d.z, (sum_pt.y/(pt3ds.size())));

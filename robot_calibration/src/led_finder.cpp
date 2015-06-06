@@ -450,7 +450,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   if(cv::countNonZero(dst) > 0)
   {
     cv::findNonZero(dst,locations);
-    cv::rectangle((tracker_in->rgb_image)[1], cv::Rect((locations[0]).x, (locations[0]).y, 4, 4), cv::Scalar(0,0,255), 3, 8);
   }
 
   //debug

@@ -311,21 +311,6 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     cv::Rect bounding_box;
     pcl::PointXYZRGB tmp_pt3;
     getCandidateRoi(led_respective_contours[i], tmp_pt3);
-    double min = 1000;
-    int index;
-    for( int j = 0; j < led_respective_contours.size(); j++)
-    {
-      double distance = pow( ((led_respective_contours[j]->pt3d).x - tmp_pt3.x), 2) + 
-                        pow( ((led_respective_contours[j]->pt3d).y - tmp_pt3.y), 2) + 
-                        pow( ((led_respective_contours[j]->pt3d).z - tmp_pt3.z), 2);
-      if( min < distance )
-      {
-        min = distance;
-        index = j;
-      }
-    }
-    std::cout<<"with min:"<<min<<" "<<tmp_pt3.x<<" "<< tmp_pt3.y<<" "<<tmp_pt3.z<<" : "<<"the point corresponds to :"<<index<<std::endl;
-    std::cout<<(led_respective_contours[index]->pt3d).x + (led_respective_contours[index]->pt3d).y + (led_respective_contours[index]->pt3d).z<<std::endl;
     led_pts.push_back(tmp_pt3);
   }
 

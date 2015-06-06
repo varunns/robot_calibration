@@ -304,13 +304,27 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   std::vector<pcl::PointXYZRGB> led_pts;
   std::vector<cv::Rect> bounding_rect_leds;
   std::vector<int> area;
- 
+  
   for( int i = 0 ; i < led_respective_contours.size(); i++)
   /// for( int i = 0 ; i  < 1; i++)
   {
     cv::Rect bounding_box;
     pcl::PointXYZRGB tmp_pt3;
-    getCandidateRoi(led_respective_contours[i],tmp_pt3);
+    getCandidateRoi(led_respective_contours[i], tmp_pt3);
+    double min = 1000;
+    int index;
+    for( int j = 0; j < led_respective_contours.size(); j++)
+    {
+      double distance = pow( ((led_respective_contours[j]->pt3d).x - tmp_pt3.x), 2) + 
+                        pow( ((led_respective_contours[j]->pt3d).y - tmp_pt3.y), 2) + 
+                        pow( ((led_respective_contours[j]->pt3d).z - tmp_pt3.z), 2);
+      if( min < distance )
+      {
+        min = distance;
+        index = i;
+      }
+    }
+    std::cout<<"with min:"<<min<<" "<<tmp_pt3.x<<" "<< tmp_pt3.y<<" "<<tmp_pt3.z<<" : "<<"the point corresponds to :"<<index<<std::endl;
     led_pts.push_back(tmp_pt3);
   }
 
@@ -540,9 +554,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     std::cout<<" "<<"predicted : "<<pt3ds[i].x<<" "<<pt3ds[i].y<<" "<<pt3ds[i].z<<std::endl;    
     float tmp_dist_tf = std::sqrt( pow((pt3ds[i].x-tracker_in->pt3d.x),2)+pow((pt3ds[i].y-tracker_in->pt3d.y),2)+pow((pt3ds[i].z-tracker_in->pt3d.z),2) );
     distance_tf.push_back(tmp_dist_tf);
+    if(min_dist > tmp_dist_tf)
+    {
+      min_dist = tmp_dist_tf;
+      candidate_pt3 = pt3ds[i];
+    }
   }
-
-  
 
   tmp_pt3 = candidate_pt3;
   std::sort(distance_tf.begin(), distance_tf.end());

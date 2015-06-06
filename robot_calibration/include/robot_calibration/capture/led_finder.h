@@ -57,7 +57,7 @@ class LedFinder : public FeatureFinder
       //to be filled first time
       bool first_time;
       pcl::PointXYZRGB pt3d;
-
+      int tracker_id;
       //to be filled in process
       std::vector<std::vector<cv::Point> > all_contours;
       std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> pclouds;
@@ -68,10 +68,11 @@ class LedFinder : public FeatureFinder
       {
         first_time = false;
       }
-      TrackContours(bool flag, pcl::PointXYZRGB pt)
+      TrackContours(bool flag, pcl::PointXYZRGB pt, int id)
       {
         first_time = flag;
         pt3d = pt;
+	tracker_id = id;
       }
     };
 

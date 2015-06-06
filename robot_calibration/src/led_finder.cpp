@@ -474,7 +474,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<std::vector<cv::Point> > contours_candidate;
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-  cv::rectangle((tracker_in->rgb_image)[1], cv::Rect(debug_pixel.x,debug_pixel.y,5,5),cv::Scalar(0,0,255),1,8);
+  cv::rectangle((tracker_in->rgb_image)[1], cv::Rect(debug_pixel.x,debug_pixel.y,5,5),cv::Scalar(0,255,0),1,8);
 
   localDebugImage(non_zero,"/tmp/mean/non_zero_");
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwised_");
@@ -483,7 +483,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 
   for( int i = 0; i < contours_candidate.size(); i++)
   {
-    cv::drawContours((tracker_in->diff_images)[10],contours_candidate,  i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());  
+    cv::drawContours((tracker_in->diff_images)[10],contours_candidate,  i, cv::Scalar(0,185,155), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
   
@@ -499,6 +499,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     std::vector<cv::Point> contour = contours_candidate[i];
     std::vector<pcl::PointXYZRGB> pt3ds_temp;
     std::cout<<"contour size :"<<contour.size()<<std::endl;
+    pcl::PointXYZRGB sum_pt;
+    sum_pt.x = 0;
+    sum_pt.y = 0;
+    sum_pt.z = 0;
 
     for(int j = 0; j < contour.size(); j++)
     {   
@@ -507,35 +511,33 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 
       for( int k = 0; k < (tracker_in->pclouds).size(); k++ )
       {
+
         pt3 = (*tracker_in->pclouds[k])(pt.x, pt.y);
         if( !isnan(pt3.x) && !isnan(pt3.y) && !isnan(pt3.z) )
         {
            pt3ds_temp.push_back(pt3);
         }
+
       }
       
       std::cout<<pt3ds_temp.size()<<std::endl;
-    }
 
-   /* pcl::PointXYZRGB sum_pt;
-    sum_pt.x = 0;
-    sum_pt.y = 0;
-    sum_pt.z = 0;
-
-    for( int k = 0; k < pt3ds_temp.size(); k++)
-    {
-      sum_pt.x += pt3ds_temp[k].x;
-      sum_pt.y += pt3ds_temp[k].y;
-      sum_pt.z += pt3ds_temp[k].z;
+      for( int k = 0; k < pt3ds_temp.size(); k++)
+      {
+        sum_pt.x  = sum_pt.x + pt3ds_temp[k].x;
+        sum_pt.y  = sum_pt.y + pt3ds_temp[k].y;
+        sum_pt.z  = sum_pt.z + pt3ds_temp[k].z;
+      }
+      
+      sum_pt.x = sum_pt.x/(pt3ds_temp.size());
+      sum_pt.y = sum_pt.y/(pt3ds_temp.size());
+      sum_pt.z = sum_pt.z/(pt3ds_temp.size());
+      std::cout<<" "<<"predicted : "<<sum_pt.x<<" "<<sum_pt.y<<" "<<sum_pt.z<<std::endl;
     }
-    sum_pt.x = sum_pt.x/(pt3ds_temp.size());
-    sum_pt.y = sum_pt.y/(pt3ds_temp.size());
-    sum_pt.z = sum_pt.z/(pt3ds_temp.size());
-    std::cout<<" "<<"predicted : "<<sum_pt.x<<" "<<sum_pt.y<<" "<<sum_pt.z<<std::endl;
 
     pt3ds.push_back(sum_pt);
     pt3ds_temp.clear();
-    max_contour.clear();*/
+    contour.clear();
   }
 
   std::cout<<"debug_pixel:"<<debug_pixel<<std::endl;

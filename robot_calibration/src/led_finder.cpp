@@ -524,7 +524,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
       sum_pt.z = sum_pt.z/(pt3ds_temp.size());
       
     }
-    std::cout<<" "<<"predicted : "<<sum_pt.x<<" "<<sum_pt.y<<" "<<sum_pt.z<<std::endl;
+
     pt3ds.push_back(sum_pt);
     pt3ds_temp.clear();
     contour.clear();
@@ -548,13 +548,24 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::cout<<"tracker_id : "<<tracker_in->tracker_id<<std::endl;
   std::cout<<"Debugged  : "<<deb_pt3.x<<" "<<deb_pt3.y<<" "<<deb_pt3.z<<std::endl;
   std::cout<<"FromTransform : "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
+
+  std::vector<double> distance_estimate;
+  std::vector<double> distance_tf;
+
   for( int i = 0; i < pt3ds.size(); i++)
   {
-    std::cout<<" "<<"Debug_diff:   "<< i <<std::sqrt(pow((pt3ds[i].x-deb_pt3.x),2)+pow((pt3ds[i].y-deb_pt3.y),2)+pow((pt3ds[i].z-deb_pt3.z),2))<<std::endl;
-    std::cout<<" "<<"Finder_diff:   "<< i <<std::sqrt(pow((pt3ds[i].x-tracker_in->pt3d.x),2)+pow((pt3ds[i].y-tracker_in->pt3d.y),2)+pow((pt3ds[i].z-tracker_in->pt3d.z),2))<<std::endl;
+    std::cout<<" "<<"predicted : "<<pt3ds[i].x<<" "<<pt3ds[i].y<<" "<<pt3ds[i].z<<std::endl;
+    distance_estimate.push_back(std::sqrt(pow((pt3ds[i].x-deb_pt3.x),2)+pow((pt3ds[i].y-deb_pt3.y),2)+pow((pt3ds[i].z-deb_pt3.z),2)));
+    distance_tf.push_back(std::sqrt(pow((pt3ds[i].x-tracker_in->pt3d.x),2)+pow((pt3ds[i].y-tracker_in->pt3d.y),2)+pow((pt3ds[i].z-tracker_in->pt3d.z),2)));
   }
-  
 
+  std::sort(distance_estimate.begin(), distance_estimate.end());
+  std::sort(distance_tf.begin(), distance_tf.end());
+
+  std::cout<<"distance_estimate :"<<distance_estimate[0]<<" || ";
+  std::cout<<"distacne_tf :"<<distance_tf[0]<<std::endl;
+  
+  //cv::rectangle((tracker_in->diff_images)[10])
 }
 
 bool LedFinder::findInMatchedContours(std::vector<cv::Point> contour, std::vector<std::vector<cv::Point> >  matched_contours)

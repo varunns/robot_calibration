@@ -455,16 +455,17 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 
   //debug
   localDebugImage(dst,"/tmp/mean/bitwise_");
-  localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
+  
 
   //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;
   cv::cvtColor( (tracker_in->diff_images)[10], diff_gray, CV_BGR2GRAY );
   cv::cvtColor( (tracker_in->rgb_image)[10], color_gray, CV_BGR2GRAY);
+  
   cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
   for( int i = 0; i < locations.size(); i++)
   {
-    non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = diff_gray.at<uchar>((locations[i]).y,(locations[i]).x);
+    non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = dst.at<uchar>((locations[i]).y,(locations[i]).x);
   }
 
   //finding contours in the non_zero image
@@ -474,11 +475,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<std::vector<cv::Point> > contours_candidate;
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-  cv::rectangle((tracker_in->rgb_image)[1], cv::Rect(debug_pixel.x,debug_pixel.y,5,5),cv::Scalar(0,0,255),1,8); 
+  cv::rectangle((tracker_in->rgb_image)[1], cv::Rect(debug_pixel.x,debug_pixel.y,5,5),cv::Scalar(0,0,255),1,8);
+
+  localDebugImage(non_zero,"/tmp/mean/non_zero_");
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwised_");
-  //debugging to find the contours
-  std::vector<std::vector<cv::Point> > test_conts;
-  //test_conts.push_back(max_contour);
+ 
+
 
   for( int i = 0; i < contours_candidate.size(); i++)
   {
@@ -492,7 +494,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   cv::Rect max_rect;
   std::cout<<contours_candidate.size()<<std::endl;
   std::cout<<"debug_pixel:"<<debug_pixel<<std::endl;
-  
+
   pcl::PointXYZRGB deb_pt3; 
   for( int k = 0; k < (tracker_in->pclouds).size(); k++ )
   {
@@ -506,7 +508,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   deb_pt3 = pt;
   break;
   }
-
+  std::cout<<"Debugged  : "<<deb_pt3.x<<" "<<deb_pt3.y<<" "<<deb_pt3.z<<std::endl;
   /*//for all the conooutrs obtained calculate the debug points, center
   for(int j = 0; j < contours_candidate.size(); j++)
   {

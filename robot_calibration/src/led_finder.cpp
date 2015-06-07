@@ -530,6 +530,14 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
         }
       }
     }
+
+    std::vector< std::vector<cv::Point> > contour_test;
+    contour_test.push_back(max_contour);
+    for( int i = 0 ; i < contour_test.size(); i++)
+    {
+      cv::drawContours((tracker_in->rgb_image)[11], contour_test, i, cv::Scalar(155,185,155), 1, 8, cv::noArray(), 1, cv::Point());
+    }
+    localDebugImage((tracker_in->rgb_image)[11], "/tmp/mean/contour_" );
   std::cout<<"max_contour"<<max_contour.size()<<std::endl;
   pcl::PointXYZRGB pt3ds;
   std::vector<pcl::PointXYZRGB> cand_pts;

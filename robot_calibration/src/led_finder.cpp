@@ -423,12 +423,13 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 {
 
   cv::Mat graytmp;
-  cv::Mat tmp = (tracker_in->diff_images)[3];
+  cv::Mat tmp = (tracker_in->diff_images)[4];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
   cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
   cv::Mat dst;
 
-  //Using a bitwise-AND on all the depth images to determine the most existent pixesl
+  //Using a bitwise-AND on all the depth images to determine the most (probable to 
+  //generalize the method further)existent pixels
   //Also using only the images in middle, again to avoid any noisy diff images
   for( size_t i = 4; i < (tracker_in->diff_images).size(); i++)
   {
@@ -696,7 +697,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   convert2CvImagePtr(cloud, cloud_image_ptr);
   convert2CvImagePtr(prev, prev_image_ptr);
 
-  cv::Mat diff_image = cv::Mat(cloud_image_ptr[0]->image.rows, cloud_image_ptr[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat diff_image = cv::Mat(cloud_image_ptr[5]->image.rows, cloud_image_ptr[5]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
 
   //calculate the difference Image
   cv::Mat img;

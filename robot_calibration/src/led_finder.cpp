@@ -126,7 +126,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 20)
+    if(clouds_ptr_.size() > 19)
     {
       waiting_ = false;
     }
@@ -477,6 +477,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   localDebugImage(non_zero,"/tmp/mean/non_zero_");
   localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwised_");
  
+  std
   for( size_t i = 0; i < contours_candidate.size(); i++)
   {
     cv::drawContours((tracker_in->diff_images)[2],contours_candidate,  i, cv::Scalar(0,185,155), 1, 8, cv::noArray(), 1, cv::Point());  
@@ -714,6 +715,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   
   //push_back images
   (track_contours[tracker_id])->diff_images.push_back(diff_image);
+  (track_contours)[tracker_id]->rgb_image.push_back(cloud_image_ptr[3]->image);
 
   //---------------------------------------------------------------------------------------------------------------------------------------->TrackContour Pointer population
   if(cloud.empty() || prev.empty() )

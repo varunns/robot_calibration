@@ -552,7 +552,6 @@ localDebugImage((tracker_in->rgb_image)[11], "/tmp/mean/contour_" );
   float min_dist = 1000;
   
   int index2;
-
   for( size_t j = 0; j < original_pts.size(); j++)
   {
     float dist = std::sqrt(pow((pt3ds.x - original_pts[j].x),2) + pow((pt3ds.y - original_pts[j].y),2) + pow((pt3ds.z - original_pts[j].z),2));

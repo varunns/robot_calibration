@@ -214,13 +214,25 @@ public:
 
 private:
 
-  struct ContourAndCount
+  struct PointsAndDist
   {
-    std::vector<cv::Point> contour;
-    int count;
-    ContourAndCount()
+    pcl::PointXYZRGB pt_led;
+    pcl::PointXYZRGB pt_tf;
+    float dist;
+    PointsAndDist(pcl::PointXYZRGB pt1, pcl::PointXYZRGB pt2)
     {
+      pt_led = pt1;
+      pt_tf = pt2;
+      dist = std::sqrt(pow((pt1.x-pt2.x),2)+pow((pt1.y-pt2.y),2)+pow((pt1.z-pt2.z),2));
+    }
+  };
 
+  typedef boost::shared_ptr<PointsAndDist> PointsAndDistPtr;
+  struct ComparePointsAndDist
+  {
+    bool operator()(PointsAndDistPtr a, PointsAndDistPtr b)
+    {
+      return(a->dist > b->dist);
     }
   };
 

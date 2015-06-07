@@ -314,6 +314,26 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     led_pts.push_back(tmp_pt3);
   }
 
+  std::priority_queue<PointsAndDistPtr, std::vector<PointsAndDistPtr>, ComparePointsAndDist > PointsAndDist_queue;
+  for( int i = 0; i < led_respective_contours.size(); i++)
+  {
+    for( int j = 0; j < led_pts.size(); j++)
+    {
+       pcl::PointXYZRGB pt3tf = (led_respective_contours[i]->pt3d);
+       PointsAndDistPtr tmp(new PointsAndDist(led_pts[j], pt3tf));
+       PointsAndDist_queue.push(tmp);
+    }
+  }
+
+
+  while (!PointsAndDist_queue.empty())
+  {
+    std::cout<<PointsAndDist_queue.top()->pt_led.x<<" "<<PointsAndDist_queue.top()->pt_led.y<<" "<<PointsAndDist_queue.top()->pt_led.z<<std::endl;
+    std::cout<<PointsAndDist_queue.top()->pt_tf.x<<" "<<PointsAndDist_queue.top()->pt_tf.y<<" "<<PointsAndDist_queue.top()->pt_tf.z<<std::endl;
+    std::cout<<PointsAndDist_queue.top()->dist;
+    std::cout<<"______________________________________________________________________________________________________________________________"<<std::endl;
+    PointsAndDist_queue.pop();
+  }
 
   // Create PointCloud2 to publish
   sensor_msgs::PointCloud2 cloud;
@@ -546,8 +566,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
       candidate_pt3 = pt3ds[i];
     }
   }
-  std::cout<<"led_point"<<tmp_pt3.x<<" "<<tmp_pt3.y<<" "<<tmp_pt3.z<<std::endl;
+  
   tmp_pt3 = candidate_pt3;
+  std::cout<<"led_point"<<tmp_pt3.x<<" "<<tmp_pt3.y<<" "<<tmp_pt3.z<<std::endl;
   std::sort(distance_tf.begin(), distance_tf.end());
   std::cout<<"distacne_tf :"<<distance_tf[0]<<std::endl;
   

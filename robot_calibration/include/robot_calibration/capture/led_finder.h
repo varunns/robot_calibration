@@ -115,14 +115,7 @@ class LedFinder : public FeatureFinder
     void possibleContours(cv::Mat& diff_image, 
                           std::vector<std::vector<cv::Point> >& centers);
 
-    //calculating the distance of contours from the led position
-    bool calcDistQueue(pcl::PointXYZRGB pt,
-                       cv::Mat color_img,
-                       std::vector<pcloud_> cloud, 
-                       std::vector<pcloud_> prev, 
-                       cv::Point2f center,
-                       float r,
-                       float& dist_cand);
+
 
 
     // Calculate the weighted sum of the images
@@ -197,8 +190,6 @@ public:
    
   //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
   void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& tmp_pt3);
-
-  bool findInMatchedContours(std::vector<cv::Point> contour,  std::vector<std::vector<cv::Point> >  matched_contours);
 
   static bool getDebug()
   {

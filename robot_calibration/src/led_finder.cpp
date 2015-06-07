@@ -530,13 +530,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
         }
       }
     }
-  
+  std::cout<<"max_contour"<<max_contour.size()<<std::endl;
   pcl::PointXYZRGB pt3ds;
   std::vector<pcl::PointXYZRGB> cand_pts;
   //for all the conooutrs obtained calculate the debug points, center
   if(max_contour.size() > 0)
-  {
-   
+  {   
     for( int i = 0; i < max_contour.size(); i++)
     {
       for( int j = 0; j < (tracker_in->pclouds).size(); j++)
@@ -549,6 +548,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
       }
     }
   }
+  std::cout<<"tracker_id : "<<tracker_in->tracker_id<<std::endl;
   pcl::PointXYZRGB sum_pt;
   for( int i = 0; i < cand_pts.size(); i++)
   {
@@ -556,16 +556,13 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     sum_pt.y += cand_pts[i].y;
     sum_pt.z += cand_pts[i].z;
   }
-
-  if(cand_pts.size())
+  std::cout<<"sum :"<<sum_pt.x<<" "<<sum_pt.y<<" "<<sum_pt.z<<std::endl;
+  if(cand_pts.size() > 0)
   {
     pt3ds.x = sum_pt.x/cand_pts.size();
     pt3ds.y = sum_pt.y/cand_pts.size();
     pt3ds.z = sum_pt.z/cand_pts.size();
   }
-
-  std::cout<<"tracker_id : "<<tracker_in->tracker_id<<std::endl;
-  std::cout<<"FromTransform : "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
 
   std::vector<double> distance_estimate;
   std::vector<double> distance_tf;
@@ -574,22 +571,24 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   
   int index2;
 
-    for( int j = 0; j < original_pts.size(); j++)
+  for( int j = 0; j < original_pts.size(); j++)
+  {
+    float dist = std::sqrt(pow((pt3ds.x - original_pts[j].x),2) + pow((pt3ds.y - original_pts[j].y),2) + pow((pt3ds.z - original_pts[j].z),2));
+    if(dist < min_dist)
     {
-      float dist = std::sqrt(pow((pt3ds.x - original_pts[j].x),2) + pow((pt3ds.y - original_pts[j].y),2) + pow((pt3ds.z - original_pts[j].z),2));
-      if(min_dist > dist)
-      {
-        min_dist = dist;
-        index2 = j;
-      }
-    }
+      dist = min_dist;
+      index2 = j;
+     }
+  }
   
   tmp_pt3 = pt3ds;
+
+  std::cout<<"pt3ds"<<pt3ds.x<<" "<<pt3ds.y<<" "<<pt3ds.z<<std::endl;
+  std::cout<<"FromTransform : "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   std::cout<<original_pts[index2].x<<" "<<original_pts[index2].y<<" "<<original_pts[index2].z<<" "<<std::endl;
   std::cout<<min_dist<<std::endl;
 
   //tmp_pt3 = candidate_pt3;
-  std::cout<<"led_point"<<tmp_pt3.x<<" "<<tmp_pt3.y<<" "<<tmp_pt3.z<<std::endl;
   //std::sort(distance_tf.begin(), distance_tf.end());
   //std::cout<<"distacne_tf :"<<distance_tf[0]<<std::endl;
   

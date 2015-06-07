@@ -508,50 +508,60 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
     cv::drawContours((tracker_in->diff_images)[10],contours_candidate,  i, cv::Scalar(0,185,155), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
-  std::vector<pcl::PointXYZRGB> pt3ds;
-  //for all the conooutrs obtained calculate the debug points, center
-  for(int i = 0; i < contours_candidate.size(); i++)
-  {
 
-    std::vector<cv::Point> contour = contours_candidate[i];
-    std::vector<pcl::PointXYZRGB> pt3ds_temp;
-    pcl::PointXYZRGB sum_pt;
-    sum_pt.x = 0;
-    sum_pt.y = 0;
-    sum_pt.z = 0;
-
-    for(int j = 0; j < contour.size(); j++)
-    {   
-      pcl::PointXYZRGB pt3;
-      cv::Point pt = contour[j];
-
-      for( int k = 0; k < (tracker_in->pclouds).size(); k++ )
+  
+    std::vector<cv::Point> max_contour;
+    double max = -1000.0;
+    if(contours_candidate.size() > 0)
+    {
+      for( int i = 0; i < contours_candidate.size(); i++)
       {
-
-        pt3 = (*tracker_in->pclouds[k])(pt.x, pt.y);
-        if( !isnan(pt3.x) && !isnan(pt3.y) && !isnan(pt3.z) )
+        double sum = 0;
+        std::vector<cv::Point> tmp_contour = contours_candidate[i];
+        for(int j = 0; j < tmp_contour.size(); j++)
         {
-           pt3ds_temp.push_back(pt3);
+          sum += (double)color_gray.at<uchar>(tmp_contour[j].y, tmp_contour[j].x);
         }
-
+        sum = sum/tmp_contour.size();
+        if(sum > max)
+        {
+          max = sum;
+          max_contour = tmp_contour;
+        }
       }
-
-      for( int k = 0; k < pt3ds_temp.size(); k++)
-      {
-        sum_pt.x  = sum_pt.x + pt3ds_temp[k].x;
-        sum_pt.y  = sum_pt.y + pt3ds_temp[k].y;
-        sum_pt.z  = sum_pt.z + pt3ds_temp[k].z;
-      }
-
-      sum_pt.x = sum_pt.x/(pt3ds_temp.size());
-      sum_pt.y = sum_pt.y/(pt3ds_temp.size());
-      sum_pt.z = sum_pt.z/(pt3ds_temp.size());
-      
     }
+  
+  pcl::PointXYZRGB pt3ds;
+  std::vector<pcl::PointXYZRGB> cand_pts;
+  //for all the conooutrs obtained calculate the debug points, center
+  if(max_contour.size() > 0)
+  {
+   
+    for( int i = 0; i < max_contour.size(); i++)
+    {
+      for( int j = 0; j < (tracker_in->pclouds).size(); j++)
+      {
+        pcl::PointXYZRGB pt = (*tracker_in->pclouds[j])((max_contour[i]).x, (max_contour[i]).y);
+        if( !isnan(pt.x) && !isnan(pt.y) && !isnan(pt.z) )
+        {
+          cand_pts.push_back(pt);
+        }
+      }
+    }
+  }
+  pcl::PointXYZRGB sum_pt;
+  for( int i = 0; i < cand_pts.size(); i++)
+  {
+    sum_pt.x += cand_pts[i].x;
+    sum_pt.y += cand_pts[i].y;
+    sum_pt.z += cand_pts[i].z;
+  }
 
-    pt3ds.push_back(sum_pt);
-    pt3ds_temp.clear();
-    contour.clear();
+  if(cand_pts.size())
+  {
+    pt3ds.x = sum_pt.x/cand_pts.size();
+    pt3ds.y = sum_pt.y/cand_pts.size();
+    pt3ds.z = sum_pt.z/cand_pts.size();
   }
 
   std::cout<<"tracker_id : "<<tracker_in->tracker_id<<std::endl;
@@ -561,22 +571,20 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   std::vector<double> distance_tf;
 
   float min_dist = 1000;
-  pcl::PointXYZRGB candidate_pt3;
-  int index1, index2;
-  for( int i = 0; i < pt3ds.size(); i++)
-  {
+  
+  int index2;
+
     for( int j = 0; j < original_pts.size(); j++)
     {
-      float dist = std::sqrt(pow((pt3ds[i].x - original_pts[j].x),2) + pow((pt3ds[i].y - original_pts[j].y),2) + pow((pt3ds[i].z - original_pts[j].z),2));
+      float dist = std::sqrt(pow((pt3ds.x - original_pts[j].x),2) + pow((pt3ds.y - original_pts[j].y),2) + pow((pt3ds.z - original_pts[j].z),2));
       if(min_dist > dist)
       {
         min_dist = dist;
-        index1 = i;
         index2 = j;
       }
     }
-  }
-  tmp_pt3 = pt3ds[index1];
+  
+  tmp_pt3 = pt3ds;
   std::cout<<original_pts[index2].x<<" "<<original_pts[index2].y<<" "<<original_pts[index2].z<<" "<<std::endl;
   std::cout<<min_dist<<std::endl;
 

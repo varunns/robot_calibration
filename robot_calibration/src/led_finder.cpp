@@ -535,7 +535,7 @@ std::vector< std::vector<cv::Point> > contour_test;
 contour_test.push_back(max_contour);
 for( int i = 0 ; i < contour_test.size(); i++)
 {
-  cv::drawContours((tracker_in->rgb_image)[11], contour_test, i, cv::Scalar(155,185,155), 1, 8, cv::noArray(), 1, cv::Point());
+  cv::drawContours((tracker_in->rgb_image)[11], contour_test, i, cv::Scalar(0,255,0), 2, 8, cv::noArray(), 1, cv::Point());
 }
 localDebugImage((tracker_in->rgb_image)[11], "/tmp/mean/contour_" );
   std::cout<<"max_contour"<<max_contour.size()<<std::endl;
@@ -582,6 +582,7 @@ localDebugImage((tracker_in->rgb_image)[11], "/tmp/mean/contour_" );
   for( int j = 0; j < original_pts.size(); j++)
   {
     float dist = std::sqrt(pow((pt3ds.x - original_pts[j].x),2) + pow((pt3ds.y - original_pts[j].y),2) + pow((pt3ds.z - original_pts[j].z),2));
+    std::cout<<"dist : "<<dist<<std::endl;
     if(dist < min_dist)
     {
       min_dist = dist;

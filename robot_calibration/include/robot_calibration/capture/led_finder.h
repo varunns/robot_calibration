@@ -58,8 +58,6 @@ class LedFinder : public FeatureFinder
       bool first_time;
       pcl::PointXYZRGB pt3d;
       int tracker_id;
-      //to be filled in process
-      std::vector<std::vector<cv::Point> > all_contours;
       std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> pclouds;
       std::vector<cv::Mat> diff_images;
       std::vector<cv::Mat> rgb_image;
@@ -96,12 +94,6 @@ class LedFinder : public FeatureFinder
     // Reset the tracker
     void reset(size_t size);
 
-    // Looking at clouds to Obtain max_cloud and diff cloud
-    bool getDifferenceCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-                            const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
-                            cv::Mat& image,
-                            double weight);
-
     /* Overloaded/un-overloaded left functions added by varun*/
     bool oprocess(pcl::PointXYZRGB pt,
                   int tracker_id,
@@ -111,31 +103,9 @@ class LedFinder : public FeatureFinder
                   bool check_first_time
                   );
 
-    // function to determine possible contours
-    void possibleContours(cv::Mat& diff_image, 
-                          std::vector<std::vector<cv::Point> >& centers);
-
-    //calculating the distance of contours from the led position
-    bool calcDistQueue(pcl::PointXYZRGB pt,
-                       cv::Mat color_img,
-                       std::vector<pcloud_> cloud, 
-                       std::vector<pcloud_> prev, 
-                       cv::Point2f center,
-                       float r,
-                       float& dist_cand);
-
-
-    // Calculate the weighted sum of the images
-    void weightedSum(std::vector<cv_bridge::CvImagePtr>& images, 
-                     cv::Mat& result);
-
     // Convert pointcloud to cv_image ptr
     void convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, 
                             std::vector<cv_bridge::CvImagePtr>& cv_ptr);
-
-    // trying out looking for contours
-    bool getContourCircle(cv::Mat& cloud,
-                          geometry_msgs::PointStamped& point);
 
     /*for debuggin*/
     void debug_img(cv::Mat image, 
@@ -145,35 +115,6 @@ class LedFinder : public FeatureFinder
                    float diff);
 
 
-
-    /*struct holding all the contours and their distance */
-    struct ContourDist
-    {
-      std::vector<cv::Point> contour;
-      float dist;
-      
-      ContourDist()
-      {
-
-      }
-
-      ContourDist(std::vector<cv::Point> contour_in, float mean_distance)
-      {
-        contour = contour_in;
-        dist = mean_distance;
-      }
-    };
-
-    //struct for combination queue sorting rule, min at the top
-    typedef boost::shared_ptr<ContourDist> ContourDistPtr;
-    struct CompareContourDist
-    {
-      bool operator()(ContourDistPtr a, ContourDistPtr b)
-      {
-        return(a->dist > b->dist);
-      }
-    };
-    
     int count_;
     std::vector<double> diff_;
     double max_;
@@ -197,8 +138,6 @@ public:
    
   //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
   void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, std::vector<pcl::PointXYZRGB> original_pts, pcl::PointXYZRGB& tmp_pt3);
-
-  bool findInMatchedContours(std::vector<cv::Point> contour,  std::vector<std::vector<cv::Point> >  matched_contours);
 
   static bool getDebug()
   {

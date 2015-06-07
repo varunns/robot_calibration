@@ -304,17 +304,23 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   std::vector<pcl::PointXYZRGB> led_pts;
   std::vector<cv::Rect> bounding_rect_leds;
   std::vector<int> area;
+  std::vector<pcl::PointXYZRGB> original_pts;
+  original_pts.resize(4);
+  for( int i = 0; i < led_respective_contours.size(); i++)
+  {
+    original_pts[i] = led_respective_contours[i]->pt3d;
+  }
   
   for( int i = 0 ; i < led_respective_contours.size(); i++)
   /// for( int i = 0 ; i  < 1; i++)
   {
     cv::Rect bounding_box;
     pcl::PointXYZRGB tmp_pt3;
-    getCandidateRoi(led_respective_contours[i], tmp_pt3);
+    getCandidateRoi(led_respective_contours[i],original_pts,tmp_pt3);
     led_pts.push_back(tmp_pt3);
   }
 
-  std::priority_queue<PointsAndDistPtr, std::vector<PointsAndDistPtr>, ComparePointsAndDist > PointsAndDist_queue;
+/*  std::priority_queue<PointsAndDistPtr, std::vector<PointsAndDistPtr>, ComparePointsAndDist > PointsAndDist_queue;
   for( int i = 0; i < led_respective_contours.size(); i++)
   {
     for( int j = 0; j < led_pts.size(); j++)
@@ -325,8 +331,8 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     }
   }
 
-
-  while (!PointsAndDist_queue.empty())
+/**/
+/*  while (!PointsAndDist_queue.empty())
   {
     std::cout<<PointsAndDist_queue.top()->pt_led.x<<" "<<PointsAndDist_queue.top()->pt_led.y<<" "<<PointsAndDist_queue.top()->pt_led.z<<std::endl;
     std::cout<<PointsAndDist_queue.top()->pt_tf.x<<" "<<PointsAndDist_queue.top()->pt_tf.y<<" "<<PointsAndDist_queue.top()->pt_tf.z<<std::endl;
@@ -334,7 +340,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     std::cout<<"______________________________________________________________________________________________________________________________"<<std::endl;
     PointsAndDist_queue.pop();
   }
-
+*/
   // Create PointCloud2 to publish
   sensor_msgs::PointCloud2 cloud;
   cloud.width = 0;
@@ -440,13 +446,14 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
 
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, 
+                                std::vector<pcl::PointXYZRGB> original_pts,
                                 pcl::PointXYZRGB& tmp_pt3)
 {
 
   cv::Mat graytmp;
   cv::Mat tmp = (tracker_in->diff_images)[3];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
-  cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
+  cv::threshold(graytmp, graytmp, 3, 255, CV_THRESH_BINARY);
   cv::Mat dst;
 
   //Using a bitwise-AND on all the depth images to determine the most existent pixesl
@@ -455,7 +462,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 5, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 3, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
 //    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
@@ -555,22 +562,28 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker
 
   float min_dist = 1000;
   pcl::PointXYZRGB candidate_pt3;
+  int index1, index2;
   for( int i = 0; i < pt3ds.size(); i++)
   {
-//    std::cout<<" "<<"predicted : "<<pt3ds[i].x<<" "<<pt3ds[i].y<<" "<<pt3ds[i].z<<std::endl;    
-    float tmp_dist_tf = std::sqrt( pow((pt3ds[i].x-tracker_in->pt3d.x),2)+pow((pt3ds[i].y-tracker_in->pt3d.y),2)+pow((pt3ds[i].z-tracker_in->pt3d.z),2) );
-    distance_tf.push_back(tmp_dist_tf);
-    if(min_dist > tmp_dist_tf)
+    for( int j = 0; j < original_pts.size(); j++)
     {
-      min_dist = tmp_dist_tf;
-      candidate_pt3 = pt3ds[i];
+      float dist = std::sqrt(pow((pt3ds[i].x - original_pts[j].x),2) + pow((pt3ds[i].y - original_pts[j].y),2) + pow((pt3ds[i].z - original_pts[j].z),2));
+      if(min_dist > dist)
+      {
+        min_dist = dist;
+        index1 = i;
+        index2 = j;
+      }
     }
   }
-  
-  tmp_pt3 = candidate_pt3;
+  tmp_pt3 = pt3ds[index1];
+  std::cout<<original_pts[index2].x<<" "<<original_pts[index2].y<<" "<<original_pts[index2].z<<" "<<std::endl;
+  std::cout<<min_dist<<std::endl;
+
+  //tmp_pt3 = candidate_pt3;
   std::cout<<"led_point"<<tmp_pt3.x<<" "<<tmp_pt3.y<<" "<<tmp_pt3.z<<std::endl;
-  std::sort(distance_tf.begin(), distance_tf.end());
-  std::cout<<"distacne_tf :"<<distance_tf[0]<<std::endl;
+  //std::sort(distance_tf.begin(), distance_tf.end());
+  //std::cout<<"distacne_tf :"<<distance_tf[0]<<std::endl;
   
 
   //cv::rectangle((tracker_in->diff_images)[10])

@@ -63,6 +63,7 @@ class LedFinder : public FeatureFinder
       std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> pclouds;
       std::vector<cv::Mat> diff_images;
       std::vector<cv::Mat> rgb_image;
+      geometry_msgs::PointStamped estimate_led;
 
       TrackContours()
       {
@@ -189,7 +190,7 @@ public:
   bool find(robot_calibration_msgs::CalibrationData * msg);
    
   //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
-  void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr tracker_in, pcl::PointXYZRGB& tmp_pt3);
+  void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracker_in);
 
   static bool getDebug()
   {

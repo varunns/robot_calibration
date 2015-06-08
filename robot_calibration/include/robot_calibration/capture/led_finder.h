@@ -60,10 +60,23 @@ class LedFinder : public FeatureFinder
     // Reset the tracker
     void reset(size_t size);
 
+
+    // Obtaining a hough circle for the points
+    bool getHoughCirclesCentroid(
+      const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+      geometry_msgs::PointStamped& point);
+
+    // Looking at clouds to Obtain max_cloud and diff cloud
+    bool getDifferenceCloud(
+            const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+            const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr& diff_cloud,
+            double weight);
+
+    int count_;
     std::vector<double> diff_;
     double max_;
     int max_idx_;
-    int count_;
     std::string frame_;  // frame of led coordinates
     geometry_msgs::Point point;  //coordinates of led this is tracking
   };
@@ -106,6 +119,7 @@ private:
   int max_iterations_;  /// Maximum number of cycles before we abort finding the LED
 
   bool output_debug_;   /// Should we output debug image/cloud?
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr diff_cloud_;
 };
 
 }  // namespace robot_calibration

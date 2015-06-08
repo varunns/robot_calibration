@@ -1,0 +1,4 @@
+<launch>
+  <node pkg = "robot_calibration" type = "test_led_finder" name="test_led"  output="screen"/>
+  <node pkg = "rosbag" type = "play" name="player" output="screen" args = "--clock /home/varun/test_data/bags/led/0506215/led_far_far_gym.bag" />
+</launch>

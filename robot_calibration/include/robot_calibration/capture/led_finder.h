@@ -32,6 +32,14 @@
 #include <robot_calibration_msgs/GripperLedCommandAction.h>
 #include <actionlib/client/simple_action_client.h>
 
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+#include <queue>
+  
+typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
+
 namespace robot_calibration
 {
 
@@ -60,25 +68,108 @@ class LedFinder : public FeatureFinder
     // Reset the tracker
     void reset(size_t size);
 
+    // Looking at clouds to Obtain max_cloud and diff cloud
+    bool getDifferenceCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+		                        const pcl::PointCloud<pcl::PointXYZRGB>::Ptr prev,
+                            cv::Mat& image,
+		                        double weight);
+
+    /* Overloaded/un-overloaded left functions added by varun*/
+    bool oprocess(pcl::PointXYZRGB pt,
+                  std::vector<pcloud_> cloud,
+                  std::vector<pcloud_> prev,
+                  double weight);
+
+    // function to determine possible contours
+    void possibleContours(cv::Mat& diff_image, 
+                          std::vector<std::vector<cv::Point> >& centers);
+
+    //calculating the distance of contours from the led position
+    bool calcDistQueue(pcl::PointXYZRGB pt,
+                       cv::Mat color_img,
+                       std::vector<pcloud_> cloud, 
+                       std::vector<pcloud_> prev, 
+                       cv::Point2f center,
+                       float r,
+                       float& dist);
+
+
+    // Calculate the weighted sum of the images
+    void weightedSum(std::vector<cv_bridge::CvImagePtr>& images, 
+                     cv::Mat& result);
+
+    // Convert pointcloud to cv_image ptr
+    void convert2CvImagePtr(std::vector<pcloud_>& pcl_cloud, 
+                            std::vector<cv_bridge::CvImagePtr>& cv_ptr);
+
+    // trying out looking for contours
+    bool getContourCircle(cv::Mat& cloud,
+			                    geometry_msgs::PointStamped& point);
+
+    /*for debuggin*/
+    void debug_img(cv::Mat image, 
+                   std::string string_in,
+                   int k,
+                   int l,
+                   float diff);
+
+    /*struct holding all the contours and their distance */
+    struct ContourDist
+    {
+      std::vector<cv::Point> contour;
+      float dist;
+      
+      ContourDist()
+      {
+
+      }
+
+      ContourDist(std::vector<cv::Point> contour_in, float mean_distance)
+      {
+        contour = contour_in;
+        dist = mean_distance;
+      }
+    };
+
+    //struct for combination queue sorting rule, min at the top
+    typedef boost::shared_ptr<ContourDist> ContourDistPtr;
+    struct CompareContourDist
+    {
+      bool operator()(ContourDistPtr a, ContourDistPtr b)
+      {
+        return(a->dist > b->dist);
+      }
+    };
+    
+    int count_;
     std::vector<double> diff_;
     double max_;
     int max_idx_;
-    int count_;
     std::string frame_;  // frame of led coordinates
     geometry_msgs::Point point;  //coordinates of led this is tracking
   };
-
+  
   typedef actionlib::SimpleActionClient<robot_calibration_msgs::GripperLedCommandAction> LedClient;
 
 public:
   LedFinder(ros::NodeHandle & n);
-
+   static bool debug_flag_;
   /**
    * \brief Attempts to find the led in incoming data.
    * \param msg CalibrationData instance to fill in with led point information.
    * \returns True if point has been filled in.
    */
   bool find(robot_calibration_msgs::CalibrationData * msg);
+  
+  static bool getDebug()
+  {
+    return debug_flag_;
+  }
+
+  static void setDebug(bool flag)
+  {
+    debug_flag_ = flag;
+  }
 
 private:
   void cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
@@ -90,6 +181,7 @@ private:
 
   bool waiting_;
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_ptr_;
+  std::vector< pcl::PointCloud<pcl::PointXYZRGB>::Ptr > clouds_ptr_;
 
   std::vector<CloudDifferenceTracker> trackers_;
   std::vector<uint8_t> codes_;
@@ -106,6 +198,8 @@ private:
   int max_iterations_;  /// Maximum number of cycles before we abort finding the LED
 
   bool output_debug_;   /// Should we output debug image/cloud?
+  cv::Mat diff_image_;
+  float led_duration_; //led duration.. to keep led on for so many secs
 };
 
 }  // namespace robot_calibration

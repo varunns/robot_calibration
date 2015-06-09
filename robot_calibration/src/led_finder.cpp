@@ -454,8 +454,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;
   std::cout<<"size of the images:"<<tracker_in->diff_images.size()<<std::endl;
-  cv::cvtColor( (tracker_in->diff_images)[5], diff_gray, CV_BGR2GRAY );
-  cv::cvtColor( (tracker_in->rgb_image)[5], color_gray, CV_BGR2GRAY);
+  cv::cvtColor( (tracker_in->diff_images)[3], diff_gray, CV_BGR2GRAY );
+  cv::cvtColor( (tracker_in->rgb_image)[3], color_gray, CV_BGR2GRAY);
   
   cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
   for( size_t i = 0; i < locations.size(); i++)
@@ -477,7 +477,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
  
   for( size_t i = 0; i < contours_candidate.size(); i++)
   {
-    cv::drawContours((tracker_in->diff_images)[5],contours_candidate,  i, cv::Scalar(0,185,155), 1, 8, cv::noArray(), 1, cv::Point());  
+    cv::drawContours((tracker_in->diff_images)[3],contours_candidate,  i, cv::Scalar(0,185,155), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
   //Contour which can be Led is the same contour that has the highest mean 
@@ -504,9 +504,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   debug_contour.push_back(max_contour);
   for(size_t i = 0; i < debug_contour.size(); i++)
   {
-    cv::drawContours((tracker_in->rgb_image)[5], debug_contour, i, cv::Scalar(0,255,0), 1,8,cv::noArray(), 1, cv::Point());
+    cv::drawContours((tracker_in->rgb_image)[3], debug_contour, i, cv::Scalar(0,255,0), 1,8,cv::noArray(), 1, cv::Point());
   }
-  localDebugImage((tracker_in->rgb_image)[5], "/tmp/mean/contour_");
+  localDebugImage((tracker_in->rgb_image)[3], "/tmp/mean/contour_");
   //cv::rectangle((tracker_in->diff_images)[10])
 
   //Once max conotur is obtained, Get the centroid of all the 

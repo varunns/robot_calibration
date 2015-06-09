@@ -427,87 +427,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   //resolutoin of 8 pixels and obviously 32 bins
   for( size_t i = 3; i < tracker_in->diff_images.size(); i++)
   {
-   src = tracker_in->diff_images[i];  
-    std::vector<hist> hists;
-    hists.resize(32);
-    cv::Mat src_gray;
+    cv::Mat src_gray, src_bin;
+    src = tracker_in->diff_images[i];  
     cv::cvtColor(src, src_gray, CV_BGR2GRAY);
-
-    for( int i = 0; i < src_gray.rows; i++)
-    {
-
-      for( int j = 0; j < src_gray.cols; j++)
-      {
-        int val = (int)src_gray.at<uchar>(i,j);     
-        (hists[val/8].pts).push_back(cv::Point(j,i));
-      }
-
-    }
-
-    //Populate all the regions with less than 20/480*640 with 255
-    cv::Mat tmp_img = cv::Mat::zeros(src.rows, src.cols, CV_8UC1);
-    cv::cvtColor(tracker_in->diff_images[3], tmp_img, CV_BGR2GRAY);
-    for( size_t i = 0; i < hists.size(); i++)
-    {
-
-      if( (hists[i].pts).size() > 0 && (hists[i].pts).size() < 20)
-      {
-        for( size_t j = 0; j < (hists[i].pts).size(); j++)
-        {
-          int val = 255;
-          cv::Point pt = (hists[i].pts)[j];
-          tmp_img.at<uchar>(pt.y, pt.x) = (uchar)val;
-        }
-      }
- 
-    }
-
-    //convert the image into a binary image and perform 
-    //contour extraction
-    cv::Mat bin_img, canny_image;
-    cv::threshold(tmp_img, bin_img, 240, 255, CV_THRESH_BINARY);
-    cv::Canny(bin_img, canny_image, 60, 120, 3);
-    std::vector<std::vector<cv::Point> > contours;
-    cv::findContours(canny_image, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0,0));
-
-    std::cout<<contours.size()<<std::endl;
-    /*if( contours.size() == 0)
-    {
-      continue;
-    }*/
-
-    //get the contour that has the maximum sum of pixels from the 
-    //difference image
-    float max = -1000;
-    std::vector<cv::Point> max_contour;
-    for( size_t i = 0 ; i < contours.size(); i++)
-    {
-      double sum = 0;
-      for( size_t j = 0; j < (contours[i]).size(); j++)
-      {
-        sum += (double)src_gray.at<uchar>( (contours[i])[j].x,(contours[i])[j].y );
-      }
-
-      if( sum > max)
-      {
-        max = sum;
-        max_contour = contours[i];
-      }
-    }
-
-    std::vector<std::vector<cv::Point> > contours_test;
-    contours_test.push_back(max_contour);
-    for( size_t i = 0; i < contours_test.size(); i++)
-    {
-      cv::drawContours(src_gray, contours_test, i, cv::Scalar(0,0,255), 2 , 8, cv::noArray(), 0, cv::Point());
-    }
-
-    
-    localDebugImage(tracker_in->diff_images[0], "/tmp/mean/tmp_");  
-    localDebugImage(src_gray, "/tmp/mean/least_prob");
-    localDebugImage(tmp_img, "/tmp/mean/least_prob");
-    diff_candidate_bins.push_back(tmp_img);
-    src.release();
+    cv::threshold(src_gray, src_bin, 175, 255, CV_THRESH_BINARY);
+    diff_candidate_bins.push_back(src_bin);
+    localDebugImage(src_bin, "/tmp/mean/img_");
   }
 }
 /*

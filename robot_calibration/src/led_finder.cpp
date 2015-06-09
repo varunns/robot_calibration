@@ -462,13 +462,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   }  
 
 
-  cv::Mat result;
-  cv::cvtColor(diff_candidate_bins[0], result, CV_BGR2GRAY);
+  cv::Mat result = diff_candidate_bins[0];
   for( size_t i = 1; i < diff_candidate_bins.size(); i++)  
   {
-    cv::Mat tmp;
-    cv::cvtColor( diff_candidate_bins[i], tmp, CV_BGR2GRAY);
-    cv::bitwise_and(tmp, result, result);
+    cv::bitwise_and(diff_candidate_bins[i], result, result);
   }
   localDebugImage(result, "/tmp/mean/least_prob");
   pcl::PointXYZRGB candidate_pt;

@@ -449,13 +449,14 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       {
         for( size_t j = 0; j < (hists[i].pts).size(); j++)
         {
-          int val = 1;
+          int val = 255;
           cv::Point pt = (hists[i].pts)[j];
           tmp_img.at<uchar>(pt.y, pt.x) = (uchar)val;
         }
       }
  
-    }  
+    }
+    localDebugImage(tracker_in->diff_images[0], "/tmp/mean/tmp_");  
     localDebugImage(tracker_in->diff_images[0], "/tmp/mean/least_prob");
     diff_candidate_bins.push_back(tmp_img);
     src.release();

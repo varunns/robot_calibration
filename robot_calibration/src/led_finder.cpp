@@ -453,9 +453,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     {   
       cv::rectangle(src, cv::Rect(contour[j].x, contour[j].y, 10,10), cv::Scalar(0,0,255),1,8);
     }
+    localDebugImage(src, "/tmp/mean/least_prob");
     src.release();
   }  
-  localDebugImage(src, "/tmp/mean/least_prob");
+  
 }
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)

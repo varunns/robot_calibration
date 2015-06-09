@@ -468,8 +468,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   }
   localDebugImage(result, "/tmp/mean/least_prob");
 
-  std::vector<cv::Point2i> locations; 
-  cv::findNonZero(result, locations);
+  std::vector<cv::Point2i> locations;
+  if(cv::countNonZero(result))
+  {
+    cv::findNonZero(result, locations);
+  }
 
   cv::Mat canny_img;
   int canny_thresh = 60;

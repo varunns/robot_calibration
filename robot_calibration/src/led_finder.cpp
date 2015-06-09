@@ -138,7 +138,7 @@ bool LedFinder::waitForCloud()
 {
   ros::Time ref_time = ros::Time::now();
   waiting_ = true;
-  int count = 20;
+  int count = 40;
   while (--count)
   {
     if (!waiting_)
@@ -293,7 +293,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   std::vector<cv::Rect> bounding_rect_leds;
   std::vector<int> area;
   
-  for( size_t i = 0 ; i < led_respective_contours.size(); i++)
+  for( size_t i = 0 ; i < 1; i++)
   {
     cv::Rect bounding_box;
     getCandidateRoi(led_respective_contours[i]);
@@ -420,7 +420,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 {
 
   cv::Mat graytmp;
-  cv::Mat tmp = (tracker_in->diff_images)[0];
+  cv::Mat tmp = (tracker_in->diff_images)[3];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
   cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
   cv::Mat dst;
@@ -429,7 +429,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   //Also using only the images in midle, again to avoid any noisy diff images
   //this is an underdeveloped way of saying take the pixel with highest probability
   //across the stream
-  for(size_t i = 1; i < (tracker_in->diff_images).size(); i++)
+  for(size_t i = 4; i < (tracker_in->diff_images).size(); i++)
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);

@@ -420,20 +420,20 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 {
 
   cv::Mat graytmp;
-  cv::Mat tmp = (tracker_in->diff_images)[3];
+  cv::Mat tmp = (tracker_in->diff_images)[0];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
-  cv::threshold(graytmp, graytmp, 3, 255, CV_THRESH_BINARY);
+  cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
   cv::Mat dst;
 
   //Using a bitwise-AND on all the depth images to determine the most existent pixesl
   //Also using only the images in midle, again to avoid any noisy diff images
   //this is an underdeveloped way of saying take the pixel with highest probability
   //across the stream
-  for(size_t i = 4; i < (tracker_in->diff_images).size(); i++)
+  for(size_t i = 1; i < (tracker_in->diff_images).size(); i++)
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 3, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 5, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
 //    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
@@ -673,6 +673,7 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   //Filling the members {std::vec<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>, diff_img, rgb_img}
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
   //Pointclouds push_back
+  std::cout<<" "<<cloud.size()<<" "<<prev.size()<<std::endl;
   int size = std::min(cloud.size(), prev.size());
   for( int i = 0; i < size; i++)
   {

@@ -204,7 +204,7 @@ public:
   }
 
   void localDebugImage(cv::Mat img, std::string str);
-  void getMostAccuratePt(cv::Mat img, std::vector<cv::Point> contour, cv::Point& pt);
+ // void getMostAccuratePt(cv::Mat img, std::vector<cv::Point> contour, cv::Point& pt);
 
 private:
 

@@ -462,17 +462,22 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
  
     }
 
+    //convert the image into a binary image and perform 
+    //contour extraction
     cv::Mat bin_img, canny_image;
     cv::threshold(tmp_img, bin_img, 255, 255, CV_THRESH_BINARY);
     cv::Canny(bin_img, canny_image, 60, 120, 3);
     std::vector<std::vector<cv::Point> > contours;
     cv::findContours(canny_image, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0,0));
 
+    std::cout<<contours.size()<<std::endl;
     if( contours.size() == 0)
     {
       continue;
     }
 
+    //get the contour that has the maximum sum of pixels from the 
+    //difference image
     float max = -1000;
     std::vector<cv::Point> max_contour;
     for( size_t i = 0 ; i < contours.size(); i++)
@@ -504,11 +509,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     src.release();
   }
 }
-
-void LedFinder::getMostAccuratePt(cv::Mat img, std::vector<cv::Point> contour, cv::Point& pt)
+/*
+void LedFinder::getMostAccuratePt()
 {
    
-}
+}*/
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)
 {

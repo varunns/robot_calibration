@@ -476,7 +476,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
  
   for( size_t i = 0; i < contours_candidate.size(); i++)
   {
-    cv::drawContours((tracker_in->diff_images)[10],contours_candidate,  i, cv::Scalar(0,185,155), 1, 8, cv::noArray(), 1, cv::Point());  
+    cv::drawContours((tracker_in->diff_images)[5],contours_candidate,  i, cv::Scalar(0,185,155), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
   //Contour which can be Led is the same contour that has the highest mean 

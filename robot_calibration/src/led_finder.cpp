@@ -463,14 +463,43 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
 
     cv::Mat bin_img, canny_image;
-    cv:threshold(tmp_img, bin_img, 255, 255, CV_THRESH_BINARY);
+    cv::threshold(tmp_img, bin_img, 255, 255, CV_THRESH_BINARY);
     cv::Canny(bin_img, canny_image, 60, 120, 3);
     std::vector<std::vector<cv::Point> > contours;
-    cv::findContours(canny_image, contours, )
+    cv::findContours(canny_image, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0,0));
 
-    localDebugImage(bin_img, "/tmp/mean/tmp_");  
+    if( contours.size() == 0)
+    {
+      continue;
+    }
+
+    float max = -1000;
+    std::vector<cv::Point> max_contour;
+    for( size_t i = 0 ; i < contours.size(); i++)
+    {
+      double sum = 0;
+      for( size_t j = 0; j < (contours[i]).size(); j++)
+      {
+        sum += (double)src_gray.at<uchar>( (contours[i])[j].x,(contours[i])[j].y );
+      }
+
+      if( sum > max)
+      {
+        max = sum;
+        max_contour = contours[i];
+      }
+    }
+
+    std::vector<std::vector<cv::Point> > contours_test;
+    contours_test.push_back(max_contour);
+    for( size_t i = 0; i < contours_test.size(); i++)
+    {
+      cv::drawContours(src_gray, contours_test, i, cv::Scalar(0,0,255), 2 , 8, cv::noArray(), 0, cv::Point());
+    }
+
+    
     localDebugImage(tracker_in->diff_images[0], "/tmp/mean/tmp_");  
-    localDebugImage(tmp_img, "/tmp/mean/least_prob");
+    localDebugImage(src_gray, "/tmp/mean/least_prob");
     diff_candidate_bins.push_back(tmp_img);
     src.release();
   }
@@ -507,7 +536,7 @@ void LedFinder::CloudDifferenceTracker::reset(size_t size)
   count_ = 0;
   // Maximum difference observed
   max_ = -1000.0;
-  // Pixel this was observed in
+  // Pixel tis was observed in
   max_idx_ = -1;
 
   // Setup difference tracker

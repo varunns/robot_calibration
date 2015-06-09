@@ -418,177 +418,45 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
  */
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracker_in)
 {
-
-  cv::Mat graytmp;
-  cv::Mat tmp = (tracker_in->diff_images)[3];
-  cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
-  cv::threshold(graytmp, graytmp, 5, 255, CV_THRESH_BINARY);
-  cv::Mat dst;
-
-  //Using a bitwise-AND on all the depth images to determine the most existent pixesl
-  //Also using only the images in midle, again to avoid any noisy diff images
-  //this is an underdeveloped way of saying take the pixel with highest probability
-  //across the stream
-  for(size_t i = 4; i < (tracker_in->diff_images).size(); i++)
-  {
-    cv::Mat gray;
-    cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 5, 255, CV_THRESH_BINARY);
-    cv::bitwise_and(gray, graytmp, dst);
-    graytmp = dst;
-//    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
-    localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
-  }
-  std::vector<cv::Point2i> locations;
-
-  //using all the non zero pixels , for getting the locations
-  if(cv::countNonZero(dst) > 0)
-  {
-    cv::findNonZero(dst,locations);
-  }
-
-  //debug
-  localDebugImage(dst,"/tmp/mean/bitwise_");
-  
-
-  //Using any diff image values to populate the non zero locations
-  cv::Mat diff_gray, color_gray;
-  std::cout<<"size of the images:"<<tracker_in->diff_images.size()<<std::endl;
-  cv::cvtColor( (tracker_in->diff_images)[3], diff_gray, CV_BGR2GRAY );
-  cv::cvtColor( (tracker_in->rgb_image)[3], color_gray, CV_BGR2GRAY);
-  
-  cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
-  for( size_t i = 0; i < locations.size(); i++)
-  {
-    non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = diff_gray.at<uchar>((locations[i]).y,(locations[i]).x);
-  }
-
-  //finding contours in the non_zero image
-  cv::Mat canny_image;
-  int canny_thresh = 60;
-  std::vector<cv::Vec4i> hierarchy;
-  std::vector<std::vector<cv::Point> > contours_candidate;
-  cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
-  cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-  
-
-  localDebugImage(non_zero,"/tmp/mean/non_zero_");
-  localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwised_");
- 
-  for( size_t i = 0; i < contours_candidate.size(); i++)
-  {
-    cv::drawContours((tracker_in->diff_images)[3],contours_candidate,  i, cv::Scalar(0,185,155), 1, 8, cv::noArray(), 1, cv::Point());  
-  }
-
-  //Contour which can be Led is the same contour that has the highest mean 
-  //compared to other contours in a color image 
-  std::vector<cv::Point> max_contour;
-  double min = 1000;
-  for(size_t i = 0; i <contours_candidate.size(); i++)
-  {
-    double sum = 0;
-    std::vector<cv::Point> tmp_contour = contours_candidate[i];
-    for(size_t j = 0; j < tmp_contour.size(); j++)
-    {
-      sum += color_gray.at<double>(tmp_contour[j].y, tmp_contour[j].x);
-    } 
-    sum = sum/tmp_contour.size();
-    if( sum < min)
-    {
-      min = sum;
-      max_contour = tmp_contour;
-    }
-  }
+  hist candidateHists;
 
   for( int i = 0; i < tracker_in->diff_images.size(); i++)
   {
-    findProb(tracker_in->diff_images[i]);  
-  }
-  
-/*
-  std::vector<std::vector<cv::Point> > debug_contour;
-  debug_contour.push_back(max_contour);
-  for(size_t i = 0; i < debug_contour.size(); i++)
-  {
-    cv::drawContours((tracker_in->rgb_image)[3], debug_contour, i, cv::Scalar(0,255,0), 1,8,cv::noArray(), 1, cv::Point());
-  }
-  localDebugImage((tracker_in->rgb_image)[3], "/tmp/mean/contour_");
-  //cv::rectangle((tracker_in->diff_images)[10])
+    cv::Mat src = tracker_in->diff_images[i];  
+    std::vector<hist> hists;
+    hists.resize(32);
+    cv::Mat src_gray;
+    cv::cvtColor(src, src_gray, CV_BGR2GRAY);
 
-  //Once max conotur is obtained, Get the centroid of all the 
-  //visible 3d points
-  std::vector<pcl::PointXYZRGB> pt3ds;
-  for( size_t i = 0; i < max_contour.size(); i++)
-  {
-    pcl::PointXYZRGB pt3;
-    cv::Point pt = max_contour[i];
-    for ( size_t j = 0; j < 10; j ++)
+    for( int i = 0; i < src_gray.rows; i++)
     {
-      pt3 = (*tracker_in->pclouds[j])(pt.x, pt.y);
 
-      if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z))
+      for( int j = 0; j < src_gray.cols; j++)
       {
-        continue;
+        int val = (int)src_gray.at<uchar>(i,j);     
+        hists[val/8].pts).push_back(cv::Point(j,i));
       }
 
-      pt3ds.push_back(pt3);
     }
-  }
 
-  pcl::PointXYZRGB sum_pt3;
-  for( size_t i = 0; i < pt3ds.size(); i++)
-  {
-    sum_pt3.x += pt3ds[i].x;
-    sum_pt3.y += pt3ds[i].y; 
-    sum_pt3.z += pt3ds[i].z;  
-  }
-
-  if( pt3ds.size() != 0 )
-  {
-    sum_pt3.x = sum_pt3.x/pt3ds.size();
-    sum_pt3.y = sum_pt3.y/pt3ds.size();
-    sum_pt3.z = sum_pt3.z/pt3ds.size();
-  }
-
-  //Populate the estimate_led memeber of tracker in with the obtained sum_pt
-  tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
-  tracker_in->estimate_led.point.x = sum_pt3.x;
-  tracker_in->estimate_led.point.y = sum_pt3.y;
-  tracker_in->estimate_led.point.z = sum_pt3.z;*/
-
-}
-
-void LedFinder::findProb(cv::Mat img)
-{
-  cv::Mat src = img;
-  std::vector<hist> hists;
-  hists.resize(32);
-  cv::Mat src_gray;
-  cv::cvtColor(src, src_gray, CV_BGR2GRAY);
-
-  for( int i = 0; i < src_gray.rows; i++)
-  {
-    for( int j = 0; j < src_gray.cols; j++)
+    int min = 255;
+    std::vector<cv::Point> contour;
+    for( int i = 0; i < hists.size(); i++)
     {
-      int val = (int)src_gray.at<uchar>(i,j);     
-      (hists[val/8].pts).push_back(cv::Point(j,i));
-    }
-  }
-  int min = 640*480;
-  std::vector<cv::Point> contour;
-  for( int i = 0; i < hists.size(); i++)
-  {
-    std::cout<<(hists[i].pts).size()<<std::endl;
-    if( (hists[i].pts).size() < min && (hists[i].pts).size() != 0 && (hists[i].pts).size() < 20 )
-    {
-      for( int j = 0; j < contour.size(); j++)
-      {   
-        cv::rectangle(src, cv::Rect(contour[j].x, contour[j].y, 10,10), cv::Scalar(0,0,255),1,8);
+      std::cout<<(hists[i].pts).size()<<std::endl;
+      if( (hists[i].pts).size() != 0 && 
+          (hists[i].pts).size() < 20 
+           i < min)
+      {
+        contour.clear();
+        min = i;
+        contour = hists[i].pts;
       }
-      contour.clear();
-      min = (hists[i].pts).size();
-      contour = hists[i].pts;
-    }
+    }  
+
+  for( int j = 0; j < contour.size(); j++)
+  {   
+    cv::rectangle(src, cv::Rect(contour[j].x, contour[j].y, 10,10), cv::Scalar(0,0,255),1,8);
   }
 
   localDebugImage(img, "/tmp/mean/least_prob");

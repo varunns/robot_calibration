@@ -481,7 +481,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   cv::findContours(canny_img, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point());
   
   cv::Mat diff_gray;
-  cv::cvtColor(tracker_in->diff_images, diff_gray, CV_BGR2GRAY );
+  cv::cvtColor(tracker_in->diff_images[0], diff_gray, CV_BGR2GRAY );
 
   float min = 100;
   std::vector<cv::Point> max_contour;

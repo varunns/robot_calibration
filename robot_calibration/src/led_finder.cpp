@@ -442,6 +442,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
 
     cv::Mat tmp_img = cv::Mat::zeros(src.rows, src.cols, CV_8UC1);
+    cv::cvtColor(tracker_in->diff_images[3], tmp_img, CV_BGR2GRAY);
     for( size_t i = 0; i < hists.size(); i++)
     {
 
@@ -456,6 +457,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       }
  
     }
+
     localDebugImage(tracker_in->diff_images[0], "/tmp/mean/tmp_");  
     localDebugImage(tmp_img, "/tmp/mean/least_prob");
     diff_candidate_bins.push_back(tmp_img);
@@ -584,12 +586,9 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   std::vector<std::vector<cv::Point> > possible_contours;
 //  possibleContours(diff_image, possible_contours);
 
-
-
   //Filling the members {std::vec<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>, diff_img, rgb_img}
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
-  //Pointclouds push_back
-  std::cout<<" "<<cloud.size()<<" "<<prev.size()<<std::endl;
+  //Pointclouds push_back 
   int size = std::min(cloud.size(), prev.size());
   for( int i = 0; i < size; i++)
   {

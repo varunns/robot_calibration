@@ -435,10 +435,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
     for( size_t j = 0; j < contours.size(); j++)
     {
-      cv::drawContours(tracker_in->diff_images[i], contours, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0,cv::Point());
+      cv::drawContours(tracker_in->diff_images[i], contours, j, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0,cv::Point());
     }
 
-/*    std::vector<std::vector<cv::Point> > contours_inrange;
+/*      std::vector<std::vector<cv::Point> > contours_inrange;
     std::vector<pcl::PointCloud<pcl::PointXYZRGB> > pcs_inrange;
     for(size_t j = 0; j < contours.size(); j++)
     {

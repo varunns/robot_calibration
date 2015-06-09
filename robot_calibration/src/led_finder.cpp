@@ -562,6 +562,7 @@ void LedFinder::findProb(cv::Mat img)
 {
   cv::Mat src = img;
   std::vector<hist> hists;
+  hists.resize(32);
   cv::Mat src_gray;
   cv::cvtColor(src, src_gray, CV_BGR2GRAY);
 

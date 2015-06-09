@@ -422,6 +422,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   cv::Mat src;
   std::vector<std::vector<cv::Point> >  candidate_clusters;
   std::vector<cv::Mat> diff_candidate_bins;
+
+  //iterating over all the difference images to construct a histogram with a 
+  //resolutoin of 8 pixels and obviously 32 bins
   for( size_t i = 3; i < tracker_in->diff_images.size(); i++)
   {
    src = tracker_in->diff_images[i];  
@@ -441,6 +444,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
     }
 
+    //Populate all the regions with less than 20/480*640 with 255
     cv::Mat tmp_img = cv::Mat::zeros(src.rows, src.cols, CV_8UC1);
     cv::cvtColor(tracker_in->diff_images[3], tmp_img, CV_BGR2GRAY);
     for( size_t i = 0; i < hists.size(); i++)
@@ -458,6 +462,13 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
  
     }
 
+    cv::Mat bin_img, canny_image;
+    cv:threshold(tmp_img, bin_img, 255, 255, CV_THRESH_BINARY);
+    cv::Canny(bin_img, canny_image, 60, 120, 3);
+    std::vector<std::vector<cv::Point> > contours;
+    cv::findContours(canny_image, contours, )
+
+    localDebugImage(bin_img, "/tmp/mean/tmp_");  
     localDebugImage(tracker_in->diff_images[0], "/tmp/mean/tmp_");  
     localDebugImage(tmp_img, "/tmp/mean/least_prob");
     diff_candidate_bins.push_back(tmp_img);

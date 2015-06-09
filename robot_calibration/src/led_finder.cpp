@@ -434,7 +434,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::findContours(canny_image, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point());
     for( size_t j = 0; j < contours.size(); j++)
     {
-      cv::drawContours(tracker_in->diff_images[i], contours, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), cv::Point());
+      cv::drawContours(tracker_in->diff_images[i], contours, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0,cv::Point());
     }
     localDebugImage(tracker_in->diff_images[i], "/tmp/mean/cont_");
   }

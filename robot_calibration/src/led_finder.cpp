@@ -420,7 +420,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 {
   hist candidateHists;
   cv::Mat src;
-  for( int i = 0; i < tracker_in->diff_images.size(); i++)
+  std::vector<std::vector<cv::Point> >  candidate_clusters;
+  std::vector<cv::Mat> diff_candidate_bins;
+  for( size_t i = 3; i < tracker_in->diff_images.size(); i++)
   {
    src = tracker_in->diff_images[i];  
     std::vector<hist> hists;
@@ -428,10 +430,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::Mat src_gray;
     cv::cvtColor(src, src_gray, CV_BGR2GRAY);
 
-    for( size_t i = 0; i < src_gray.rows; i++)
+    for( int i = 0; i < src_gray.rows; i++)
     {
 
-      for( size_t j = 0; j < src_gray.cols; j++)
+      for( int j = 0; j < src_gray.cols; j++)
       {
         int val = (int)src_gray.at<uchar>(i,j);     
         (hists[val/8].pts).push_back(cv::Point(j,i));
@@ -439,24 +441,62 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
     }
 
-    std::vector<cv::Point> contour;
+    cv::Mat tmp_img = cv::Mat::zeros(src.rows, src.cols, CV_8UC1);
     for( size_t i = 0; i < hists.size(); i++)
     {
+
       if( (hists[i].pts).size() > 0 && (hists[i].pts).size() < 20)
       {
-        contour.clear();
-        contour = hists[i].pts;
+        for( size_t j = 0; j < (hists[i].pts).size(); j++)
+        {
+          int val = 1;
+          cv::Point pt = (hists[i].pts)[j];
+          tmp_img.at<uchar>(pt.y, pt.x) = (uchar)val;
+        }
       }
+
     }  
 
-    for( size_t j = 0; j < contour.size(); j++)
-    {   
-      cv::rectangle(src, cv::Rect(contour[j].x, contour[j].y, 10,10), cv::Scalar(0,0,255),1,8);
-    }
-    localDebugImage(src, "/tmp/mean/least_prob");
+    diff_candidate_bins.push_back(tmp_img);
     src.release();
   }  
+
+
+  cv::Mat result;
+  cv::cvtColor(diff_candidate_bins[0], result, CV_BGR2GRAY);
+  for( size_t i = 1; i < diff_candidate_bins.size(); i++)  
+  {
+    cv::Mat tmp;
+    cv::cvtColor( diff_candidate_bins[i], tmp, CV_BGR2GRAY);
+    cv::bitwise_and(tmp, result, result);
+  }
+  localDebugImage(result, "/tmp/mean/least_prob");
+  pcl::PointXYZRGB candidate_pt;
+  getMostAccuratePt(result, tracker_in->pclouds, candidate_pt);
+}
+
+void LedFinder::getMostAccuratePt(cv::Mat img, std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clouds, pcl::PointXYZRGB& pt)
+{
+/*  cv::Mat img_canny;
+  std::vector<std::vector<cv::Point> > contours;
+
+  cv::Canny(img, img_canny, 60, 60*2, 3);
+  cv::findContours(img_canny, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point() );
   
+  for( int i = 0; i < contours.size(); i++)
+  {
+    for(int j = 0; j < contours[i].size(); j++)
+    {
+      cv::Point pt = (contours[i])[j];
+      for( int k = 0; k < clouds.size(); k++)
+      {
+        if ( isnan(z) )
+        {
+          break
+        }
+      }
+    }
+  }*/
 }
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)

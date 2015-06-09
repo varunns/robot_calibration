@@ -419,47 +419,43 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracker_in)
 {
   hist candidateHists;
-
+  cv::Mat src;
   for( int i = 0; i < tracker_in->diff_images.size(); i++)
   {
-    cv::Mat src = tracker_in->diff_images[i];  
+   src = tracker_in->diff_images[i];  
     std::vector<hist> hists;
     hists.resize(32);
     cv::Mat src_gray;
     cv::cvtColor(src, src_gray, CV_BGR2GRAY);
 
-    for( int i = 0; i < src_gray.rows; i++)
+    for( size_t i = 0; i < src_gray.rows; i++)
     {
 
-      for( int j = 0; j < src_gray.cols; j++)
+      for( size_t j = 0; j < src_gray.cols; j++)
       {
         int val = (int)src_gray.at<uchar>(i,j);     
-        hists[val/8].pts).push_back(cv::Point(j,i));
+        (hists[val/8].pts).push_back(cv::Point(j,i));
       }
 
     }
 
-    int min = 255;
     std::vector<cv::Point> contour;
-    for( int i = 0; i < hists.size(); i++)
+    for( size_t i = 0; i < hists.size(); i++)
     {
-      std::cout<<(hists[i].pts).size()<<std::endl;
-      if( (hists[i].pts).size() != 0 && 
-          (hists[i].pts).size() < 20 
-           i < min)
+      if( (hists[i].pts).size() > 0 && (hists[i].pts).size() < 20)
       {
         contour.clear();
-        min = i;
         contour = hists[i].pts;
       }
     }  
 
-  for( int j = 0; j < contour.size(); j++)
-  {   
-    cv::rectangle(src, cv::Rect(contour[j].x, contour[j].y, 10,10), cv::Scalar(0,0,255),1,8);
-  }
-
-  localDebugImage(img, "/tmp/mean/least_prob");
+    for( size_t j = 0; j < contour.size(); j++)
+    {   
+      cv::rectangle(src, cv::Rect(contour[j].x, contour[j].y, 10,10), cv::Scalar(0,0,255),1,8);
+    }
+    src.release();
+  }  
+  localDebugImage(src, "/tmp/mean/least_prob");
 }
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)

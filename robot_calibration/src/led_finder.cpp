@@ -457,7 +457,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
  
     }
     localDebugImage(tracker_in->diff_images[0], "/tmp/mean/tmp_");  
-    localDebugImage(tracker_in->diff_images[0], "/tmp/mean/least_prob");
+    localDebugImage(tmp_img, "/tmp/mean/least_prob");
     diff_candidate_bins.push_back(tmp_img);
     src.release();
   }

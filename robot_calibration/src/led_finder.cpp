@@ -421,19 +421,19 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   hist candidateHists;
   cv::Mat src;
   std::vector<std::vector<cv::Point> >  candidate_clusters;
-  std::vector<cv::Mat> diff_candidate_bins;
+  std::vector<cv::Mat> diff_candidate_contours;
 
-  //iterating over all the difference images to construct a histogram with a 
-  //resolutoin of 8 pixels and obviously 32 bins
-  for( size_t i = 3; i < tracker_in->diff_images.size(); i++)
+  for( size_t i = 0; i < (tracker_in->diff_images).size(); i++)
   {
-    cv::Mat src_gray, src_bin;
-    src = tracker_in->diff_images[i];  
-    cv::cvtColor(src, src_gray, CV_BGR2GRAY);
-    cv::threshold(src_gray, src_bin, 175, 255, CV_THRESH_BINARY);
-    diff_candidate_bins.push_back(src_bin);
-    localDebugImage(src_bin, "/tmp/mean/img_");
+    cv::Mat src_gray, canny_image;
+    int canny_thresh = 60;
+    cv::cvtColor(tracker_in->diff_images[i], src_gray, CV_BGR2GRAY);
+    cv::Canny(src_gray, canny_image, canny_thresh, canny_thresh*2, 3);
+
+    std::vector<std::vector<cv::Point> > contours;
+    cv::findContours(canny_image, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point());
   }
+  
 }
 /*
 void LedFinder::getMostAccuratePt()

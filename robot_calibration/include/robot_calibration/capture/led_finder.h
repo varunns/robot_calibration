@@ -204,8 +204,8 @@ public:
   }
 
   void localDebugImage(cv::Mat img, std::string str);
-  void getMostAccuratePt(cv::Mat img, std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clouds, pcl::PointXYZRGB& pt);
-  
+  void getMostAccuratePt(cv::Mat img, std::vector<cv::Point> contour, cv::Point& pt);
+
 private:
 
 struct hist

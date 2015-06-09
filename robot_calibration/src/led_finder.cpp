@@ -456,63 +456,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       }
  
     }  
-
+    localDebugImage(tracker_in->diff_images[0], "/tmp/mean/least_prob");
     diff_candidate_bins.push_back(tmp_img);
     src.release();
   }
-
-  cv::Mat result = diff_candidate_bins[0];
-  for( size_t i = 1; i < diff_candidate_bins.size(); i++)  
-  {
-    cv::bitwise_and(diff_candidate_bins[i], result, result);
-  }
-  localDebugImage(result, "/tmp/mean/least_prob");
-
-  std::vector<cv::Point2i> locations;
-  if(cv::countNonZero(result))
-  {
-    cv::findNonZero(result, locations);
-  }
-
-  cv::Mat canny_img;
-  int canny_thresh = 60;
-  std::vector<std::vector<cv::Point> > contours;
-  cv::Canny(result, canny_img, canny_thresh, canny_thresh*2, 3);
-  cv::findContours(canny_img, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point());
-  
-  cv::Mat diff_gray;
-  cv::cvtColor(tracker_in->diff_images[0], diff_gray, CV_BGR2GRAY );
-
-  float min = 100;
-  std::vector<cv::Point> max_contour;
-  for( size_t i = 0; i < contours.size(); i++)
-  {
-
-    float sum = 0;
-    for( size_t j = 0; j < contours[i].size(); j++)
-    {
-      sum += (float)diff_gray.at<uchar>((contours[i])[j].y, (contours[i])[j].x);
-    }
-
-    sum = sum /contours[i].size();
-    if( sum < min)
-    {
-      max_contour.clear();
-      min = sum;
-      max_contour = contours[i];
-    }
-  }
-
-  std::vector<std::vector<cv::Point> >  test_contours;
-  test_contours.push_back(max_contour);
-  for( size_t i = 0; i <  test_contours.size(); i++)
-  {
-    cv::drawContours(tracker_in->diff_images[0], test_contours, i, cv::Scalar(0,0,255), 2, 8, cv::noArray(), 0, cv::Point() );
-  }
-
-  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/tmp_");
-  cv::Point pt2;
-  getMostAccuratePt(tracker_in->diff_images[0], max_contour, pt2);
 }
 
 void LedFinder::getMostAccuratePt(cv::Mat img, std::vector<cv::Point> contour, cv::Point& pt)

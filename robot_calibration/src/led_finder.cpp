@@ -500,6 +500,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }
 
+  for( int i = 0; i < tracker_in->diff_images.size(); i++)
+  {
+    findProb(tracker_in->diff_images[i]);  
+  }
+  
+/*
   std::vector<std::vector<cv::Point> > debug_contour;
   debug_contour.push_back(max_contour);
   for(size_t i = 0; i < debug_contour.size(); i++)
@@ -548,8 +554,43 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
   tracker_in->estimate_led.point.x = sum_pt3.x;
   tracker_in->estimate_led.point.y = sum_pt3.y;
-  tracker_in->estimate_led.point.z = sum_pt3.z;
+  tracker_in->estimate_led.point.z = sum_pt3.z;*/
 
+}
+
+void LedFinder::findProb(cv::Mat img)
+{
+  cv::Mat src = img;
+  std::vector<hist> hists;
+  cv::Mat src_gray;
+  cv::cvtColor(src, src_gray, CV_BGR2GRAY);
+
+  for( int i = 0; i < src_gray.rows; i++)
+  {
+    for( int j = 0; j < src_gray.cols; j++)
+    {
+      int val = (int)src_gray.at<uchar>(i,j);     
+      (hists[val/8].pts).push_back(cv::Point(j,i));
+    }
+  }
+  int min = 640*480;
+  std::vector<cv::Point> contour;
+  for( int i = 0; i < hists.size(); i++)
+  {
+    std::cout<<(hists[i].pts).size()<<std::endl;
+    if( (hists[i].pts).size() < min && (hists[i].pts).size() != 0 && (hists[i].pts).size() < 20 )
+    {
+      for( int j = 0; j < contour.size(); j++)
+      {   
+        cv::rectangle(src, cv::Rect(contour[j].x, contour[j].y, 10,10), cv::Scalar(0,0,255),1,8);
+      }
+      contour.clear();
+      min = (hists[i].pts).size();
+      contour = hists[i].pts;
+    }
+  }
+
+  localDebugImage(img, "/tmp/mean/least_prob");
 }
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)

@@ -191,6 +191,7 @@ public:
    
   //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
   void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracker_in);
+  void findProb(cv::Mat img);
 
   static bool getDebug()
   {
@@ -205,6 +206,11 @@ public:
   void localDebugImage(cv::Mat img, std::string str);
 
 private:
+
+struct hist
+{
+  std::vector<cv::Point> pts;
+};
 
   struct PointsAndDist
   {

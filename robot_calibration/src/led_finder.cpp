@@ -422,7 +422,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   std::vector<std::vector<cv::Point> >  candidate_clusters;
   std::vector<cv::Mat> diff_candidate_contours;
   std::vector<Hist> hists;
-
+  std::vector<cv::Mat> binary_images;
 
   hists.resize(32);
   for( size_t i = 0; i < tracker_in->diff_images.size(); i++)
@@ -450,7 +450,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         }
       }
     }
-/*      std::vector<std::vector<cv::Point> > contours_inrange;
+
+    binary_images.push_back(tmp_img);
+
+
+/*  std::vector<std::vector<cv::Point> > contours_inrange;
     std::vector<pcl::PointCloud<pcl::PointXYZRGB> > pcs_inrange;
     for(size_t j = 0; j < contours.size(); j++)
     {
@@ -506,6 +510,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
 */
     localDebugImage(tracker_in->diff_images[i], "/tmp/mean/cont_");
+  }
+
+  for( int i = 0; i < binary_images.size(); i++)
+  {
+    localDebugImage(binary_images[i],"/tmp/mean/bin_");
   }
   
 }

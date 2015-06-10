@@ -299,6 +299,9 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   {
     cv::Rect bounding_box;
     getCandidateRoi(led_respective_contours[i]);
+    std::cout<<std::sqrt(pow((led_respective_contours[i]->pt3d.x - led_respective_contours[i]->estimate_led.point.x),2)+
+                         pow((led_respective_contours[i]->pt3d.y - led_respective_contours[i]->estimate_led.point.y),2)+
+                         pow((led_respective_contours[i]->pt3d.z - led_respective_contours[i]->estimate_led.point.z),2))<<std::endl;
  //   getCandidateRoi2(led_respective_contours[i], led_pts[i]);
   }
 
@@ -537,6 +540,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     sum_pt.y += pt3ds[i].y;
     sum_pt.z += pt3ds[i].z;
   }
+  tracker_in->estimate_led.point.x = sum_pt.x/(pt3ds.size());
+  tracker_in->estimate_led.point.y = sum_pt.y/(pt3ds.size());
+  tracker_in->estimate_led.point.z = sum_pt.z/(pt3ds.size());
 
   std::cout<<" "<<"predicted"<<" : "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
 

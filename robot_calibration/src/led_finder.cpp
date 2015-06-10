@@ -458,7 +458,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;
+  std::cout<<"before cvtcolor 1"<<std::endl;
   cv::cvtColor( (tracker_in->diff_images)[10], diff_gray, CV_BGR2GRAY );
+  std::cout<<"after cvt color 2"<<std::endl;
   cv::cvtColor( (tracker_in->rgb_image)[10], color_gray, CV_BGR2GRAY);
   cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
 

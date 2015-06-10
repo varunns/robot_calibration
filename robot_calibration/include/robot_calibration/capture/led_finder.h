@@ -192,7 +192,7 @@ public:
   //getting the common contours among different frames to obtain the most repeated nd hence the deesired frame
   void getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracker_in);
   void getCandidateRoi2(CloudDifferenceTracker::TrackContoursPtr& tracker_in, pcl::PointXYZRGB& led_pt);
-  void findProb(cv::Mat img);
+  void getWeightedCentroid(std::vector<pcl::PointXYZRGB> pts, pcl::PointXYZRGB& centroid);
 
 
   static bool getDebug()

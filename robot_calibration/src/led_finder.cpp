@@ -600,7 +600,6 @@ void LedFinder::getWeightedCentroid(std::vector<pcl::PointXYZRGB> pts, pcl::Poin
   {
     //std::cout<<pts[i].r<<" "<<pts[i].g<<" "<<pts[i].b<<std::endl;
     double gray = 0.2989*pts[i].r + 0.5870*pts[i].g + 0.1140*pts[i].b;
-    std::cout<<gray<<std::endl;
     gray_val.push_back(gray);
     if(gray < min)
     {
@@ -623,6 +622,7 @@ void LedFinder::getWeightedCentroid(std::vector<pcl::PointXYZRGB> pts, pcl::Poin
   for( size_t i = 0; i < pts.size(); i++)
   {
     double curr_weight = min + (max - min)*(gray_val[i] - min)/(max - min);
+    std::cout<<curr_weight<<std::endl;
     total_weight += curr_weight;
     sum_pt.x += curr_weight*pts[i].x;
     sum_pt.y += curr_weight*pts[i].y;

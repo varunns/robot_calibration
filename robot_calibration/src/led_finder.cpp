@@ -439,6 +439,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         (hists[val/8].pts).push_back(cv::Point(j,i));
       }
     }
+    
     cv::Mat tmp_img = cv::Mat::zeros(src.rows, src.cols, CV_64F);
     for( size_t j = 0; j < hists.size(); j++)
     {

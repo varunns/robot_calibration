@@ -443,6 +443,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::Mat tmp_img = cv::Mat::zeros(src.rows, src.cols, CV_64F);
     for( size_t j = 0; j < hists.size(); j++)
     {
+      std::cout<<hists[j].pts.size()<<std::endl;
       if( hists[j].pts.size() > 0 && hists[j].pts.size() < 20)
       {
         for( size_t k = 0; k < hists[j].pts.size(); k++)

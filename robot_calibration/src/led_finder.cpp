@@ -611,23 +611,15 @@ void LedFinder::getWeightedCentroid(std::vector<pcl::PointXYZRGB> pts, pcl::Poin
     }
   }
 
-  for( int i = 0; i < gray_val.size(); i++)
-  {
-    std::cout<<"gray_val :"<<gray_val[i]<<std::endl;
-  }
-
   double total_weight = 0;
   pcl::PointXYZRGB sum_pt;
   sum_pt.x = 0;
   sum_pt.y = 0;
   sum_pt.z = 0;
 
-  std::cout<<"minAndMax: "<<min<<" "<<max<<std::endl;
   for( int i = 0; i < pts.size(); i++)
   {
     double curr_weight = min + (max - min)*(gray_val[i] - min)/(max - min);
-    std::cout<<"gray_val:"<<gray_val[i]<<" ";
-    std::cout<<"curr_val:"<<curr_weight<<" "<<std::endl;
     total_weight += curr_weight;
     sum_pt.x += curr_weight*pts[i].x;
     sum_pt.y += curr_weight*pts[i].y;
@@ -637,7 +629,7 @@ void LedFinder::getWeightedCentroid(std::vector<pcl::PointXYZRGB> pts, pcl::Poin
   centroid.x = sum_pt.x/total_weight;
   centroid.y = sum_pt.y/total_weight;
   centroid.z = sum_pt.z/total_weight;
-  std::cout<<"cfentroid : "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
+
 }
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)

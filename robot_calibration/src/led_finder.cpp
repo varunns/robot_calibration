@@ -424,7 +424,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   std::vector<Hist> hists;
   std::vector<cv::Mat> binary_images;
 
-  hists.resize(32);
+  hists.resize(64);
   for( size_t i = 0; i < tracker_in->diff_images.size(); i++)
   {
     cv::Mat src = tracker_in->diff_images[i];
@@ -436,7 +436,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       for( int k = 0; k < src_gray.cols; k++)
       {
         int val = (int)src_gray.at<uchar>(i,j);     
-        (hists[val/8].pts).push_back(cv::Point(j,i));
+        (hists[val/4].pts).push_back(cv::Point(j,i));
       }
     }
     

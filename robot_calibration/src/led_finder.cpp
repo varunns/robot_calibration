@@ -631,7 +631,7 @@ void LedFinder::getWeightedCentroid(std::vector<pcl::PointXYZRGB> pts, pcl::Poin
   centroid.x = sum_pt.x/total_weight;
   centroid.y = sum_pt.y/total_weight;
   centroid.z = sum_pt.z/total_weight;
-
+  std::cout<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
 }
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)

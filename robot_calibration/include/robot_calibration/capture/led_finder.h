@@ -208,9 +208,10 @@ public:
 
 private:
 
-struct hist
+struct Hist
 {
   std::vector<cv::Point> pts;
+  pcl::PointCloud<pcl::PointXYZRGB> pt3;
 };
 
   struct PointsAndDist

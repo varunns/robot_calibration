@@ -418,26 +418,38 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
  */
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracker_in)
 {
-  hist candidateHists;
-  cv::Mat src;
+
   std::vector<std::vector<cv::Point> >  candidate_clusters;
   std::vector<cv::Mat> diff_candidate_contours;
+  std::vector<Hist> hists;
 
-  for( size_t i = 0; i < (tracker_in->diff_images).size(); i++)
+
+  hists.resize(32);
+  for( size_t i = 0; i < tracker_in->diff_images.size(); i++)
   {
-    cv::Mat src_gray, canny_image;
-    int canny_thresh = 60;
-    cv::cvtColor(tracker_in->diff_images[i], src_gray, CV_BGR2GRAY);
-    /*cv::threshold(src_gray, src_gray, )*/
-    cv::Canny(src_gray, canny_image, canny_thresh, canny_thresh*2, 3);
-    std::vector<std::vector<cv::Point> > contours;
-    cv::findContours(canny_image, contours, cv::noArray(), CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point());
+    cv::Mat src = tracker_in->diff_images[i];
+    cv::Mat src_gray;
+    cv::cvtColor(src, src_gray, CV_BGR2GRAY);
 
-    for( size_t j = 0; j < contours.size(); j++)
+    for( int j = 0; j < src_gray.rows; j++)
     {
-      cv::drawContours(tracker_in->diff_images[i], contours, j, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0,cv::Point());
+      for( int k = 0; k < src_gray.cols; k++)
+      {
+        int val = (int)src_gray.at<uchar>(i,j);     
+        (hists[val/8].pts).push_back(cv::Point(j,i));
+      }
     }
-
+    cv::Mat tmp_img = cv::Mat::zeros(src.rows, src.cols, CV_64F);
+    for( size_t j = 0; j < hists.size(); j++)
+    {
+      if( hists[j].pts.size() > 0 && hists[j].pts.size() < 20)
+      {
+        for( size_t k = 0; k < hists[j].pts.size(); k++)
+        {
+          tmp_img.at<double>(hists[j].pts[k].y, hists[j].pts[k].x) = (double)255;
+        }
+      }
+    }
 /*      std::vector<std::vector<cv::Point> > contours_inrange;
     std::vector<pcl::PointCloud<pcl::PointXYZRGB> > pcs_inrange;
     for(size_t j = 0; j < contours.size(); j++)

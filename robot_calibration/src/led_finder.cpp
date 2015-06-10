@@ -295,7 +295,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   std::vector<pcl::PointXYZRGB> led_pts;
   led_pts.resize(4);
   
-  for( size_t i = 0 ; i < 1; i++)
+  for( size_t i = 0 ; i < 4; i++)
   {
     cv::Rect bounding_box;
     getCandidateRoi(led_respective_contours[i]);
@@ -437,7 +437,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 2, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 4, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
  // localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/image_");
@@ -454,7 +454,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   //debug
   localDebugImage(dst,"/tmp/mean/bitwise_");
-  localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
+ // localDebugImage((tracker_in->rgb_image)[1],"/tmp/mean/bitwise_");
 
   //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;

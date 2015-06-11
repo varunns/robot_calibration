@@ -516,10 +516,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     max_rect = cv::boundingRect(max_contour);
     cv::rectangle((tracker_in->diff_images)[10], max_rect, cv::Scalar(0,255,0),1, 8);
-    cv::rectangle((tracker_in->diff_images)[10], cv::Rect(max_rect.x-2,max_rect.y-2, 4, 4), cv::Scalar(255,0,0), 1, 8);
+
   }
 
-  localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
+
 
 /*  cv::Point center_contour;
   //Calculating the center of mass of the contour ton determine the weighted sum of the centroid
@@ -531,7 +531,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   center_contour.x = center_contour.x/max_contour.size();
   center_contour.y = center_contour.y/max_contour.size();
 */
-
+  cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 4, cv::Scalar(255,0,0), 1, 8);
+  localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
   //adding weights based on the gray level
  for( size_t i = 0; i < max_contour.size(); i++)
  {

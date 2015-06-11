@@ -419,7 +419,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::threshold(gray, gray, 2, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
-    localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
+   // localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
   }
   std::vector<cv::Point2i> locations;
 
@@ -457,7 +457,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     cv::drawContours((tracker_in->diff_images)[3], contours_candidate, i, cv::Scalar(0,255,0), 1, 8, cv::noArray(), 0, cv::Point());
   }
-
+  localDebugImage((tracker_in->diff_images)[3], "/tmp/mean/led2D_");
   /* Debugging to check for the existance of the led point in an ROI of 20 byt 20 around the led*/
 /*  std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
   double min_dist = 100000;

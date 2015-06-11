@@ -350,8 +350,10 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     // Check that points are consistent with one another
     for (size_t t2 = 0; t2 < t; ++t2)
     {
+      std::cout<<" "<<trackers_[t2].point.x<<" "<<trackers_[t2].point.y<<" "<<trackers_[t2].point.z<<std::endl;
       double expected = distancePoints(trackers_[t2].point, trackers_[t].point);
       double actual = distancePoints(msg->observations[0].features[t2].point, rgbd_pt.point);
+      std::cout<<"Distances : "<<expected<<" "<<actual<<std::endl;
       if (fabs(expected-actual) > max_inconsistency_)
       {
         ROS_ERROR_STREAM("Features not internally consistent: " << expected << " " << actual);
@@ -408,7 +410,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   cv::Mat graytmp;
   cv::Mat tmp = (tracker_in->diff_images)[3];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
-  cv::threshold(graytmp, graytmp, 2, 255, CV_THRESH_BINARY);
+  cv::threshold(graytmp, graytmp, 4, 255, CV_THRESH_BINARY);
   cv::Mat dst;
 
   //Applying the bitwise operation on the accumulated diff_images
@@ -416,7 +418,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 2, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 4, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
    // localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
@@ -515,6 +517,15 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }
 
+  std::vector<std::vector<cv::Point> > debug_contour;
+  debug_contour.push_back(max_contour);
+
+  for( size_t i = 0; i < debug_contour.size(); i++)
+  {
+    cv::drawContours(tracker_in->diff_images[5],debug_contour, i, cv::scalar(0,255,255), 1, 8, cv::noArray(), cv::Point());
+  }
+
+  localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour

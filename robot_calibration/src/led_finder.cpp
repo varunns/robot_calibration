@@ -506,7 +506,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::drawContours((tracker_in->diff_images)[10],test_conts,  i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
-  localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
+  //localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour
@@ -519,6 +519,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::rectangle((tracker_in->diff_images)[10], cv::Rect(max_rect.x-5,max_rect.y-5, 10, 10), cv::Scalar(255,0,0), 1, 8);
   }
 
+  localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
 
   cv::Point center_contour;
   //Calculating the center of mass of the contour ton determine the weighted sum of the centroid

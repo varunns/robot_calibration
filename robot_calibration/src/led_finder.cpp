@@ -525,7 +525,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::drawContours(tracker_in->diff_images[5],debug_contour, i, cv::Scalar(0,255,255), 1, 8, cv::noArray(), 0, cv::Point());
   }
 
-  localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
+  
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour
@@ -534,9 +534,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   if( max_contour.size() > 0 && flag)
   {
     max_rect = cv::boundingRect(max_contour);
-    cv::rectangle((tracker_in->diff_images)[10], max_rect, cv::Scalar(0,255,0),1, 8);
+    cv::rectangle((tracker_in->diff_images)[10], cv::Rect(max_rect.x-3,max_rect.y-3, 10, 10), cv::Scalar(0,255,0),1, 8);
   }
-
+  localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");*/
   //adding weights based on the gray level

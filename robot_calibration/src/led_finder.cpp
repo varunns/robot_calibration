@@ -531,7 +531,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   center_contour.x = center_contour.x/max_contour.size();
   center_contour.y = center_contour.y/max_contour.size();
 */
-  cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 4, cv::Scalar(255,0,0), 1, 8);
+  cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,255,0), 1, 8);
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
   //adding weights based on the gray level
  for( size_t i = 0; i < max_contour.size(); i++)

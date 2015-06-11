@@ -459,7 +459,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     cv::drawContours((tracker_in->diff_images)[3], contours_candidate, i, cv::Scalar(0,255,0), 1, 8, cv::noArray(), 0, cv::Point());
   }
-  localDebugImage((tracker_in->diff_images)[3], "/tmp/mean/led2D_");
+  //localDebugImage((tracker_in->diff_images)[3], "/tmp/mean/led2D_");
   /* Debugging to check for the existance of the led point in an ROI of 20 byt 20 around the led*/
 /*  std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
   double min_dist = 100000;
@@ -522,7 +522,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   for( size_t i = 0; i < debug_contour.size(); i++)
   {
-    cv::drawContours(tracker_in->diff_images[5],debug_contour, i, cv::Scalar(0,255,255), 1, 8, cv::noArray(), 0, cv::Point());
+    cv::drawContours(tracker_in->diff_images[5],debug_contour, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0, cv::Point());
   }
 
   
@@ -531,10 +531,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   //calculate mid point of a contour
   bool flag = true;
   cv::Rect max_rect;
+  cv::Point2f center;
+  float radius;
   if( max_contour.size() > 0 && flag)
   {
-    max_rect = cv::boundingRect(max_contour);
-    cv::rectangle((tracker_in->diff_images)[10], cv::Rect(max_rect.x-3,max_rect.y-3, 10, 10), cv::Scalar(0,255,0),1, 8);
+    cv::minEnclosingCirle(max_contour, center, radius);
+    cv::circle((tracker_in->diff_images)[10], cv::Point(center.x, center.y), 10,cv::Scalar(0,255,0),1, 8);
   }
   localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);

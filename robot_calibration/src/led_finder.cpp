@@ -484,7 +484,14 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       for( int k = 0; k < tracker_in->pclouds.size(); k++)
       {
         pcl::PointXYZRGB pt3 = (*tracker_in->pclouds[k])(pt.x, pt.y);
-        std::cout<<pt3.x<<" "<<pt3.y<<" "<<pt3.z<<std::endl;
+        if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
+        {
+            continue;
+        }
+        else
+        {
+          std::cout<<pt3.x<<" "<<pt3.y<<" "<<pt3.z<<std::endl;
+        }
       }
     }
   }

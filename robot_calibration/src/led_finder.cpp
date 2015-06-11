@@ -561,9 +561,15 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     sum_pt.y += pt3ds[i].y;
     sum_pt.z += pt3ds[i].z;
   }
-  tracker_in->estimate_led.point.x = sum_pt.x/(pt3ds.size());
-  tracker_in->estimate_led.point.y = sum_pt.y/(pt3ds.size());
-  tracker_in->estimate_led.point.z = sum_pt.z/(pt3ds.size());
+
+  //populating the reference variable
+  if(pt3ds.size() > 0)
+  {
+    tracker_in->estimate_led.point.x = sum_pt.x/(pt3ds.size());
+    tracker_in->estimate_led.point.y = sum_pt.y/(pt3ds.size());
+    tracker_in->estimate_led.point.z = sum_pt.z/(pt3ds.size());
+  }
+
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/pt3ds.size()<<" "<<sum_pt.y/pt3ds.size()<<" "<<sum_pt.z/pt3ds.size()<<std::endl;
@@ -612,6 +618,7 @@ void LedFinder::getWeightedCentroid(std::vector<pcl::PointXYZRGB> pts, pcl::Poin
   centroid.x = sum_pt.x/total_weight;
   centroid.y = sum_pt.y/total_weight;
   centroid.z = sum_pt.z/total_weight;
+
 
 }
 

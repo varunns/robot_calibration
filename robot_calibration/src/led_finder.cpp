@@ -427,6 +427,7 @@ void LedFinder::getCandidateRoi2(CloudDifferenceTracker::TrackContoursPtr& track
  */
 void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracker_in)
 {
+  std::cout<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   cv::Mat graytmp;
   cv::Mat tmp = (tracker_in->diff_images)[3];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);

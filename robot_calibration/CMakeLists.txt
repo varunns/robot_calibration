@@ -96,6 +96,7 @@ target_link_libraries(calibrate robot_calibration
                                 ${orocos_kdl_LIBRARIES})
 add_dependencies(calibrate robot_calibration)
 
+
 add_subdirectory(test)
 
 install(DIRECTORY include/ DESTINATION include)

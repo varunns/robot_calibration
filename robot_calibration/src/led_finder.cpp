@@ -500,6 +500,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
   int min_dist = 100000;
   pcl::PointXYZRGB pt_min;
+  int r, m;
   for( int i = 317; i < 337; i++)
   {
     for( int j = 233; j < 253; j++)
@@ -517,7 +518,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         if(dist < min_dist)
         {
          min_dist = dist;
-         pt_min = pt3;
+         pt_min.x = pt3.x;
+         pt_min.y = pt3.y;
+         pt_min.z = pt3.z;
+         r = i;
+         m = j;
         }
       } 
     }

@@ -324,15 +324,14 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
   {
     geometry_msgs::PointStamped rgbd_pt;
     geometry_msgs::PointStamped world_pt;
-  
+    rgbd_pt = led_respective_contours[t]->estimate_led;
+     
     try
     {
-      listener_.transformPoint(trackers_[t].frame_, 
-                               ros::Time(0), 
-                               led_respective_contours[t]->estimate_led,
-                               led_respective_contours[t]->estimate_led.header.frame_id, 
-                               world_pt);
+      listener_.transformPoint(trackers_[t].frame_, ros::Time(0), rgbd_pt,
+                               rgbd_pt.header.frame_id, world_pt);
     }
+
     catch(const tf::TransformException &ex)
     {
       ROS_ERROR_STREAM("Failed to transform feature to " << trackers_[t].frame_);
@@ -341,6 +340,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     double distance = distancePoints(world_pt.point, trackers_[t].point);
     ROS_INFO("the distance of %d  : %f", led_respective_contours[t]->tracker_id, distance);
+
     if (distance > max_error_)
     {
       ROS_ERROR_STREAM("Feature was too far away from expected pose in " << trackers_[t].frame_ << ": " << distance);

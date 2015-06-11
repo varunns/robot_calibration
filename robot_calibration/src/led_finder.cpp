@@ -517,6 +517,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     max_rect = cv::boundingRect(max_contour);
   }
 
+
   cv::Point center_contour;
   //Calculating the center of mass of the contour ton determine the weighted sum of the centroid
   for(size_t i = 0; i < max_contour.size(); i++)
@@ -527,22 +528,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   center_contour.x = center_contour.x/max_contour.size();
   center_contour.y = center_contour.y/max_contour.size();
 
-
- // std::cout<<"max_rect:----------------------------------------------------------------------->"<<max_rect<<std::endl;
-  /*for(size_t i = 0; i < max_contour.size(); i++)
-  {
-    pcl::PointXYZRGB pt3;
-    cv::Point pt = max_contour[i];
-    for( size_t j = 0; j < (tracker_in->pclouds).size(); j++ )
-    {
-      pt3 = (*tracker_in->pclouds[j])(pt.x, pt.y);
-      if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
-      {
-        continue;
-      }
-      pt3ds.push_back(pt3);
-    }
-  }*/
 
   //adding weights based on the gray level
   for( int i = center_contour.x - 5; i < center_contour.x + 5; i++)
@@ -565,7 +550,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   pcl::PointXYZRGB centroid;
   getWeightedCentroid(pt3ds, centroid);
-/*  pcl::PointXYZRGB sum_pt;
+  pcl::PointXYZRGB sum_pt;
   sum_pt.x = 0;
   sum_pt.y = 0;
   sum_pt.z = 0;
@@ -575,7 +560,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     sum_pt.x += pt3ds[i].x;
     sum_pt.y += pt3ds[i].y;
     sum_pt.z += pt3ds[i].z;
-  }*/
+  }
 /*  tracker_in->estimate_led.point.x = sum_pt.x/(pt3ds.size());
   tracker_in->estimate_led.point.y = sum_pt.y/(pt3ds.size());
   tracker_in->estimate_led.point.z = sum_pt.z/(pt3ds.size());*/
@@ -584,7 +569,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   tracker_in->estimate_led.point.y = centroid.y;
   tracker_in->estimate_led.point.z = centroid.z;
 
-
+  std::cout<<" "<<"centroided"<<": "<<sum_pt.x/pt3ds.size()<<" "<<sum_pt.y/pt3ds.size()<<" "<<sum_pt.z/pt3ds.size()<<std::endl;
   std::cout<<" "<<"predicted"<<" : "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
 
 

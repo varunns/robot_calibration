@@ -517,7 +517,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
         dist = std::sqrt(pow((pt3.x - tracker_in->pt3d.x),2)+pow((pt3.y - tracker_in->pt3d.y),2)+pow((pt3.z - tracker_in->pt3d.z),2));
        // std::cout<<dist<<std::endl;
-        std::cout<<dist<<" "<<min_dist<<std::endl;
+   
         if(dist < min_dist)
         {
          min_dist = dist;

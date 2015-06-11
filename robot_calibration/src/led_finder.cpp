@@ -458,9 +458,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;
-  std::cout<<"before cvtcolor 1"<<std::endl;
-  cv::cvtColor( (tracker_in->diff_images)[10], diff_gray, CV_BGR2GRAY );
-  std::cout<<"after cvt color 2"<<std::endl;
+  cv::cvtColor( (tracker_in->diff_images)[10], diff_gray, CV_BGR2GRAY);
   cv::cvtColor( (tracker_in->rgb_image)[10], color_gray, CV_BGR2GRAY);
   cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
 
@@ -516,31 +514,25 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     max_rect = cv::boundingRect(max_contour);
     cv::rectangle((tracker_in->diff_images)[10], max_rect, cv::Scalar(0,255,0),1, 8);
-
   }
-  
-  int max = -1000;
+
   std::vector<cv::Point> roi;
   for( int  i = max_rect.x - 8; i < max_rect.x + 16; i++)
   {
     for( int j = max_rect.y - 8; i < max_rect.y + 16; j++)
     {
-      std::cout<<(int)diff_gray.at<uchar>(j,i)<<" ";
-      if( (int)diff_gray.at<uchar>(j,i) > max)
-      {
-        max = (int)diff_gray.at<uchar>(j,i);
-      }
+      cv::Point a = cv::Point(i,j);
+      roi.push_back(a);
     }
-    std::cout<<std::endl;
   }
 
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");*/
   //adding weights based on the gray level
- for( size_t i = 0; i < roi.size(); i++)
+ for( size_t i = 0; i < max_contour.size(); i++)
  {
     pcl::PointXYZRGB pt3;
-    cv::Point pt = roi[i];
+    cv::Point pt = max_contour[i];
     for( size_t j = 0; j < (tracker_in->pclouds).size(); j++ )
     { 
         pt3 = (*tracker_in->pclouds[j])(pt.x, pt.y);
@@ -577,8 +569,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   tracker_in->estimate_led.point.z = centroid.z;
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
- // std::cout<<" "<<"centroided"<<": "<<sum_pt.x/pt3ds.size()<<" "<<sum_pt.y/pt3ds.size()<<" "<<sum_pt.z/pt3ds.size()<<std::endl;
-  std::cout<<" "<<"predicted"<<": "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
+  //std::cout<<" "<<"centroided"<<": "<<sum_pt.x/pt3ds.size()<<" "<<sum_pt.y/pt3ds.size()<<" "<<sum_pt.z/pt3ds.size()<<std::endl;
+ std::cout<<" "<<"predicted"<<": "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
 
 
 }

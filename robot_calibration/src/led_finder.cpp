@@ -516,7 +516,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::rectangle((tracker_in->diff_images)[10], max_rect, cv::Scalar(0,255,0),1, 8);
   }
 
-  std::vector<cv::Point> roi;
+/*  std::vector<cv::Point> roi;
   for( int  i = max_rect.x - 8; i < max_rect.x + 16; i++)
   {
     for( int j = max_rect.y - 8; i < max_rect.y + 16; j++)
@@ -524,25 +524,28 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       cv::Point a = cv::Point(i,j);
       roi.push_back(a);
     }
-  }
+  }*/
 
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");*/
   //adding weights based on the gray level
- for( size_t i = 0; i < roi.size(); i++)
- {
+  for( int  i = max_rect.x - 8; i < max_rect.x + 16; i++)
+  {
+    for( int j = max_rect.y - 8; i < max_rect.y + 16; j++)
+   {
     pcl::PointXYZRGB pt3;
-    cv::Point pt = roi[i];
-    for( size_t j = 0; j < (tracker_in->pclouds).size(); j++ )
-    { 
-        pt3 = (*tracker_in->pclouds[j])(pt.x, pt.y);
-        if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
-        {
-          continue;
-        }
+    cv::Point pt = cv::Point(i,j);
+      for( size_t j = 0; j < (tracker_in->pclouds).size(); j++ )
+      { 
+          pt3 = (*tracker_in->pclouds[j])(pt.x, pt.y);
+          if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
+          {
+            continue;
+          }
 
-        pt3ds.push_back(pt3);
-    } 
+          pt3ds.push_back(pt3);
+      } 
+    }
   }
   
 

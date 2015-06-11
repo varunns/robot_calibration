@@ -521,7 +521,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
 
-  cv::Point center_contour;
+/*  cv::Point center_contour;
   //Calculating the center of mass of the contour ton determine the weighted sum of the centroid
   for(size_t i = 0; i < max_contour.size(); i++)
   {
@@ -530,26 +530,25 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   }
   center_contour.x = center_contour.x/max_contour.size();
   center_contour.y = center_contour.y/max_contour.size();
-
+*/
 
   //adding weights based on the gray level
-  for( int i = center_contour.x - 3; i < center_contour.x + 6; i++)
-  {
-   for( int j = center_contour.y - 3; j < center_contour.y + 6; j++)
-   {
-      pcl::PointXYZRGB pt3;
-      for( size_t j = 0; j < (tracker_in->pclouds).size(); j++ )
-      { 
-        pt3 = (*tracker_in->pclouds[j])(i, j);
+ for( size_t i = 0; i < max_contour.size(); i++)
+ {
+    pcl::PointXYZRGB pt3;
+    cv::Point pt = max_contour[i];
+    for( size_t j = 0; j < (tracker_in->pclouds).size(); j++ )
+    { 
+        pt3 = (*tracker_in->pclouds[j])(pt.x, pt.y);
         if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
         {
           continue;
         }
 
         pt3ds.push_back(pt3);
-      } 
-    }
+    } 
   }
+  
 
 
   pcl::PointXYZRGB centroid;

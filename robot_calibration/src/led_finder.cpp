@@ -498,7 +498,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }*/
   std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
-  int min_dist = 100000;
+  double min_dist = 100000;
   pcl::PointXYZRGB pt_min;
   double dist;
   int r, m;

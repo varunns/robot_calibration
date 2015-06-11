@@ -496,6 +496,28 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       }
     }
   }*/
+  std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
+  for( int i = 317; i < 337; i++)
+  {
+    for( int j = 233; j < 253; j++)
+    {
+      for( int k = 0; k < tracker_in->pclouds.size(); k++)
+      {
+        pcl::PointXYZRGB pt3;
+        pt3 = (*tracker_in->pclouds[k])(i,j);
+        if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
+        {
+          continue;
+        }
+        else
+        {
+          std::cout<<pt3.x<<" "<<pt3.y<<" "<<pt3.x<<std::endl;
+        }
+      } 
+    }
+  }
+  std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
+
   //getting the contour with max mean, as the mean should be highest for the position of led
   int max_sum = -1000;
   std::vector<cv::Point> max_contour;
@@ -517,7 +539,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   }
 
   //debugging to find the contours
-  std::vector<std::vector<cv::Point> > test_conts;
+/*  std::vector<std::vector<cv::Point> > test_conts;
   test_conts.push_back(max_contour);
 
   for( size_t i = 0; i < test_conts.size(); i++)
@@ -525,7 +547,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::drawContours((tracker_in->diff_images)[10],test_conts,  i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 1, cv::Point());  
   }
 
-  //localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");
+  //localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");*/
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour

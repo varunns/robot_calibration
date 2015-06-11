@@ -516,6 +516,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::rectangle((tracker_in->diff_images)[10], max_rect, cv::Scalar(0,255,0),1, 8);
   }
 
+
+
 /*  std::vector<cv::Point> roi;
   for( int  i = max_rect.x - 8; i < max_rect.x + 16; i++)
   {
@@ -534,10 +536,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     for( int j = max_rect.y - 8; i < max_rect.y + 16; j++)
    {
     pcl::PointXYZRGB pt3;
-    cv::Point pt = cv::Point(i,j);
+    //cv::Point pt = cv::Point(i,j);
       for( size_t j = 0; j < (tracker_in->pclouds).size(); j++ )
       { 
-          pt3 = (*tracker_in->pclouds[j])(pt.x, pt.y);
+          pt3 = (*tracker_in->pclouds[j])(i, j);
           if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
           {
             continue;

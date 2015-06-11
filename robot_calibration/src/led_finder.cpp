@@ -515,6 +515,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   if( max_contour.size() > 0 && flag)
   {
     max_rect = cv::boundingRect(max_contour);
+    cv::rectangle((tracker_in->diff_images)[10], max_rect, cv::Scalar(0,255,0),1, 8);
+    cv::rectangle((tracker_in->diff_images)[10], cv::Rect(max_rect.x-5,max_rect.y-5, 10, 10), cv::Scalar(255,0,0), 1, 8);
   }
 
 
@@ -548,6 +550,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }
 
+
   pcl::PointXYZRGB centroid;
   getWeightedCentroid(pt3ds, centroid);
   pcl::PointXYZRGB sum_pt;
@@ -569,8 +572,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   tracker_in->estimate_led.point.y = centroid.y;
   tracker_in->estimate_led.point.z = centroid.z;
 
+  std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   std::cout<<" "<<"centroided"<<": "<<sum_pt.x/pt3ds.size()<<" "<<sum_pt.y/pt3ds.size()<<" "<<sum_pt.z/pt3ds.size()<<std::endl;
-  std::cout<<" "<<"predicted"<<" : "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
+  std::cout<<" "<<"predicted"<<": "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
 
 
 }

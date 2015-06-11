@@ -545,7 +545,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
           else
           {
             pt3ds.push_back(pt3);
-            std::cout<<pt3.x<<" "<<pt3.y<<" "<<pt3.zx<<std::endl;
+            std::cout<<pt3.x<<" "<<pt3.y<<" "<<pt3.z<<std::endl;
             break;
           }
       } 

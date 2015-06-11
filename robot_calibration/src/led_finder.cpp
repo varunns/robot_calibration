@@ -522,7 +522,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       } 
     }
   }
-  std::cout<<pt_min.x<<" "<<pt_min.y<<" "<<pt_min.z<<std::endl;
+  std::cout<<min_dist<<" "<<pt_min.x<<" "<<pt_min.y<<" "<<pt_min.z<<std::endl;
   std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
 
   //getting the contour with max mean, as the mean should be highest for the position of led

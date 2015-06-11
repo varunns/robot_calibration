@@ -533,7 +533,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   //adding weights based on the gray level
   for( int  i = max_rect.x - 8; i < max_rect.x + 8; i++)
   {
-    for( int k = max_rect.y - 8; k < max_rect.y + 8; j++)
+    for( int k = max_rect.y - 8; k < max_rect.y + 8; k++)
    {
     pcl::PointXYZRGB pt3;
     //cv::Point pt = cv::Point(i,j);

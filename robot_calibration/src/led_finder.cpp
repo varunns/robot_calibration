@@ -497,6 +497,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }*/
   std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
+  int min_dist = 100000;
+  pcl::PointXYZRGB pt_min;
   for( int i = 317; i < 337; i++)
   {
     for( int j = 233; j < 253; j++)
@@ -509,13 +511,17 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         {
           continue;
         }
-        else
+
+        double dist = std::sqrt(pow((pt3.x - tracker_in->pt3d.x),2)+pow((pt3.y - tracker_in->pt3d.y),2)+pow((pt3.z - tracker_in->pt3d.z),2));
+        if(dist < min_dist)
         {
-          std::cout<<pt3.x<<" "<<pt3.y<<" "<<pt3.z<<std::endl;
+         min_dist = dist;
+         pt_min = pt3
         }
       } 
     }
   }
+  std::cout<<pt_min.x<<" "<<pt_min.y<<" "<<pt_min.z<<std::endl;
   std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
 
   //getting the contour with max mean, as the mean should be highest for the position of led

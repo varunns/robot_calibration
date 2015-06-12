@@ -557,7 +557,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }
 
-/*
+
   pcl::PointXYZRGB pt3;
   for(size_t j = 0; j < (tracker_in->pclouds).size(); j++)
   { 
@@ -571,8 +571,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       pt3ds.push_back(pt3);
       break;
     }
-  }*/
-  cv::rectangle(tracker_in->diff_images[5], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
+  }
+/*  cv::rectangle(tracker_in->diff_images[5], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
   localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
   for( int i = max_point.x - 8; i < max_point.x + 16; i++)
   {
@@ -595,7 +595,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       }
 
     }
-  }
+  }*/
   
 
   pcl::PointXYZRGB centroid;

@@ -627,7 +627,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
-  std::cout<<" "<<"predicted using Avg-ing: "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
+  std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
 
 }
 

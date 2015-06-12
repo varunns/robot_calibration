@@ -534,7 +534,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   if( max_contour.size() > 0 && flag)
   {
     cv::Rect bounds = cv::boundingRect(max_contour);
-    cv::rectangle((tracker_in->diff_images)[5], cv::Rect(bounds.tl().x - 3, bounds.tl().y - 3, 15,15), cv::Scalar(0,255,0),1, 8,0);
+    cv::rectangle((tracker_in->diff_images)[5], cv::Rect(bounds.tl().x - 5, bounds.tl().y - 5, 12,12), cv::Scalar(0,255,0),1, 8,0);
   }
   localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);

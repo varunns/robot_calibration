@@ -870,9 +870,9 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
   for(size_t i = 0; i < pcl_cloud.size(); i++)
   {
     cv_ptr[i].reset(new cv_bridge::CvImage);
-    /*  for(size_t j = 0; j < pcl_cloud[i]->size(); j++)
+      for(size_t j = 0; j < pcl_cloud[i]->size(); j++)
       {
-        if(pcl_cloud[i]->points[j].z > 1.0 || isnan(pcl_cloud[i]->points[j].z))
+        if(pcl_cloud[i]->points[j].z < 0.2 ||pcl_cloud[i]->points[j].z > 1.0 || isnan(pcl_cloud[i]->points[j].z))
         {
           pcl_cloud[i]->points[j].x = NAN;
           pcl_cloud[i]->points[j].y = NAN;
@@ -881,16 +881,16 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
           pcl_cloud[i]->points[j].g = 0;
           pcl_cloud[i]->points[j].b = 0; 
         }
-      }*/
+      }
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr passed_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+/*    pcl::PointCloud<pcl::PointXYZRGB>::Ptr passed_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PassThrough<pcl::PointXYZRGB> pass_filter;
     pass_filter.setInputCloud(pcl_cloud[i]);
     pass_filter.setFilterFieldName ("z");
     pass_filter.setFilterLimits (0.0, 1.0);
     pass_filter.setKeepOrganized(false);
-    pass_filter.filter(*passed_cloud);
-    pcl::toROSMsg(*passed_cloud ,*ros_cloud);
+    pass_filter.filter(*passed_cloud);*/
+    pcl::toROSMsg(*pcl_cloud[i],*ros_cloud);
     pcl::toROSMsg(*ros_cloud ,*ros_image);
     try
     {

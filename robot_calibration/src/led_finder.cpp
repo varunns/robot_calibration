@@ -126,7 +126,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 9)
+    if(clouds_ptr_.size() > 5)
     {
       waiting_ = false;
     }
@@ -138,7 +138,7 @@ bool LedFinder::waitForCloud()
 {
   ros::Time ref_time = ros::Time::now();
   waiting_ = true;
-  int count = 40;
+  int count = 20;
   while (--count)
   {
     if (!waiting_)
@@ -273,7 +273,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
-    if(cycles > 3)
+    if(cycles > 0)
     {
       trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours, check_first_time);
     }
@@ -408,20 +408,20 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 {
   std::cout<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   cv::Mat graytmp;
-  cv::Mat tmp = (tracker_in->diff_images)[3];
+  cv::Mat tmp = (tracker_in->diff_images)[0];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
-  cv::threshold(graytmp, graytmp, 4, 255, CV_THRESH_BINARY);
+  cv::threshold(graytmp, graytmp, 10, 255, CV_THRESH_BINARY);
   cv::Mat dst;
 
   //Applying the bitwise operation on the accumulated diff_images
-  for(size_t i = 4; i < (tracker_in->diff_images).size(); i++)
+  for(size_t i = 1; i < (tracker_in->diff_images).size(); i++)
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 4, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 10, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
-   // localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
+    localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
   }
   std::vector<cv::Point2i> locations;
 
@@ -437,8 +437,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;
-  cv::cvtColor( (tracker_in->diff_images)[10], diff_gray, CV_BGR2GRAY);
-  cv::cvtColor( (tracker_in->rgb_image)[10], color_gray, CV_BGR2GRAY);
+  cv::cvtColor( (tracker_in->diff_images)[3], diff_gray, CV_BGR2GRAY);
+  cv::cvtColor( (tracker_in->rgb_image)[3], color_gray, CV_BGR2GRAY);
   cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
 
   //populating a  new image with only non zero points
@@ -457,7 +457,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   for( size_t i = 0; i < contours_candidate.size(); i++)
   {
-    cv::drawContours((tracker_in->diff_images)[3], contours_candidate, i, cv::Scalar(0,255,0), 1, 8, cv::noArray(), 0, cv::Point());
+    cv::drawContours((tracker_in->diff_images)[2], contours_candidate, i, cv::Scalar(0,255,0), 1, 8, cv::noArray(), 0, cv::Point());
   }
   //localDebugImage((tracker_in->diff_images)[3], "/tmp/mean/led2D_");
   /* Debugging to check for the existance of the led point in an ROI of 20 byt 20 around the led*/
@@ -522,7 +522,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   for( size_t i = 0; i < debug_contour.size(); i++)
   {
-    cv::drawContours(tracker_in->diff_images[5],debug_contour, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0, cv::Point());
+    cv::drawContours(tracker_in->diff_images[0],debug_contour, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0, cv::Point());
   }
 
   
@@ -557,16 +557,17 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }
 
-
+  cv::Mat led_high = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC3);
   for( int i = bounds.tl().x - 5; i < bounds.tl().x + 12; i++)
   {
     for( int k = bounds.tl().y - 5; k < bounds.tl().y + 12; k++)
     {
-      if( (int)diff_gray.at<uchar>(k,i) == max)
+      if( (int)diff_gray.at<uchar>(k,i) < max - 10)
       {
         continue;
       }
-
+      cv::Vec3b tmp = cv::Vec3b(255,255,255);
+      led_high.at<cv::Vec3b>(k,i) = tmp;
       for(size_t j = 0; j < (tracker_in->pclouds).size(); j++)
       { 
         pcl::PointXYZRGB pt3 = (*tracker_in->pclouds[j])(i, k);
@@ -582,6 +583,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       }
     }
   }
+
+  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
+  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/cont_");
 /*  cv::rectangle(tracker_in->diff_images[5], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
   localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
   for( int i = max_point.x - 8; i < max_point.x + 16; i++)

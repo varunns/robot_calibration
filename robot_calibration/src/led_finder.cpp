@@ -126,7 +126,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 19)
+    if(clouds_ptr_.size() > 9)
     {
       waiting_ = false;
     }
@@ -562,7 +562,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     for( int k = bounds.tl().y - 5; k < bounds.tl().y + 12; k++)
     {
-      if( (int)diff_gray.at<uchar>(k,i) < max - 5)
+      if( (int)diff_gray.at<uchar>(k,i) == max)
       {
         continue;
       }

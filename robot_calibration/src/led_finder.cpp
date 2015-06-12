@@ -126,7 +126,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 3)
+    if(clouds_ptr_.size() > 4)
     {
       waiting_ = false;
     }
@@ -437,8 +437,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   //Using any diff image values to populate the non zero locations
   cv::Mat diff_gray, color_gray;
-  cv::cvtColor( (tracker_in->diff_images)[3], diff_gray, CV_BGR2GRAY);
-  cv::cvtColor( (tracker_in->rgb_image)[3], color_gray, CV_BGR2GRAY);
+  cv::cvtColor( (tracker_in->diff_images)[2], diff_gray, CV_BGR2GRAY);
+  cv::cvtColor( (tracker_in->rgb_image)[2], color_gray, CV_BGR2GRAY);
   cv::Mat non_zero = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC1);
 
   //populating a  new image with only non zero points

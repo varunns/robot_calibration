@@ -562,7 +562,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     for( int k = bounds.tl().y - 5; k < bounds.tl().y + 12; k++)
     {
-      if( (int)diff_gray.at<uchar>(k,i) < max - 10)
+      if( (int)diff_gray.at<uchar>(k,i) < max)
       {
         continue;
       }

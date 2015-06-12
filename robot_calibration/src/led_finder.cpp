@@ -126,7 +126,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 4)
+    if(clouds_ptr_.size() > 6)
     {
       waiting_ = false;
     }
@@ -408,13 +408,13 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 {
   std::cout<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   cv::Mat graytmp;
-  cv::Mat tmp = (tracker_in->diff_images)[0];
+  cv::Mat tmp = (tracker_in->diff_images)[1];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
   cv::threshold(graytmp, graytmp, 20, 255, CV_THRESH_BINARY);
   cv::Mat dst;
 
   //Applying the bitwise operation on the accumulated diff_images
-  for(size_t i = 1; i < (tracker_in->diff_images).size(); i++)
+  for(size_t i = 2; i < (tracker_in->diff_images).size(); i++)
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
@@ -429,7 +429,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   if(cv::countNonZero(dst) > 0)
   {
     cv::findNonZero(dst,locations);
-    cv::rectangle((tracker_in->rgb_image)[1], cv::Rect((locations[0]).x, (locations[0]).y, 4, 4), cv::Scalar(0,0,255), 3, 8);
+    cv::rectangle((tracker_in->rgb_image)[2], cv::Rect((locations[0]).x, (locations[0]).y, 4, 4), cv::Scalar(0,0,255), 3, 8);
   }
 
   //debug
@@ -522,7 +522,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   for( size_t i = 0; i < debug_contour.size(); i++)
   {
-    cv::drawContours(tracker_in->diff_images[0],debug_contour, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0, cv::Point());
+    cv::drawContours(tracker_in->diff_images[2],debug_contour, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0, cv::Point());
   }
 
   
@@ -787,9 +787,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   std::vector<cv_bridge::CvImagePtr> cloud_image_ptr;
   std::vector<cv_bridge::CvImagePtr> prev_image_ptr;
 
-  cv::Mat cloud_bits;
-  cv::Mat prev_bits;
-
   //function call for initial processing to convert to cv::Mat
   convert2CvImagePtr(cloud, cloud_image_ptr);
   convert2CvImagePtr(prev, prev_image_ptr);
@@ -807,8 +804,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   cv::Mat img;
   cv::absdiff(cloud_pix_weighed, prev_pix_weighed, diff_image);
   
-  //possible contours in the image
-  std::vector<std::vector<cv::Point> > possible_contours;
 
   //Filling the members {std::vec<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>, diff_img, rgb_img}
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
@@ -827,18 +822,6 @@ bool LedFinder::CloudDifferenceTracker::oprocess( pcl::PointXYZRGB pt,
   //--------------------------------------------------------------------------------------------------------------------------------------> TrackContour Pointer population
 }
 
-
-void LedFinder::CloudDifferenceTracker::possibleContours(cv::Mat& diff_image, std::vector<std::vector<cv::Point> >& contours)
-{
-  float canny_thresh = 60;
-  cv::Mat canny_image;
-  std::vector<cv::Vec4i> hierarchy;
-  cv::Mat gray;
-  cv::cvtColor(diff_image, gray, CV_BGR2GRAY);
-  cv::Canny(diff_image, canny_image, canny_thresh, canny_thresh*2, 3);
-  cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-}
-
 /*
  * @brief create a weight_img = ( img(2)-img(1) )/img(2) , 
  *        use per element operations in opencv to calculate a 
@@ -852,7 +835,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
 
   //considering the images in the middle so that more noisy initial images are avoided
-  for(size_t i = 1; i < 2  ; i++)
+  for(size_t i = 2; i < 3  ; i++)
   {
     cv::add(tmp_weight,images[i]->image, result);
     tmp_weight = result;

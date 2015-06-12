@@ -126,7 +126,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 9)
+    if(clouds_ptr_.size() > 6)
     {
       waiting_ = false;
     }
@@ -273,7 +273,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
-    if(cycles > 3)
+    if(cycles > 1)
     {
       trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours, check_first_time);
     }
@@ -852,7 +852,7 @@ void LedFinder::CloudDifferenceTracker::weightedSum(std::vector<cv_bridge::CvIma
   cv::Mat tmp_weight(images[0]->image.rows, images[0]->image.cols, CV_8UC3, cv::Scalar(0,0,0));
 
   //considering the images in the middle so that more noisy initial images are avoided
-  for(size_t i =5; i < 6  ; i++)
+  for(size_t i =3; i < 4  ; i++)
   {
     cv::add(tmp_weight,images[i]->image, result);
     tmp_weight = result;

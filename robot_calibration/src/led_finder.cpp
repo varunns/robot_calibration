@@ -888,7 +888,7 @@ void LedFinder::CloudDifferenceTracker::convert2CvImagePtr(std::vector<pcloud_>&
     pass_filter.setInputCloud(pcl_cloud[i]);
     pass_filter.setFilterFieldName ("z");
     pass_filter.setFilterLimits (0.0, 1.0);
-    pass_filter.setKeepOrganized(true);
+    pass_filter.setKeepOrganized(false);
     pass_filter.filter(*passed_cloud);
     pcl::toROSMsg(*passed_cloud ,*ros_cloud);
     pcl::toROSMsg(*ros_cloud ,*ros_image);

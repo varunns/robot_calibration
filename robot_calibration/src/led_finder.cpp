@@ -530,13 +530,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   //calculate mid point of a contour
   bool flag = true;
-  cv::Rect max_rect;
-  cv::Point2f center;
   float radius;
   if( max_contour.size() > 0 && flag)
   {
-    cv::minEnclosingCircle(max_contour, center, radius);
-    cv::circle((tracker_in->diff_images)[10], cv::Point(center.x, center.y), 10,cv::Scalar(0,255,0),1, 8);
+    cv::Rect bounds = cv::boundingRect(max_contour);
+    cv::rectangle((tracker_in->diff_images)[5], cv::Rect(bounds.tl().x - 3, bounds.tl().y - 3, 15,15), cv::Scalar(0,255,0),1, 8,0);
   }
   localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);

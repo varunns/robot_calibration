@@ -259,7 +259,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
       ROS_ERROR_STREAM("Failed to transform feature to " << clouds_ptr_[0]->header.frame_id);
       return false;
     }
-   // led_pt_cameraframe = transform * led_pt_gripperframe.point;
+    //led_pt_cameraframe = transform * led_pt_gripperframe.point;
     // call to obtain difference cloud and the max cloud
     diff_image_.release();
     std::vector<std::vector<cv::Point> > contours;
@@ -558,18 +558,28 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   }
 
 
-  pcl::PointXYZRGB pt3;
-  for(size_t j = 0; j < (tracker_in->pclouds).size(); j++)
-  { 
-    pt3 = (*tracker_in->pclouds[j])(max_point.x, max_point.y);
-    if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
+  for( int i = bounds.tl().x - 5; i < bounds.tl().x + 12; i++)
+  {
+    for( int k = bounds.tl().y - 5; k < bounds.tl().y + 12; k++)
     {
-      continue;
-    }
-    else
-    {
-      pt3ds.push_back(pt3);
-      break;
+      if( (int)diff_gray.at<uchar>(k,i) < max - 5)
+      {
+        continue;
+      }
+
+      for(size_t j = 0; j < (tracker_in->pclouds).size(); j++)
+      { 
+        pcl::PointXYZRGB pt3 = (*tracker_in->pclouds[j])(i, k);
+        if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
+        {
+          continue;
+        }
+        else
+        {
+          pt3ds.push_back(pt3);
+          break;
+        }
+      }
     }
   }
 /*  cv::rectangle(tracker_in->diff_images[5], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);

@@ -126,7 +126,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 5)
+    if(clouds_ptr_.size() > 3)
     {
       waiting_ = false;
     }
@@ -410,7 +410,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   cv::Mat graytmp;
   cv::Mat tmp = (tracker_in->diff_images)[0];
   cv::cvtColor(tmp, graytmp, CV_BGR2GRAY);
-  cv::threshold(graytmp, graytmp, 10, 255, CV_THRESH_BINARY);
+  cv::threshold(graytmp, graytmp, 20, 255, CV_THRESH_BINARY);
   cv::Mat dst;
 
   //Applying the bitwise operation on the accumulated diff_images
@@ -418,7 +418,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     cv::Mat gray;
     cv::cvtColor((tracker_in->diff_images)[i], gray, CV_BGR2GRAY);
-    cv::threshold(gray, gray, 10, 255, CV_THRESH_BINARY);
+    cv::threshold(gray, gray, 20, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
     localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");

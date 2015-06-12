@@ -535,9 +535,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   if( max_contour.size() > 0 && flag)
   {
     bounds = cv::boundingRect(max_contour);
-    cv::rectangle((tracker_in->diff_images)[5], cv::Rect(bounds.tl().x - 5, bounds.tl().y - 5, 12,12), cv::Scalar(0,255,0),1, 8,0);
   }
-  localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
+  
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");*/
   //adding weights based on the gray level
@@ -557,8 +556,8 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       }
     }
   }
-
-
+  cv::rectangle(tracker_in->diff_images[5], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
+  localDebugImage(tracker_in->diff_images[5], "/tmp/mean/cont_");
   for( int i = max_point.x - 8; i < max_point.x + 16; i++)
   {
     for( int k = max_point.y - 8; k < max_point.y + 16; k++)
@@ -576,7 +575,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
           else
           {
             pt3ds.push_back(pt3);
-            break;
           }
       }
 

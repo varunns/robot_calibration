@@ -455,9 +455,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
 
-  for( size_t i = 0; i < contours_candidate.size(); i++)
+  if( contours_candidate.size() > 0)
   {
-    cv::drawContours((tracker_in->diff_images)[2], contours_candidate, i, cv::Scalar(0,255,0), 1, 8, cv::noArray(), 0, cv::Point());
+    for( size_t i = 0; i < contours_candidate.size(); i++)
+    {
+      cv::drawContours((tracker_in->diff_images)[2], contours_candidate, i, cv::Scalar(0,255,0), 1, 8, cv::noArray(), 0, cv::Point());
+    }
   }
   //localDebugImage((tracker_in->diff_images)[3], "/tmp/mean/led2D_");
   /* Debugging to check for the existance of the led point in an ROI of 20 byt 20 around the led*/

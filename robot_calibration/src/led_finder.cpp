@@ -422,6 +422,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
     localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
+    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/diff_");
   }
   std::vector<cv::Point2i> locations;
 

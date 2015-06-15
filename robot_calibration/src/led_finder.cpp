@@ -126,7 +126,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 7)
+    if(clouds_ptr_.size() > 8)
     {
       waiting_ = false;
     }
@@ -273,7 +273,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
 
     trackers_[tracker].getDifferenceCloud(cloud_ptr_, prev_cloud, diff_image_, weight);
     trackers_[tracker].process(cloud_ptr_, prev_cloud, weight);
-    if(cycles > 2)
+    if(cycles > 1)
     {
       trackers_[tracker].oprocess(pt, tracker, clouds_ptr_, prev_clouds, led_respective_contours, check_first_time);
     }

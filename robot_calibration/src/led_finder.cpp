@@ -481,7 +481,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::drawContours(tracker_in->diff_images[0], test_contour, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0, cv::Point());
   }
 
-  localDebugImage(tracker_in->diff_images[0], "/tmpt/mean/img_");
+  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/img_");
   //calculate mid point of a contour
   bool flag = true;
   float radius;

@@ -611,10 +611,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     tracker_in->estimate_led.point.z = sum_pt.z/(pt3ds.size());
   }
 
-  tracker_in->estimate_led.point.x = centroid.x;
+  /*tracker_in->estimate_led.point.x = centroid.x;
   tracker_in->estimate_led.point.y = centroid.y;
   tracker_in->estimate_led.point.z = centroid.z;
-
+*/
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;

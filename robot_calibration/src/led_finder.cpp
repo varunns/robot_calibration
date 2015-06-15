@@ -451,7 +451,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   std::vector<std::vector<cv::Point> > contours_candidate;
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-
+  std::cout<<" I am here 7"<<std::endl;
   //getting the contour with max mean, as the mean should be highest for the position of led
   int max_sum = -1000;
   std::vector<cv::Point> max_contour;
@@ -472,9 +472,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }
 
-  std::vector<std::vector<cv::Point> > debug_contour;
-  debug_contour.push_back(max_contour);
-  
   std::vector<pcl::PointXYZRGB> pt3ds;
 
   //calculate mid point of a contour
@@ -490,7 +487,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");*/
   //adding weights based on the gray level
-
+  std::cout<<" I am here 6"<<std::endl;
   if(max_contour.size () > 0 )
   {
     int max = -100;
@@ -507,7 +504,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
           }
         }
     }
-
+    std::cout<<" I am here 5"<<std::endl;
     cv::Mat led_high = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC3);
     for( int i = bounds.tl().x - 5; i < bounds.tl().x + 12; i++)
     {
@@ -539,7 +536,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   }
 //  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
 //  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/cont_");
-
+  std::cout<<" I am here 4"<<std::endl;
   pcl::PointXYZRGB centroid;
  // getWeightedCentroid(pt3ds, centroid);
   pcl::PointXYZRGB sum_pt;
@@ -553,7 +550,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     sum_pt.y += pt3ds[i].y;
     sum_pt.z += pt3ds[i].z;
   }
-
+  std::cout<<" I am here 3"<<std::endl;
   //populating the reference variable
 
   if(pt3ds.size() > 0)

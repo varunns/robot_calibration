@@ -451,7 +451,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   std::vector<std::vector<cv::Point> > contours_candidate;
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-  std::cout<<" I am here 7"<<std::endl;
+  std::cout<<"I am here at 3"<<std::endl;
   //getting the contour with max mean, as the mean should be highest for the position of led
   int max_sum = -1000;
   std::vector<cv::Point> max_contour;
@@ -472,8 +472,16 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     }
   }
 
+  std::vector<std::vector<cv::Point> > test_contour;
+  test_contour.push_back(max_contour);
   std::vector<pcl::PointXYZRGB> pt3ds;
 
+  for( int i = 0; i < test_contour.size(); i++)
+  {
+    cv::drawContours(tracker_in->diff_images[0], test_contour, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0, cv::Point());
+  }
+
+  localDebugImage(tracker_in->diff_images[0], "/tmpt/mean/img_");
   //calculate mid point of a contour
   bool flag = true;
   float radius;

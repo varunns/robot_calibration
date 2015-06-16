@@ -125,7 +125,7 @@ void LedFinder::cameraCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
   { 
     cloud_ptr_ = cloud;
     clouds_ptr_.push_back(cloud);
-    if(clouds_ptr_.size() > 8)
+    if(clouds_ptr_.size() > 7)
     {
       waiting_ = false;
     }
@@ -483,7 +483,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::drawContours(tracker_in->diff_images[0], test_contour, i, cv::Scalar(0,0,255), 1, 8, cv::noArray(), 0, cv::Point());
   }
 
-  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/img_");
+ // localDebugImage(tracker_in->diff_images[0], "/tmp/mean/img_");
   //calculate mid point of a contour
   bool flag = true;
   float radius;
@@ -496,9 +496,11 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");*/
+
   //adding weights based on the gray level
   if(max_contour.size () > 0 )
   {
+    //enter only if max_contour exists
     int max = -100;
     cv::Point max_point;
     for( int i = bounds.tl().x - 5 ; i < bounds.tl().x - 5 + 12; i++)
@@ -542,6 +544,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         }
       }
     }
+
   }
 //  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
 //  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/cont_");

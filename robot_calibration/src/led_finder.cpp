@@ -539,37 +539,39 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     std::cout<<"bounds: "<<bounds.tl().x<<" "<<bounds.tl().y<<std::endl;
     std::cout<<"centers: "<<center_x<<" "<<center_y<<std::endl;
     pcl::PointXYZRGB pt3;
-    int high_val = (int)diff_gray.at<uchar>(round(center_y),round(center_x))
-    cv::rectangle(tracker_in->diff_images[1], cv::Rect(round(center_x) -6, round(center_y) -6, 12, 12), cv::Scalar(0,0,255), 1, 8);
+    std::vector<cv::Point> candidate_points;
+    int high_val = (int)diff_gray.at<uchar>(round(center_y),round(center_x));
+    cv::rectangle(tracker_in->diff_images[1], cv::Rect(round(center_x)-6, round(center_y)-6, 12, 12), cv::Scalar(0,0,255), 1, 8);
     for( size_t i = round(center_x) - 6; i < round(center_x) + 6; i++)
     {
       for( size_t j = round(center_y) - 6; j < round(center_y) +6; j++)
       {
         int val = (int)diff_gray.at<uchar>(j,i);
-        if( val == high_val)
+        if( val == high_val - 30)
         {
           cv::rectangle(tracker_in->diff_images[1], cv::Rect(i, j, 1, 1), cv::Scalar(0,0,255), 1, 8);
-         
+          candidate_points.push_back(cv::Point(i,i));
         }
-
       }
-      std::cout<<std::endl;
     }
      localDebugImage(tracker_in->diff_images[1], "/tmp/mean/roi_");
 
-    /*
+    /******************************* UNDER CONSTRUCTION **********************************************
       Drawing a Ellipse and getting the center and also considering only those points for centroid
     */ 
-    for(size_t k = 0; k < (tracker_in->pclouds).size(); k++)
+    for( int i = 0; i < candidate_points.size(); i++)
     {
-      pt3 = (*tracker_in->pclouds[k])((int)center_x, (int)center_y);
-      if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z))
+      cv::Point pt = candidate_points[i];
+      for(size_t k = 0; k < (tracker_in->pclouds).size(); k++)
       {
-        continue;
+        pt3 = (*tracker_in->pclouds[k])(pt.x, pt.y);
+        if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z))
+        {
+          continue;
+        }
+        pt3ds.push_back(pt3);
       }
-      pt3ds.push_back(pt3);
     }
-    
 
     /**********************************************************************************************************************************/
     /*3d points for the centroid*/
@@ -608,7 +610,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 //  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
 //  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/cont_");
   pcl::PointXYZRGB centroid;
- // getWeightedCentroid(pt3ds, centroid);
+  getWeightedCentroid(pt3ds, centroid);
   pcl::PointXYZRGB sum_pt;
   sum_pt.x = 0;
   sum_pt.y = 0;
@@ -621,24 +623,24 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     sum_pt.z += pt3ds[i].z;
   }
   //populating the reference variable
-
+/*
   if(pt3ds.size() > 0)
   {
     tracker_in->estimate_led.point.x = sum_pt.x/(pt3ds.size());
     tracker_in->estimate_led.point.y = sum_pt.y/(pt3ds.size());
     tracker_in->estimate_led.point.z = sum_pt.z/(pt3ds.size());
   }
-
-  /*tracker_in->estimate_led.point.x = centroid.x;
+*/
+  tracker_in->estimate_led.point.x = centroid.x;
   tracker_in->estimate_led.point.y = centroid.y;
   tracker_in->estimate_led.point.z = centroid.z;
-*/
+
 
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
-
+  std::cout<<" "<<"predicted using weighing-ing: "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
 }
 
 /*
@@ -646,47 +648,23 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 */
 void LedFinder::getWeightedCentroid(std::vector<pcl::PointXYZRGB> pts, pcl::PointXYZRGB& centroid)
 {
-  double min = 1000;
-  double max = -1000;
-  std::vector<double> gray_val;
+  float total_weight = 0;
+  pcl::PointXYZRGB pt;
   for( size_t i = 0; i < pts.size(); i++)
   {
-    //std::cout<<pts[i].r<<" "<<pts[i].g<<" "<<pts[i].b<<std::endl;
-    double gray = 0.2989*pts[i].r + 0.5870*pts[i].g + 0.1140*pts[i].b;
-    gray_val.push_back(gray);
-    if(gray < min)
-    {
-      min = gray;
-    }
-
-    if(gray > max)
-    {
-      max = gray;
-    }
-  }
-
-  double total_weight = 0;
-  pcl::PointXYZRGB sum_pt;
-  sum_pt.x = 0;
-  sum_pt.y = 0;
-  sum_pt.z = 0;
-
-  for( size_t i = 0; i < pts.size(); i++)
-  {
-    double curr_weight = min + (max - min)*(gray_val[i] - min)/(max - min);
-    total_weight += curr_weight;
-    sum_pt.x += curr_weight*pts[i].x;
-    sum_pt.y += curr_weight*pts[i].y;
-    sum_pt.z += curr_weight*pts[i].z;    
+    float weight = 0.299 * pts[i].r + 0.587 * pts[i].g + 0.114 * pts[i].b;
+    total_weight += weight;
+    pt.x += weight * pts[i].x;
+    pt.y += weight * pts[i].y;
+    pt.z += weight * pts[i].z; 
   }
 
   if(total_weight > 0)
   {
-    centroid.x = sum_pt.x/total_weight;
-    centroid.y = sum_pt.y/total_weight;
-    centroid.z = sum_pt.z/total_weight;
+    centroid.x = pt.x/total_weight;
+    centroid.y = pt.y/total_weight;
+    centroid.z = pt.z/total_weight;
   }
-
 }
 
 void LedFinder::localDebugImage(cv::Mat img, std::string str)

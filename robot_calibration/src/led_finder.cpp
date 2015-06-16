@@ -553,23 +553,19 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       }
       std::cout<<std::endl;
     }
-
-    for( size_t i = round(center_x) - 4; i < round(center_x) + 4; i++)
+    
+    for(size_t k = 0; k < (tracker_in->pclouds).size(); k++)
     {
-      for( size_t j = round(center_y) - 4; j < round(center_y) + 4; j++)
+      pt3 = (*tracker_in->pclouds[k])(i,j);
+      if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z))
       {
-        for(size_t k = 0; k < (tracker_in->pclouds).size(); k++)
-        {
-          pt3 = (*tracker_in->pclouds[k])(i,j);
-          if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z))
-          {
-            continue;
-          }
-          pt3ds.push_back(pt3);
-          break;
-        }
+        continue;
+      }
+      pt3ds.push_back(pt3);
+      break;
       }
     }
+    
 
     /**********************************************************************************************************************************/
     /*3d points for the centroid*/

@@ -550,7 +550,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         if( val == high_val - 30)
         {
           cv::rectangle(tracker_in->diff_images[1], cv::Rect(i, j, 1, 1), cv::Scalar(0,0,255), 1, 8);
-          candidate_points.push_back(cv::Point(i,i));
+          candidate_points.push_back(cv::Point(i,j));
         }
       }
     }
@@ -570,6 +570,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
           continue;
         }
         pt3ds.push_back(pt3);
+        break;
       }
     }
 

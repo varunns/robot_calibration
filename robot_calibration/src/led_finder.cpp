@@ -449,11 +449,12 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   int canny_thresh = 60;
   std::vector<cv::Vec4i> hierarchy;
   std::vector<std::vector<cv::Point> > contours_candidate;
-  cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
+  cv::Canny(diff_gray, canny_image, canny_thresh, canny_thresh*2, 3);
   cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
+  std::vector<std::vector<cv::Point> > contours;
   //getting the contour with max mean, as the mean should be highest for the position of led
   /****************************************************UNDER CONSTRUCTION***************/
-/*   for( int i = 0; i < contours_candidate.size(); i++)
+   for( int i = 0; i < contours_candidate.size(); i++)
    {
     bool flag = true;
     int count = 0;
@@ -462,7 +463,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       cv::Point pt = (contours_candidate[i])[j];
       for( int k = 0; k < tracker_in->pclouds.size(); k++)
       {
-        pcl::PointXYZRGB pt3 = (*tracker_in->pcloud[k])(pt.x, pt.y);
+        pcl::PointXYZRGB pt3 = (*tracker_in->pclouds[k])(pt.x, pt.y);
         if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z))
         {
           continue;
@@ -479,28 +480,28 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     {
       contours.push_back(contours_candidate[i]);
     }
-   }*/
+   }
   /*************************************************************************************/
 
   int max_sum = -1000;
   std::vector<cv::Point> max_contour;
 
 
-  for( size_t i = 0; i < contours_candidate.size(); i++)
+  for( size_t i = 0; i < contours.size(); i++)
   {   
     float sum = 0;
-    for( size_t j = 0; j < contours_candidate[i].size(); j++)
+    for( size_t j = 0; j < contours[i].size(); j++)
     {
       //check to see if the contour is in the range
-      cv::Point pt = (contours_candidate[i])[j];
+      cv::Point pt = (contours[i])[j];
       sum +=  (int)color_gray.at<uchar>(pt.y, pt.x);
     }
-    sum = sum/contours_candidate[i].size();
+    sum = sum/contours[i].size();
   //  std::cout<<"sum: "<<sum<<std::endl;
     if(sum > max_sum)
     {
       max_sum = sum;
-      max_contour = contours_candidate[i];
+      max_contour = contours[i];
     }
   }
 

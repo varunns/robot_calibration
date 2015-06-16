@@ -455,8 +455,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   int max_sum = -1000;
   std::vector<cv::Point> max_contour;
-  pcl::PointXYZRGB check_pt; 
-  std::vector<std::vector<cv::Point> > contours_candidate;
 
 
   for( size_t i = 0; i < contours_candidate.size(); i++)

@@ -515,7 +515,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
           }
         }
     }
-
+    /*2d centroid of the region*/
+    cv::rectangle(tracker_in->diff_images[1], cv::Rect(bounds.tl().x - 5, bounds.tl().y - 5, 12, 12), cv::Scalar(0,0,255), 1, 8);
+    /*3d points for the centroid*/
     cv::Mat led_high = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC3);
     for( int i = bounds.tl().x - 5; i < bounds.tl().x + 12; i++)
     {

@@ -541,7 +541,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     pcl::PointXYZRGB pt3;
     std::vector<cv::Point> candidate_points;
     int high_val = (int)diff_gray.at<uchar>(round(center_y),round(center_x));
-    std::cout<<"high_val: "<<std::endl;
+    std::cout<<"high_val: "<<high_val<<std::endl;
     cv::rectangle(tracker_in->diff_images[1], cv::Rect(round(center_x)-6, round(center_y)-6, 12, 12), cv::Scalar(0,0,255), 1, 8);
     for( size_t i = round(center_x) - 6; i < round(center_x) + 6; i++)
     {
@@ -550,6 +550,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         int val = (int)diff_gray.at<uchar>(j,i);
         if( val > 90)
         {
+          std::cout<<"val: "<<" ";
           cv::rectangle(tracker_in->diff_images[1], cv::Rect(i, j, 1, 1), cv::Scalar(0,0,255), 1, 8);
           std::cout<<"candidate_points: "<<cv::Point(i,j)<<std::endl;
           candidate_points.push_back(cv::Point(i,j));

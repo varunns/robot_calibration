@@ -417,8 +417,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     cv::threshold(gray, gray, 10, 255, CV_THRESH_BINARY);
     cv::bitwise_and(gray, graytmp, dst);
     graytmp = dst;
-//    localDebugImage((tracker_in->diff_images)[i], "/tmp/mean/diff_");
-//    localDebugImage((tracker_in->rgb_image)[i], "/tmp/mean/diff_");
   }
   std::vector<cv::Point2i> locations;
 
@@ -440,6 +438,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   {
     non_zero.at<uchar>((locations[i]).y,(locations[i]).x) = diff_gray.at<uchar>((locations[i]).y,(locations[i]).x);
   }
+  std::cout<<"I am here1"<<std::endl;
 
   //finding contours in the non_zero image
   cv::Mat canny_image;
@@ -639,7 +638,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
-  std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
+  //td::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
   std::cout<<" "<<"predicted using weighing-ing: "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
 }
 

@@ -456,15 +456,32 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   for( size_t i = 0; i < contours_candidate.size(); i++)
   {   
     float sum = 0;
+    float z_avg = 0;
     for( size_t j = 0; j < contours_candidate[i].size(); j++)
     {
-      //check to see if the contour is in the range
       cv::Point pt = (contours_candidate[i])[j];
       sum +=  (int)color_gray.at<uchar>(pt.y, pt.x);
+
+      for(size_t k = 0; k < tracker_in->pclouds.size(); k++)
+      {
+        pcl::PointXYZRGB pt3 = (*tracker_in->pclouds[k])(pt.x, pt.y);
+        if(isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z))
+        {
+          continue;
+        }
+        if( !isnan(pt3.z) )
+        {
+          z_avg += pt3.z;
+          break;
+        }
+      }
     }
     sum = sum/contours_candidate[i].size();
+    z_avg = z_avg/contours_candidate[i].size();
   //  std::cout<<"sum: "<<sum<<std::endl;
-    if(sum > max_sum)
+    if(sum > max_sum && 
+       z_avg > (tracker_in->pt3d.z - 0.1) &&
+       z_avg < (tracker_in->pt3d.z + 0.1) )
     {
       max_sum = sum;
       max_contour = contours_candidate[i];
@@ -574,39 +591,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     center_y = pt2d.y/total;
     cv::rectangle(tracker_in->diff_images[1], cv::Rect(round(center_x), round(center_y), 3, 3), cv::Scalar(0,0,255), 1, 8);
     localDebugImage(tracker_in->diff_images[1], "/tmp/mean/roi_");
-
-    /**********************************************************************************************************************************/
-    /*3d points for the centroid*/
-/*    cv::Mat led_high = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC3);
-    for( int i = bounds.tl().x - 5; i < bounds.tl().x + 12; i++)
-    {
-      for( int k = bounds.tl().y - 5; k < bounds.tl().y + 12; k++)
-      {
-        if( (int)diff_gray.at<uchar>(k,i) < max)
-        {
-          continue;
-        }
-
-        cv::Vec3b tmp = cv::Vec3b(255,255,255);
-        led_high.at<cv::Vec3b>(k,i) = tmp;
-
-        for(size_t j = 0; j < (tracker_in->pclouds).size(); j++)
-        { 
-          pcl::PointXYZRGB pt3 = (*tracker_in->pclouds[j])(i, k);
-          if( isnan(pt3.x) || isnan(pt3.y) || isnan(pt3.z) )
-          {
-            continue;
-          }
-          else
-          {
-            pt3ds.push_back(pt3);
-            break;
-          }
-        }
-      }
-    }*/
-
-
 
   }
 //  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);

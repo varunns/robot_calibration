@@ -539,13 +539,14 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     std::cout<<"bounds: "<<bounds.tl().x<<" "<<bounds.tl().y<<std::endl;
     std::cout<<"centers: "<<center_x<<" "<<center_y<<std::endl;
     pcl::PointXYZRGB pt3;
+    int high_val = (int)diff_gray.at<uchar>(round(center_y),round(center_x))
     cv::rectangle(tracker_in->diff_images[1], cv::Rect(round(center_x) -6, round(center_y) -6, 12, 12), cv::Scalar(0,0,255), 1, 8);
     for( size_t i = round(center_x) - 6; i < round(center_x) + 6; i++)
     {
       for( size_t j = round(center_y) - 6; j < round(center_y) +6; j++)
       {
         int val = (int)diff_gray.at<uchar>(j,i);
-        if( val > 90)
+        if( val == high_val)
         {
           cv::rectangle(tracker_in->diff_images[1], cv::Rect(i, j, 1, 1), cv::Scalar(0,0,255), 1, 8);
          
@@ -555,6 +556,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       std::cout<<std::endl;
     }
      localDebugImage(tracker_in->diff_images[1], "/tmp/mean/roi_");
+
+    /*
+      Drawing a Ellipse and getting the center and also considering only those points for centroid
+    */ 
     for(size_t k = 0; k < (tracker_in->pclouds).size(); k++)
     {
       pt3 = (*tracker_in->pclouds[k])((int)center_x, (int)center_y);

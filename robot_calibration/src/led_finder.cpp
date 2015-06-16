@@ -596,7 +596,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 //  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
 //  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/cont_");
   pcl::PointXYZRGB centroid;
- getWeightedCentroid(pt3ds, centroid);
+ //getWeightedCentroid(pt3ds, centroid);
   pcl::PointXYZRGB sum_pt;
   sum_pt.x = 0;
   sum_pt.y = 0;
@@ -610,23 +610,23 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   }
   //populating the reference variable
 
-/*  if(pt3ds.size() > 0)
+  if(pt3ds.size() > 0)
   {
     tracker_in->estimate_led.point.x = sum_pt.x/(pt3ds.size());
     tracker_in->estimate_led.point.y = sum_pt.y/(pt3ds.size());
     tracker_in->estimate_led.point.z = sum_pt.z/(pt3ds.size());
-  }*/
+  }
 
-  tracker_in->estimate_led.point.x = centroid.x;
+/*  tracker_in->estimate_led.point.x = centroid.x;
   tracker_in->estimate_led.point.y = centroid.y;
-  tracker_in->estimate_led.point.z = centroid.z;
+  tracker_in->estimate_led.point.z = centroid.z;*/
 
 
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
- // std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
-  std::cout<<" "<<"predicted using weighing-ing: "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
+  std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
+//  std::cout<<" "<<"predicted using weighing-ing: "<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
 }
 
 /*

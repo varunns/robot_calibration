@@ -553,7 +553,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       }
       std::cout<<std::endl;
     }
-    
+
     for(size_t k = 0; k < (tracker_in->pclouds).size(); k++)
     {
       pt3 = (*tracker_in->pclouds[k])(i,j);
@@ -562,8 +562,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         continue;
       }
       pt3ds.push_back(pt3);
-      break;
-      }
     }
     
 

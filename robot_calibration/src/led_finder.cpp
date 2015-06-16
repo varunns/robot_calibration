@@ -543,7 +543,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     {
       for( size_t j = round(center_y) - 4; j < round(center_y) + 4; j++)
       {
-        std::cout<<diff_gray.at<uchar>(j,i)<<" ";
+        std::cout<<(int)diff_gray.at<uchar>(j,i)<<" ";
 
       }
       std::cout<<std::endl;

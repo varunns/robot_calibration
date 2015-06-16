@@ -448,9 +448,9 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   cv::Mat canny_image;
   int canny_thresh = 60;
   std::vector<cv::Vec4i> hierarchy;
-  std::vector<std::vector<cv::Point> > contours;
+  std::vector<std::vector<cv::Point> > contours_candidate;
   cv::Canny(non_zero, canny_image, canny_thresh, canny_thresh*2, 3);
-  cv::findContours(canny_image, contours, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
+  cv::findContours(canny_image, contours_candidate, hierarchy,CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
   //getting the contour with max mean, as the mean should be highest for the position of led
 
   int max_sum = -1000;
@@ -458,28 +458,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   pcl::PointXYZRGB check_pt; 
   std::vector<std::vector<cv::Point> > contours_candidate;
 
-  for( int i = 0; i < contours.size(); i++)
-  {
-    int count = 0;
-    for( int j = 0; j < contours[i].size(); j++)
-    {
-      cv::Point pt2 = (contours[i])[j];
-      for( int k = 0; k < tracker_in->pclouds.size(); k++)
-      {
-        pcl::PointXYZRGB pt3 = (*tracker_in->pclouds[k])(pt2.x,pt2.y);
-
-        if(pt3.z > 0.1 || pt3.z < 0.2)
-        {
-          count++;
-          break;
-        }
-      }
-    }
-    if( count == 0)
-    {
-      contours_candidate.push_back(contours[i]);
-    }
-  }
 
   for( size_t i = 0; i < contours_candidate.size(); i++)
   {   

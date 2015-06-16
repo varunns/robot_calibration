@@ -209,7 +209,6 @@ public:
  // void getMostAccuratePt(cv::Mat img, std::vector<cv::Point> contour, cv::Point& pt);
 
 private:
-
 struct Hist
 {
   std::vector<cv::Point> pts;

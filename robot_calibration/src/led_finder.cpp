@@ -556,10 +556,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       for( size_t j = round(center_y) - 6; j < round(center_y) +6; j++)
       {
         int val = (int)diff_gray.at<uchar>(j,i);
-        if( val < high_val/2)
+        /*if( val < high_val/2)
         {
           continue;
-        }
+        }*/
         candidate_points.push_back(cv::Point(i,j));
       }
     }
@@ -596,7 +596,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 //  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
 //  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/cont_");
   pcl::PointXYZRGB centroid;
-  getWeightedCentroid(pt3ds, centroid);
+//  getWeightedCentroid(pt3ds, centroid);
   pcl::PointXYZRGB sum_pt;
   sum_pt.x = 0;
   sum_pt.y = 0;
@@ -609,18 +609,18 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     sum_pt.z += pt3ds[i].z;
   }
   //populating the reference variable
-/*
+
   if(pt3ds.size() > 0)
   {
     tracker_in->estimate_led.point.x = sum_pt.x/(pt3ds.size());
     tracker_in->estimate_led.point.y = sum_pt.y/(pt3ds.size());
     tracker_in->estimate_led.point.z = sum_pt.z/(pt3ds.size());
-  }*/
+  }
 
-  tracker_in->estimate_led.point.x = centroid.x;
+/*  tracker_in->estimate_led.point.x = centroid.x;
   tracker_in->estimate_led.point.y = centroid.y;
   tracker_in->estimate_led.point.z = centroid.z;
-
+*/
 
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
 

@@ -458,21 +458,21 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   pcl::PointXYZRGB check_pt; 
   std::vector<std::vector<cv::Point> > contours_candidate;
 
-  for( size_t i = 0; i < contours.size(); i++)
+  for( int i = 0; i < contours.size(); i++)
   {
     int count = 0;
-    for( size_t j = 0; j < contours[i].size(); j++)
+    for( int j = 0; j < contours[i].size(); j++)
     {
       cv::Point pt2 = (contours[i])[j];
-      pcl::PointXYZRGB pt3;
-      for( size_t k = 0; k < tracker_in->pclouds.size(); k++)
+      for( int k = 0; k < tracker_in->pclouds.size(); k++)
       {
-        pt3 = (*tracker_in->pclouds[k])(pt2.x, pt2.y);
-        if( pt3.z > 1.0 || pt3.z < 0.3)
-        {
-          count++;
-          break;
-        }
+        pcl::PointXYZRGB pt3 = (*tracker_in->pclouds[k])(pt2.x,pt2.y);
+      }
+
+      if(pt3.z > 0.1 || pt3.z < 0.2)
+      {
+        count++;
+        break;
       }
     }
     if( count == 0)

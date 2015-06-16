@@ -27,7 +27,6 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/photo/photo.hpp>
 
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/passthrough.h>
@@ -498,7 +497,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   /*cv::circle((tracker_in->diff_images)[10], cv::Point(max_rect.x,max_rect.y), 8, cv::Scalar(0,0,255), 1, 8);
   localDebugImage((tracker_in->diff_images)[10], "/tmp/mean/test_");*/
   //adding weights based on the gray level
-  std::cout<<" I am here 6"<<std::endl;
   if(max_contour.size () > 0 )
   {
     int max = -100;
@@ -515,7 +513,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
           }
         }
     }
-    std::cout<<" I am here 5"<<std::endl;
+
     cv::Mat led_high = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC3);
     for( int i = bounds.tl().x - 5; i < bounds.tl().x + 12; i++)
     {
@@ -547,7 +545,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
   }
 //  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
 //  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/cont_");
-  std::cout<<" I am here 4"<<std::endl;
   pcl::PointXYZRGB centroid;
  // getWeightedCentroid(pt3ds, centroid);
   pcl::PointXYZRGB sum_pt;
@@ -561,7 +558,6 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     sum_pt.y += pt3ds[i].y;
     sum_pt.z += pt3ds[i].z;
   }
-  std::cout<<" I am here 3"<<std::endl;
   //populating the reference variable
 
   if(pt3ds.size() > 0)
@@ -578,9 +574,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
 
-  std::cout<<"I AM HERE"<<std::endl;
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
-  std::cout<<"I AM HERE1"<<std::endl;
   std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;
 
 }

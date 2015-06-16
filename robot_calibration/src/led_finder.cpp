@@ -18,7 +18,6 @@
 
 // Author: Michael Ferguson
 
-#include <math.h>
 #include <robot_calibration/capture/led_finder.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
 #include <sensor_msgs/Image.h>
@@ -42,6 +41,8 @@
 #include <queue>
 #include <sstream>
 #include <boost/make_shared.hpp>
+#include <math.h>
+#include <stdlib.h>
 
 cv::RNG rng(12345);
 typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcloud_;
@@ -519,18 +520,24 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     /*2d centroid of the region*/
     cv::Point pt2d = cv::Point(0,0);
     float total = 0;
-    cv::rectangle(tracker_in->diff_images[1], cv::Rect(bounds.tl().x - 5, bounds.tl().y - 5, 12, 12), cv::Scalar(0,0,255), 1, 8);
-    localDebugImage(tracker_in->diff_images[1], "/tmp/mean/roi_");
-/*    for( int i = bounds.tl().x - 5 ; i < bounds.tl().x - 5 + 12; i++)
+    cv::rectangle(tracker_in->diff_images[1], cv::Rect(bounds.tl().x - 8, bounds.tl().y - 8, 16, 16), cv::Scalar(0,0,255), 1, 8);
+    for( int i = bounds.tl().x - 8 ; i < bounds.tl().x - 8 + 16; i++)
     {
-      for( int j = bounds.tl().y - 5; j < bounds.tl().y - 5 + 12; j++)
+      for( int j = bounds.tl().y - 8; j < bounds.tl().y - 8 + 16; j++)
       {
         float val = (int)diff_gray.at<uchar>(j,i);
         total += val;
         pt2d.x += val*i;
-        pt2d.y += 
+        pt2d.y += val*j;
       }
-    }*/
+    }
+
+    float center_x = (float)(pt2d.x)/total;
+    float center_y = (float)(pt2d.y)/total;
+    cv::rectangle(tracker_in->diff_images[1], cv::Rect((int)(center_x), (int)(center_y), 16, 16), cv::Scalar(0,255,0), 1, 8);
+    localDebugImage(tracker_in->diff_images[1], "/tmp/mean/roi_");
+    std::cout<<"bounds: "<<bounds.tl().x<<" "<<bounds.tl().y<<std::endl;
+    std::cout<<"centers: "<<center_x<<" "<<center_y<<std::endl;
     /**********************************************************************************************************************************/
     /*3d points for the centroid*/
     cv::Mat led_high = cv::Mat::zeros(diff_gray.rows, diff_gray.cols, CV_8UC3);

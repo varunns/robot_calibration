@@ -547,13 +547,13 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         if( val > 90)
         {
           cv::rectangle(tracker_in->diff_images[1], cv::Rect(j, i, 1, 1), cv::Scalar(0,0,255), 1, 8);
-          localDebugImage(tracker_in->diff_images[1], "/tmp/mean/roi_");
+         
         }
 
       }
       std::cout<<std::endl;
     }
-
+     localDebugImage(tracker_in->diff_images[1], "/tmp/mean/roi_");
     for(size_t k = 0; k < (tracker_in->pclouds).size(); k++)
     {
       pt3 = (*tracker_in->pclouds[k])((int)center_x, (int)center_y);

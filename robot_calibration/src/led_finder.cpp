@@ -560,6 +560,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
     /******************************* UNDER CONSTRUCTION **********************************************
       Drawing a Ellipse and getting the center and also considering only those points for centroid
     */ 
+    std::cout<<"candidate_points.size() :"<<candidate_points.size()<<std::endl;
     for( int i = 0; i < candidate_points.size(); i++)
     {
       cv::Point pt = candidate_points[i];

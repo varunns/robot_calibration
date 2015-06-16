@@ -476,7 +476,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         count++;
       }
     }
-    if(flag && count > 0)
+    if(flag && count > 0 && contours_candidate.size() > 4)
     {
       contours.push_back(contours_candidate[i]);
     }

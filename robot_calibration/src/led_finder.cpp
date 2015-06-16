@@ -556,6 +556,10 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
       total += val;
       pt2d.x += val*pt.x;
       pt2d.y += val*pt.y;
+      if(val < high_val/2)
+      {
+        continue;
+      }
       for(size_t k = 0; k < (tracker_in->pclouds).size(); k++)
       {
         pt3 = (*tracker_in->pclouds[k])(pt.x, pt.y);

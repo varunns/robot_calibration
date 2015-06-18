@@ -329,7 +329,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     try
     {
       listener_.transformPoint(trackers_[t].frame_, ros::Time(0), rgbd_pt,
-                               rgbd_pt.header.frame_id, world_pt);
+                               /head_camera_link, world_pt);
     }
     
     catch(const tf::TransformException &ex)

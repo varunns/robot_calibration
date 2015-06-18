@@ -353,7 +353,6 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     std::cout<<"transform trans: "<<transform_curr.getOrigin<<std::endl;
     std::cout<<"transform rot: "<<transform_curr.getQuaternion<<std::endl*/
 
-
     double distance = distancePoints(world_pt.point, trackers_[t].point);
     ROS_INFO("the distance of %d  : %f", led_respective_contours[t]->tracker_id, distance);
 
@@ -603,6 +602,25 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
         break;
       }
     }
+    pcl::PointCloud<pcl::PointXYZRGB> pointcloud;
+    pointcloud.points.resize(pt3ds.size());
+    for( int i = 0; i < pt3ds.size(); i++)
+    {
+      pointcloud.points[i].x = pt3ds[i].x;
+      pointcloud.points[i].y = pt3ds[i].y;
+      pointcloud.points[i].z = pt3ds[i].z;
+      pointcloud.points[i].r = 255;
+      pointcloud.points[i].g = 255;
+      pointcloud.points[i].b = 255;
+    }
+
+    ros::NodeHandle nh_local;
+    ros::Publisher pub = nh_local.advertise<sensor_msgs::PointCloud2>("/debug_led_roi", 10);
+    sensor_msgs::PointCloud2 debug_cloud;
+    pcl::toROSMsg(pointcloud, debug_cloud);
+    debug_cloud.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
+    pub.publish(debug_cloud);
+
     center_x = pt2d.x/total;
     center_y = pt2d.y/total;
     cv::rectangle(tracker_in->diff_images[1], cv::Rect(round(center_x), round(center_y), 3, 3), cv::Scalar(0,0,255), 1, 8);
@@ -639,7 +657,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
 
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
-  std::cout<<"frame: "<<tracker_in->estimate_led.header.frame_id<<std::endl;
+
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;

@@ -325,7 +325,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     geometry_msgs::PointStamped rgbd_pt;
     geometry_msgs::PointStamped world_pt;
     rgbd_pt = led_respective_contours[t]->estimate_led;
-     
+    std::cout<<"frame: "<<trackers_[t].frame_<<std::endl;
     try
     {
       listener_.transformPoint(trackers_[t].frame_, ros::Time(0), rgbd_pt,

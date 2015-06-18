@@ -336,7 +336,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
       ROS_ERROR_STREAM("Failed to transform feature to " << trackers_[t].frame_);
       return false;
     }
-
+/*
     tf::StampedTransform transform_curr;
     try
     {
@@ -349,7 +349,8 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
       ros::Duration(1.0).sleep();
     }
 
-    std::cout<<"transform: "<<transform_curr<<std::endl;
+    std::cout<<"transform trans: "<<transform_curr.getOrigin<<std::endl;
+    std::cout<<"transform rot: "<<transform_curr.getQuaternion<<std::endl*/
 
 
     double distance = distancePoints(world_pt.point, trackers_[t].point);

@@ -73,7 +73,7 @@ class LedFinder : public FeatureFinder
       {
         first_time = flag;
         pt3d = pt;
-  tracker_id = id;
+        tracker_id = id;
       }
     };
 

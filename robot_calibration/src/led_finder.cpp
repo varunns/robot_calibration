@@ -331,12 +331,26 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
       listener_.transformPoint(trackers_[t].frame_, ros::Time(0), rgbd_pt,
                                rgbd_pt.header.frame_id, world_pt);
     }
-
     catch(const tf::TransformException &ex)
     {
       ROS_ERROR_STREAM("Failed to transform feature to " << trackers_[t].frame_);
       return false;
     }
+
+    tf::StampedTransform transform_curr;
+    try
+    {
+      listener_.lookupTransform(trackers_[t].frame_, rgbd_pt.header.frame_id, ros::Time(0), transform_curr);
+    }
+
+    catch (tf::TransformException ex)
+    {
+      ROS_ERROR("%s",ex.what());
+      ros::Duration(1.0).sleep();
+    }
+
+    std::cout<<"transform: "<<transform_curr<<std::endl;
+
 
     double distance = distancePoints(world_pt.point, trackers_[t].point);
     ROS_INFO("the distance of %d  : %f", led_respective_contours[t]->tracker_id, distance);
@@ -596,7 +610,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 //  cv::rectangle(tracker_in->diff_images[0], cv::Rect(max_point.x - 8, max_point.y - 8, 16, 16), cv::Scalar(0,255,0), 1,8);
 //  localDebugImage(tracker_in->diff_images[0], "/tmp/mean/cont_");
   pcl::PointXYZRGB centroid;
- getWeightedCentroid(pt3ds, centroid);
+  getWeightedCentroid(pt3ds, centroid);
   pcl::PointXYZRGB sum_pt;
   sum_pt.x = 0;
   sum_pt.y = 0;

@@ -331,6 +331,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
       listener_.transformPoint(trackers_[t].frame_, ros::Time(0), rgbd_pt,
                                rgbd_pt.header.frame_id, world_pt);
     }
+    std::cout<<"rgbd headerr : "<<""
     catch(const tf::TransformException &ex)
     {
       ROS_ERROR_STREAM("Failed to transform feature to " << trackers_[t].frame_);
@@ -638,6 +639,7 @@ void LedFinder::getCandidateRoi(CloudDifferenceTracker::TrackContoursPtr& tracke
 
 
   tracker_in->estimate_led.header.frame_id = (*tracker_in->pclouds[0]).header.frame_id;
+  std::cout<<"frame: "<<tracker_in->estimate_led.header.frame_id<<std::endl;
 
   std::cout<<" "<<"actual"<<": "<<tracker_in->pt3d.x<<" "<<tracker_in->pt3d.y<<" "<<tracker_in->pt3d.z<<std::endl;
   std::cout<<" "<<"predicted using Avg-ing: "<<sum_pt.x/(pt3ds.size())<<" "<<sum_pt.y/(pt3ds.size())<<" "<<sum_pt.z/(pt3ds.size())<<std::endl;

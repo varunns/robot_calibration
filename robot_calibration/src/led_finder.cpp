@@ -331,7 +331,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
       listener_.transformPoint(trackers_[t].frame_, ros::Time(0), rgbd_pt,
                                rgbd_pt.header.frame_id, world_pt);
     }
-    std::cout<<"rgbd headerr : "<<""
+    
     catch(const tf::TransformException &ex)
     {
       ROS_ERROR_STREAM("Failed to transform feature to " << trackers_[t].frame_);

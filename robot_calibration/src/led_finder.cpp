@@ -328,7 +328,7 @@ bool LedFinder::find(robot_calibration_msgs::CalibrationData * msg)
     std::cout<<"frame: "<<trackers_[t].frame_<<std::endl;
     try
     {
-      listener_.transformPoint(wrist_flex_link, ros::Time(0), rgbd_pt,
+      listener_.transformPoint("/wrist_flex_link", ros::Time(0), rgbd_pt,
                                rgbd_pt.header.frame_id, world_pt);
     }
     
